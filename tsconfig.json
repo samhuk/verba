@@ -6,7 +6,6 @@
     "target": "es6",
     "moduleResolution": "node",
     "allowJs": false,
-    "strictNullChecks": false,
 		"noEmit": true,
 		"strict": true,
 		"isolatedModules": true,

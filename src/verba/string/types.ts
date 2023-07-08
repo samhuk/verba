@@ -9,4 +9,16 @@ export type NormalizeVerbaStringOptions = {
   disableColors?: boolean
 }
 
-export type VerbaString = string | ((c: Colors) => string)
+export type FancyString = (c: Colors) => string
+
+export type VerbaString = string | FancyString
+
+export type StringFormat = Exclude<
+  keyof Colors,
+  'disable'
+  | 'enable'
+  | 'enabled'
+  | 'setTheme'
+  | 'strip'
+  | 'stripColors'
+>

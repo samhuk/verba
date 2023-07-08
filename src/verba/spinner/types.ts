@@ -1,12 +1,13 @@
-import { Color } from 'ora'
+import { Color } from 'ora-classic'
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { SpinnerName } from 'cli-spinners'
 import { VerbaString } from '../string/types'
 
 export type SpinnerOptions = {
-  text: string
+  text?: VerbaString
   color?: Color
-  spinner: SpinnerName
+  spinner?: SpinnerName
+  indentation?: number
 }
 
 export type Spinner = {

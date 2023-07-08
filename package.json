@@ -32,7 +32,7 @@
     "build-ts": "npm run clean-ts && tsc -p ./tsconfig.all.json",
     "clean-examples": "rimraf ./build-examples",
     "build-examples": "tsc -p ./tsconfig.examples.json",
-    "run-example": "node ./build-examples/app/index.js",
+    "run-example": "node --experimental-modules ./build-examples/examples/app/index.js",
     "example": "npm run clean-examples && npm run build-examples && npm run run-example",
     "clean": "npm run clean-unit-tests && npm run clean-integration-tests && npm run clean-ts && npm run clean-ts-dist && npm run clean-examples",
     "check": "npm rum lint-errors-only && npm run build-ts && npm run tests && echo Done!"
@@ -49,7 +49,7 @@
   "dependencies": {
     "colors": "^1.4.0",
     "columnify": "^1.6.0",
-    "ora": "^6.3.1"
+    "ora-classic": "^5.4.2"
   },
   "devDependencies": {
     "@types/jest": "^29.1.2",
