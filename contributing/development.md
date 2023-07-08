@@ -30,19 +30,9 @@ Jest is used for unit testing. To build and run the unit tests, run `npm run uni
 
 The unit tests can be debugged with Visual Studio Code by running the **Run Unit Tests** debug task.
 
-### Integration Tests
-
-Integration tests connect to a real PostgreSQL server and use ts-pg-orm as a user would.
-
-The database connectivity configuration is at `.env-cmdrc.json`.
-
-To run the integration tests, run `npm run integration-tests`.
-
-The integration tests can be debugged with Visual Studio Code by running the **Run Integration Tests** debug task.
-
 ## Miscellaneous Scripts
 
-`npm run check` - Useful to run before committing to check the full validity of a change. This runs linting, Typescript build, unit tests and integration tests.
+`npm run check` - Useful to run before committing to check the full validity of a change. This runs linting, Typescript build, and unit tests.
 
 ## Pull Requests
 
@@ -51,7 +41,6 @@ Pull requests automatically run a CI pipeline that checks various criteria:
 * Linting
 * Typescript build
 * Unit tests
-* Integration tests
 
 These must pass for a pull request to be approved and merged.
 
