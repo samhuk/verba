@@ -1,24 +1,32 @@
-import { createSpinner } from './spinner'
-import { Spinner } from './spinner/types'
-import { normalizeVerbaString, renderFancyString } from './string'
-import { StringFormat } from './string/types'
 import { AnyOutletOptions, NestOptions, VerbaLogger, VerbaLoggerOptions } from './types'
+import { normalizeVerbaString, renderFancyString } from './string'
+
+import { Spinner } from './spinner/types'
+import { StringFormat } from './string/types'
 import { createIndentationString } from './util/indentation'
+import { createSpinner } from './spinner'
 import { repeatStr } from './util/string'
+
+const createOutletPrefix = (name: string, format: StringFormat) => renderFancyString(c => `${c[format](c.bold(name))} `)
+
+const createCodeStr = (code: string | number | undefined) => (code != null
+  ? `${renderFancyString(c => c.magenta(String(code)))} `
+  : '')
 
 const baseLog = (
   prefix: string,
   indentationString: string,
   options: AnyOutletOptions,
+  baseCode: string | number | undefined,
 ) => {
   if (typeof options !== 'object') {
-    console.log(indentationString + prefix + normalizeVerbaString(options))
+    const codeStr = createCodeStr(baseCode)
+    console.log(indentationString + prefix + codeStr + normalizeVerbaString(options))
     return
   }
 
-  const codeStr = options.code != null
-    ? `${renderFancyString(c => c.magenta(String(options.code)))} `
-    : ''
+  const code = options.code ?? baseCode
+  const codeStr = createCodeStr(code)
 
   if (Array.isArray(options.msg)) {
     // eslint-disable-next-line max-len
@@ -29,7 +37,16 @@ const baseLog = (
   console.log(indentationString + prefix + codeStr + normalizeVerbaString(options.msg))
 }
 
-const createOutletPrefix = (name: string, format: StringFormat) => renderFancyString(c => `${c[format](c.bold(name))} `)
+const getBaseCode = (
+  nestOptionsList: NestOptions[],
+): string | number | undefined => {
+  for (let i = nestOptionsList.length; i >= 0; i -= 1) {
+    if (nestOptionsList[i]?.code != null)
+      return nestOptionsList[i].code
+  }
+
+  return undefined
+}
 
 const _createVerbaLogger = <
   TCode extends string | number = string | number,
@@ -44,54 +61,57 @@ const _createVerbaLogger = <
   const successOutletPrefix = createOutletPrefix('✔', 'green')
   const warnOutletPrefix = renderFancyString(c => `${c.yellow(c.underline(c.bold('WARN')))} `)
 
+  const baseCode = getBaseCode(nestOptionsList)
+
   return {
-    log: msg => {
-      console.log(normalizeVerbaString(msg))
-    },
+    log: msg => console.log(normalizeVerbaString(msg)),
     info: _options => {
-      baseLog(infoOutletPrefix, indentationString, _options)
+      baseLog(infoOutletPrefix, indentationString, _options, baseCode)
     },
     step: _options => {
       const showSpinner = typeof _options === 'object' && (_options?.spinner != null && _options?.spinner !== false)
       if (!showSpinner) {
-        baseLog(stepOutletPrefix, indentationString, _options)
+        baseLog(stepOutletPrefix, indentationString, _options, baseCode)
         return undefined as any
       }
 
-      const codeStr = _options.code != null
-        ? `${renderFancyString(c => c.magenta(String(_options.code)))} `
-        : ''
-
-      const msgNoCode = Array.isArray(_options.msg)
+      const code = _options.code ?? baseCode
+      const codeStr = createCodeStr(code)
+      const msg = Array.isArray(_options.msg)
         ? _options.msg.map(s => normalizeVerbaString(s)).join(`\n${indentationString}`)
         : normalizeVerbaString(_options.msg)
 
       const spinner = createSpinner(
         typeof _options.spinner === 'boolean'
           ? {
-            text: codeStr + msgNoCode,
+            text: codeStr + msg,
             color: 'cyan',
-            indentation: nestOptions.indent,
+            indentation,
           }
-          : { ..._options.spinner, indentation: _options.spinner?.indentation ?? nestOptions.indent },
+          : {
+            ..._options.spinner,
+            indentation: _options.spinner?.indentation ?? indentation,
+          },
       )
+
       const wrappedSpinner: Spinner = {
         color: spinner.color,
         stop: spinner.stop,
-        text: s => spinner.text(_options.code != null ? s : codeStr + normalizeVerbaString(s)),
+        text: s => spinner.text(code != null ? codeStr + normalizeVerbaString(s) : s),
       }
+
       return wrappedSpinner
     },
     success: _options => {
-      baseLog(successOutletPrefix, indentationString, _options)
+      baseLog(successOutletPrefix, indentationString, _options, baseCode)
     },
     warn: _options => {
-      baseLog(warnOutletPrefix, indentationString, _options)
+      baseLog(warnOutletPrefix, indentationString, _options, baseCode)
     },
     error: _options => undefined,
     table: _options => undefined,
     nest: _options => _createVerbaLogger(options, nestOptionsList.concat(_options)),
-    divider: () => console.log(repeatStr('-', process.stdout.columns / 2)),
+    divider: () => console.log(repeatStr('-', process.stdout.columns * 0.33)),
     spacer: numLines => console.log(repeatStr('\n', (numLines ?? 1 - 1))),
   }
 }

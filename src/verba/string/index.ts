@@ -1,5 +1,6 @@
-import colors from 'colors/safe'
 import { Colors, FancyString, NormalizeVerbaStringOptions, VerbaString } from './types'
+
+import colors from 'colors/safe'
 
 const colorizer: Colors = colors
 const decolorizer: Colors = {
@@ -35,12 +36,12 @@ const decolorizer: Colors = {
   trap: s => s,
   random: s => s,
   zalgo: s => s,
-  disable: undefined,
-  enable: undefined,
-  enabled: undefined,
-  setTheme: undefined,
-  strip: undefined,
-  stripColors: undefined,
+  disable: () => undefined,
+  enable: () => undefined,
+  enabled: true,
+  setTheme: () => undefined,
+  strip: () => '',
+  stripColors: () => '',
 }
 
 export const normalizeVerbaString = (s: VerbaString, options?: NormalizeVerbaStringOptions): string => (
