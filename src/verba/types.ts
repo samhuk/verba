@@ -1,10 +1,17 @@
 import { Spinner, SpinnerOptions } from './spinner/types'
 
+import { GlobalOptions as ColumifyOptions } from 'columnify'
 import { VerbaString } from './string/types'
 
 export type VerbaLoggerOptions = {
-
+  outletPrefixes?: SimpleOutletPrefixesOptions
 }
+
+type SimpleOutlets = 'info' | 'step' | 'success' | 'warn' | 'error'
+
+type SimpleOutletPrefixesOptions = Partial<Record<SimpleOutlets, VerbaString>>
+
+export type SimpleOutletPrefixes = Record<SimpleOutlets, string>
 
 type BaseOutletOptions<
   TCode extends string | number = string | number,
@@ -72,7 +79,7 @@ export type VerbaLogger<
   success: (options: SuccessOptions<TCode>) => void
   warn: (options: WarnOptions<TCode>) => void
   error: (options: ErrorOptions<TCode>) => void
-  table: (data: any, columns: string[]) => void
+  table: (data: any, options?: ColumifyOptions) => void
   nest: (options: NestOptions<TCode>) => VerbaLogger<TOptions, TCode, TData>
   spacer: (numLines?: number) => void
   divider: () => void

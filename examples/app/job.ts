@@ -1,5 +1,5 @@
-import { renderFancyString } from '../../src/verba/string'
 import logger from './log'
+import { renderFancyString } from '../../src/verba/string'
 import { sleep } from './util'
 
 const log = logger.nest({ code: 'JOB' })
@@ -12,9 +12,9 @@ export const doJob = async (jobName: string) => {
     spinner: true,
   })
 
-  for (let i = 0; i < 100; i += 5) {
+  for (let i = 0; i < 100; i += 20) {
     // eslint-disable-next-line no-await-in-loop
-    await sleep(0.05)
+    await sleep(0.1)
     spinner.text(c => `${baseLogText} | ${c.bold(i.toString())}%`)
   }
 

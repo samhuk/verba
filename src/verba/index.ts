@@ -1,8 +1,9 @@
-import { AnyOutletOptions, NestOptions, VerbaLogger, VerbaLoggerOptions } from './types'
+import { AnyOutletOptions, NestOptions, SimpleOutletPrefixes, VerbaLogger, VerbaLoggerOptions } from './types'
 import { normalizeVerbaString, renderFancyString } from './string'
 
 import { Spinner } from './spinner/types'
 import { StringFormat } from './string/types'
+import columify from 'columnify'
 import { createIndentationString } from './util/indentation'
 import { createSpinner } from './spinner'
 import { repeatStr } from './util/string'
@@ -56,22 +57,25 @@ const _createVerbaLogger = <
   const indentation = nestOptionsList.reduce((acc, no) => acc + (no.indent ?? 0), 0)
   const indentationString = createIndentationString(indentation)
 
-  const infoOutletPrefix = createOutletPrefix('i', 'gray')
-  const stepOutletPrefix = createOutletPrefix('*', 'cyan')
-  const successOutletPrefix = createOutletPrefix('✔', 'green')
-  const warnOutletPrefix = renderFancyString(c => `${c.yellow(c.underline(c.bold('WARN')))} `)
-
   const baseCode = getBaseCode(nestOptionsList)
+
+  const simpleOutletPrefixes: SimpleOutletPrefixes = {
+    info: options.outletPrefixes?.info != null ? normalizeVerbaString(options.outletPrefixes?.info) : createOutletPrefix('i', 'gray'),
+    step: options.outletPrefixes?.step != null ? normalizeVerbaString(options.outletPrefixes?.step) : createOutletPrefix('*', 'cyan'),
+    success: options.outletPrefixes?.success != null ? normalizeVerbaString(options.outletPrefixes?.success) : createOutletPrefix('✔', 'green'),
+    warn: options.outletPrefixes?.warn != null ? normalizeVerbaString(options.outletPrefixes?.warn) : renderFancyString(c => `${c.yellow(c.underline(c.bold('WARN')))} `),
+    error: options.outletPrefixes?.error != null ? normalizeVerbaString(options.outletPrefixes?.error) : '',
+  }
 
   return {
     log: msg => console.log(normalizeVerbaString(msg)),
     info: _options => {
-      baseLog(infoOutletPrefix, indentationString, _options, baseCode)
+      baseLog(simpleOutletPrefixes.info, indentationString, _options, baseCode)
     },
     step: _options => {
       const showSpinner = typeof _options === 'object' && (_options?.spinner != null && _options?.spinner !== false)
       if (!showSpinner) {
-        baseLog(stepOutletPrefix, indentationString, _options, baseCode)
+        baseLog(simpleOutletPrefixes.step, indentationString, _options, baseCode)
         return undefined as any
       }
 
@@ -103,13 +107,15 @@ const _createVerbaLogger = <
       return wrappedSpinner
     },
     success: _options => {
-      baseLog(successOutletPrefix, indentationString, _options, baseCode)
+      baseLog(simpleOutletPrefixes.success, indentationString, _options, baseCode)
     },
     warn: _options => {
-      baseLog(warnOutletPrefix, indentationString, _options, baseCode)
+      baseLog(simpleOutletPrefixes.warn, indentationString, _options, baseCode)
     },
     error: _options => undefined,
-    table: _options => undefined,
+    table: (data, _options) => {
+      console.log(columify(data, _options))
+    },
     nest: _options => _createVerbaLogger(options, nestOptionsList.concat(_options)),
     divider: () => console.log(repeatStr('-', process.stdout.columns * 0.33)),
     spacer: numLines => console.log(repeatStr('\n', (numLines ?? 1 - 1))),

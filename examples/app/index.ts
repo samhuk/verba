@@ -1,8 +1,7 @@
-import log from './log'
-import { sleep } from './util'
-import { doJobs } from './jobs'
 import { connectToDb } from './db'
+import { doJobs } from './jobs'
 import { healthcheckAPI } from './api'
+import log from './log'
 import { tearDownEnv } from './teardown'
 
 const JOBS = [
@@ -39,6 +38,16 @@ const main = async () => {
   await doJobs(JOBS)
 
   await tearDownEnv()
+
+  const mockMetrics = JOBS.map(jobName => ({
+    'Job Name': jobName,
+    'Time Taken (s)': (Math.random() * 5).toFixed(1),
+    'People Encountered': Math.round(Math.random() * 5),
+  }))
+
+  log.spacer()
+
+  log.table(mockMetrics)
 
   log.spacer()
 
