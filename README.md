@@ -16,7 +16,7 @@
 </p>
 
 <div align="center">
-  <b>NOTE: WIP project. NPM package TBD.</b>
+  <b>NOTE: WIP project.</b>
 </div>
 
 <div align="center">
