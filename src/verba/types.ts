@@ -20,7 +20,7 @@ export type VerbaLoggerOptions = {
 
 type SimpleOutlets = 'info' | 'step' | 'success' | 'warn' | 'error'
 
-type SimpleOutletPrefixesOptions = Partial<Record<SimpleOutlets, VerbaString>>
+export type SimpleOutletPrefixesOptions = Partial<Record<SimpleOutlets, VerbaString>>
 
 export type SimpleOutletPrefixes = Record<SimpleOutlets, string>
 

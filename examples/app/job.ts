@@ -4,7 +4,7 @@ import logger from './log'
 import { renderFancyString } from '../../src/verba/string'
 import { sleep } from './util'
 
-const log = logger.nest({ code: 'JOB' })
+const log = logger.nest({ code: 'JOB', indent: 2 })
 
 export const doJob = async (jobName: string) => {
   const baseLogText = renderFancyString(c => `Doing job ${c.cyan(jobName)}`)

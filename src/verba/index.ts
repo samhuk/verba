@@ -1,6 +1,6 @@
 import columify from 'columnify'
 
-import { AnyOutletOptions, NestOptions, SimpleOutletPrefixes, VerbaLogger, VerbaLoggerOptions } from './types'
+import { AnyOutletOptions, NestOptions, SimpleOutletPrefixes, SimpleOutletPrefixesOptions, VerbaLogger, VerbaLoggerOptions } from './types'
 import { normalizeVerbaString, renderFancyString } from './string'
 import { Spinner } from './spinner/types'
 import { StringFormat } from './string/types'
@@ -9,6 +9,14 @@ import { createSpinner } from './spinner'
 import { repeatStr } from './util/string'
 
 const createOutletPrefix = (name: string, format: StringFormat) => renderFancyString(c => `${c[format](c.bold(name))} `)
+
+const DEFAULT_SIMPLE_OUTLET_PREFIXES: SimpleOutletPrefixes = {
+  info: createOutletPrefix('i', 'gray'),
+  step:  createOutletPrefix('*', 'cyan'),
+  success: createOutletPrefix('✔', 'green'),
+  warn: renderFancyString(c => `${c.yellow(c.underline(c.bold('WARN')))} `),
+  error: '',
+}
 
 const createCodeStr = (code: string | number | undefined) => (code != null
   ? `${renderFancyString(c => c.magenta(String(code)))} `
@@ -49,6 +57,14 @@ const getBaseCode = (
   return undefined
 }
 
+const mergeProvidedSimpleOutletPrefixesWithDefaults = (outletPrefixes: SimpleOutletPrefixesOptions | undefined): SimpleOutletPrefixes => ({
+  info: outletPrefixes?.info != null ? normalizeVerbaString(outletPrefixes?.info) : DEFAULT_SIMPLE_OUTLET_PREFIXES.info,
+  step: outletPrefixes?.step != null ? normalizeVerbaString(outletPrefixes?.step) : DEFAULT_SIMPLE_OUTLET_PREFIXES.step,
+  success: outletPrefixes?.success != null ? normalizeVerbaString(outletPrefixes?.success) : DEFAULT_SIMPLE_OUTLET_PREFIXES.success,
+  warn: outletPrefixes?.warn != null ? normalizeVerbaString(outletPrefixes?.warn) : DEFAULT_SIMPLE_OUTLET_PREFIXES.warn,
+  error: outletPrefixes?.error != null ? normalizeVerbaString(outletPrefixes?.error) : DEFAULT_SIMPLE_OUTLET_PREFIXES.error,
+})
+
 const _createVerbaLogger = <
   TCode extends string | number = string | number,
   TData extends any = any,
@@ -59,13 +75,7 @@ const _createVerbaLogger = <
 
   const baseCode = getBaseCode(nestOptionsList)
 
-  const simpleOutletPrefixes: SimpleOutletPrefixes = {
-    info: options.outletPrefixes?.info != null ? normalizeVerbaString(options.outletPrefixes?.info) : createOutletPrefix('i', 'gray'),
-    step: options.outletPrefixes?.step != null ? normalizeVerbaString(options.outletPrefixes?.step) : createOutletPrefix('*', 'cyan'),
-    success: options.outletPrefixes?.success != null ? normalizeVerbaString(options.outletPrefixes?.success) : createOutletPrefix('✔', 'green'),
-    warn: options.outletPrefixes?.warn != null ? normalizeVerbaString(options.outletPrefixes?.warn) : renderFancyString(c => `${c.yellow(c.underline(c.bold('WARN')))} `),
-    error: options.outletPrefixes?.error != null ? normalizeVerbaString(options.outletPrefixes?.error) : '',
-  }
+  const simpleOutletPrefixes = mergeProvidedSimpleOutletPrefixesWithDefaults(options.outletPrefixes)
 
   return {
     log: msg => console.log(normalizeVerbaString(msg)),

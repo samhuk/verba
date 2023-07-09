@@ -19,6 +19,9 @@ export const createSpinner = (options?: SpinnerOptions): Spinner => {
     color: c => spinner.color = c,
     text: t => spinner.text = normalizeVerbaString(t),
     stop: () => spinner.stop(),
-    stopAndPersist: () => spinner.stopAndPersist(),
+    stopAndPersist: () => {
+      spinner.stop()
+      console.log(spinner.frame())
+    },
   }
 }

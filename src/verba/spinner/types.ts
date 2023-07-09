@@ -35,7 +35,7 @@ export type Spinner = {
    */
   stop: () => void;
   /**
-   * Stops the spinner, however leaves the current text of the spinner in the console line.
+   * Stops the spinner however keeps the latest frame on the console line.
    */
   stopAndPersist: () => void;
 }

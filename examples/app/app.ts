@@ -37,6 +37,7 @@ export const app = async (jobs: string[]) => {
     log.success(c => c.green(c.bold('Done!')))
   }
   catch (e) {
+    log.spacer()
     const _e = e as GFError | Error
     if (isGFError(_e)) {
       _e.log()
