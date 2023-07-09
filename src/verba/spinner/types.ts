@@ -1,5 +1,4 @@
 import { Color } from 'ora-classic'
-// eslint-disable-next-line import/no-extraneous-dependencies
 import { SpinnerName } from 'cli-spinners'
 import { VerbaString } from '../string/types'
 
