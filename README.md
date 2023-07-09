@@ -25,7 +25,7 @@
 
 ## Overview
 
-End-game Javascript logging and error library.
+End-game Javascript logging library.
 
 ## Examples
 

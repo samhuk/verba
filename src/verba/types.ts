@@ -1,4 +1,3 @@
-import { GFError } from 'good-flow'
 import { GlobalOptions as ColumifyOptions } from 'columnify'
 
 import { Spinner, SpinnerOptions } from './spinner/types'
@@ -186,7 +185,8 @@ export type VerbaLogger<
    * })
    */
   warn: (options: WarnOptions<TCode>) => void
-  error: (options: GFError<{ code: TCode, [prop: string]: any }>) => void
+  // TODO: Implement errors, using good-flow?
+  // error: (options: GFError<{ code: TCode, [prop: string]: any }>) => void
   /**
    * Prints the given data as a table using [columnify](https://github.com/timoxley/columnify).
    *

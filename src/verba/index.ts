@@ -113,7 +113,7 @@ const _createVerbaLogger = <
     warn: _options => {
       baseLog(simpleOutletPrefixes.warn, indentationString, _options, baseCode)
     },
-    error: _options => undefined,
+    // error: _options => undefined,
     table: (data, _options) => {
       console.log(columify(data, _options))
     },
