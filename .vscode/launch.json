@@ -33,5 +33,16 @@
       ],
       "preLaunchTask": "exampleDebugPreLaunchTask"
     },
+    {
+      "name": "Example (Error)",
+      "type": "node",
+      "request": "launch",
+      "program": "./build-examples/examples/error-app/index.js",
+      "args": [
+          "--runInBand",
+          "--no-cache"
+      ],
+      "preLaunchTask": "exampleDebugPreLaunchTask"
+    },
   ]
 }

@@ -4,9 +4,21 @@ import { SpinnerName } from 'cli-spinners'
 import { VerbaString } from '../string/types'
 
 export type SpinnerOptions = {
+  /**
+   * The text of the spinner.
+   */
   text?: VerbaString
+  /**
+   * The color of the spinner.
+   */
   color?: Color
+  /**
+   * The type of spinner.
+   */
   spinner?: SpinnerName
+  /**
+   * The indentation of the spinner.
+   */
   indentation?: number
 }
 
@@ -20,7 +32,11 @@ export type Spinner = {
    */
   color: (color: Color) => void
   /**
-   * Stop the spinner and clears the console line.
+   * Stops the spinner and clears the console line.
    */
   stop: () => void;
+  /**
+   * Stops the spinner, however leaves the current text of the spinner in the console line.
+   */
+  stopAndPersist: () => void;
 }

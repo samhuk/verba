@@ -1,8 +1,8 @@
-import { Spinner, SpinnerOptions } from './types'
+import ora from 'ora-classic'
 
+import { Spinner, SpinnerOptions } from './types'
 import { createIndentationString } from '../util/indentation'
 import { normalizeVerbaString } from '../string'
-import ora from 'ora-classic'
 
 export const createSpinner = (options?: SpinnerOptions): Spinner => {
   const spinner = ora({
@@ -19,5 +19,6 @@ export const createSpinner = (options?: SpinnerOptions): Spinner => {
     color: c => spinner.color = c,
     text: t => spinner.text = normalizeVerbaString(t),
     stop: () => spinner.stop(),
+    stopAndPersist: () => spinner.stopAndPersist(),
   }
 }

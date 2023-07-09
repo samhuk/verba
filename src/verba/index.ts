@@ -1,9 +1,9 @@
+import columify from 'columnify'
+
 import { AnyOutletOptions, NestOptions, SimpleOutletPrefixes, VerbaLogger, VerbaLoggerOptions } from './types'
 import { normalizeVerbaString, renderFancyString } from './string'
-
 import { Spinner } from './spinner/types'
 import { StringFormat } from './string/types'
-import columify from 'columnify'
 import { createIndentationString } from './util/indentation'
 import { createSpinner } from './spinner'
 import { repeatStr } from './util/string'
@@ -99,9 +99,10 @@ const _createVerbaLogger = <
       )
 
       const wrappedSpinner: Spinner = {
+        text: s => spinner.text(code != null ? codeStr + normalizeVerbaString(s) : s),
         color: spinner.color,
         stop: spinner.stop,
-        text: s => spinner.text(code != null ? codeStr + normalizeVerbaString(s) : s),
+        stopAndPersist: () => spinner.stopAndPersist(),
       }
 
       return wrappedSpinner
