@@ -30,6 +30,28 @@ Jest is used for unit testing. To build and run the unit tests, run `npm run uni
 
 The unit tests can be debugged with Visual Studio Code by running the **Run Unit Tests** debug task.
 
+## Examples
+
+An example app that fully demonstrates the usage of Verba is at [./examples/app](./examples/app).
+
+To run the example:
+1. Clone repository:
+    ```bash
+    git clone https://github.com/samhuk/verba.git && cd verba
+    ```
+2. Install NPM dependencies:
+    ```bash
+    npm i
+    ```
+3. Run:
+    ```bash
+    npm run example
+    ```
+4. Alternatively, run the example app that errors to demonstrate error emission and handling:
+    ```bash
+    npm run error-example
+    ```
+
 ## Miscellaneous Scripts
 
 `npm run check` - Useful to run before committing to check the full validity of a change. This runs linting, Typescript build, and unit tests.

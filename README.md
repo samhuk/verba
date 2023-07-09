@@ -4,8 +4,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/samhuk/verba/actions/workflows/ci.yaml/badge.svg" target="_blank">
-    <img src="https://github.com/samhuk/verba/actions/workflows/ci.yaml/badge.svg" alt="ci status" />
+  <a href="https://github.com/samhuk/verba/actions/workflows/build.yml/badge.svg" target="_blank">
+    <img src="https://github.com/samhuk/verba/actions/workflows/build.yml/badge.svg" alt="build status" />
   </a>
   <a href="https://img.shields.io/badge/License-MIT-green.svg" target="_blank">
     <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="license" />
@@ -15,20 +15,23 @@
   </a>
 </p>
 
+<div align="center">
+  <b>NOTE: WIP project. NPM package TBD.</b>
+</div>
+
+<div align="center">
+  <img src="./img/demo.gif" />
+</div>
+
 ## Overview
 
 End-game Javascript logging and error library.
 
-
-## Usage
-
-```typescript
-import verba from 'verba'
-
-
-```
-
 ## Examples
+
+An example app that fully demonstrates the usage of Verba is at [./examples/app](./examples/app).
+
+To see how to run the examples locally, see [./contributing/development.md#examples](./contributing/development.md#examples).
 
 ## Development
 
