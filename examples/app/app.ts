@@ -1,4 +1,4 @@
-import { createGFError } from 'good-flow'
+import { GFError, createGFError, isGFError } from 'good-flow'
 
 import { connectToDb } from './db'
 import { doJobs } from './jobs'
@@ -37,10 +37,16 @@ export const app = async (jobs: string[]) => {
     log.success(c => c.green(c.bold('Done!')))
   }
   catch (e) {
-    createGFError({
-      msg: 'An error occured.',
-      inner: e as any,
-    }).log()
+    const _e = e as GFError | Error
+    if (isGFError(_e)) {
+      _e.log()
+    }
+    else {
+      createGFError({
+        msg: 'An unexpected error occured.',
+        inner: _e,
+      }).log()
+    }
     process.exit(1)
   }
 
