@@ -26,12 +26,12 @@ export const doJobs = async (
     })
   }
   catch (e) {
-    throw (createGFError({
+    throw createGFError({
       msg: 'Could not execute jobs',
       data: {
         code: 'JOBS',
       },
       inner: e as any,
-    }))
+    })
   }
 }

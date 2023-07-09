@@ -1,6 +1,6 @@
 import { Code } from './codes'
-import { createVerbaLogger } from '../../src'
+import verba from '../../src'
 
-const log = createVerbaLogger<Code>()
+const log = verba<Code>()
 
 export default log

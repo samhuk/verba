@@ -1,6 +1,6 @@
-import { Colors, FancyString, NormalizeVerbaStringOptions, VerbaString } from './types'
-
 import colors from 'colors/safe'
+
+import { Colors, FancyString, NormalizeVerbaStringOptions, VerbaString } from './types'
 
 const colorizer: Colors = colors
 const decolorizer: Colors = {

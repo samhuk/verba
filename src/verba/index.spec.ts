@@ -1,11 +1,12 @@
-import { createPackageName } from '.'
+import { createVerbaLogger } from '.'
 
-describe('package-name', () => {
-  describe('createPackageName', () => {
-    const fn = createPackageName
+describe('verba', () => {
+  describe('createVerbaLogger', () => {
+    const fn = createVerbaLogger
 
     test('basic test', () => {
-      expect(fn({ a: 1, b: 2 })).toEqual({ sum: 3 })
+      const instance = fn()
+      expect(instance).toBeDefined()
     })
   })
 })

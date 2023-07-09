@@ -1,8 +1,8 @@
+import { GFError } from 'good-flow'
 import { GlobalOptions as ColumifyOptions } from 'columnify'
 
 import { Spinner, SpinnerOptions } from './spinner/types'
 import { VerbaString } from './string/types'
-import { GFError } from 'good-flow'
 
 export type VerbaLoggerOptions = {
   /**

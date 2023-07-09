@@ -17,8 +17,16 @@
 
 ## Overview
 
+End-game Javascript logging and error library.
 
-## Usage Overview
+
+## Usage
+
+```typescript
+import verba from 'verba'
+
+
+```
 
 ## Examples
 

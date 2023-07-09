@@ -1,0 +1,30 @@
+name: build
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+jobs:
+  buildAndUnitTests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [14.x, 16.x, 18.x]
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+    - name: Install dependencies
+      run: npm install
+    - name: Lint
+      run: npm run lint-errors-only
+    - name: Build
+      run: npm run build-ts
+    - name: Unit tests
+      run: npm run unit-tests
+    - name: Build Examples
+      run: npm run build-examples
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3

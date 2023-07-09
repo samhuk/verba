@@ -5,5 +5,8 @@
  * E.g. `import { createPackageName, PackageNameOptions } from 'npm-package-name`
  */
 
-export { createVerbaLogger } from './verba'
+import { createVerbaLogger } from './verba'
+
+export default createVerbaLogger
+
 export * from './types'
