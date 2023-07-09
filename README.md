@@ -1,4 +1,4 @@
-<h1 align="center">verba</h1>
+<h1 align="center">Verba</h1>
 <p align="center">
   <em>Node logging library</em>
 </p>

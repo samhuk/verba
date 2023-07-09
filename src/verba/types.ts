@@ -97,6 +97,14 @@ export type NestOptions<
   TCode extends string | number = string | number,
 > = { indent?: number, code?: TCode }
 
+/**
+ * Creates a Verba logger.
+ *
+ * @example
+ * import verba from 'verba'
+ * const log = verba()
+ * log.info('Hello, world!')
+ */
 export type VerbaLogger<
   TOptions extends VerbaLoggerOptions = VerbaLoggerOptions,
   TCode extends string | number = string | number,
