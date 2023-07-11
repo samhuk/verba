@@ -11,6 +11,6 @@ export const tearDownEnv = async () => {
 
   await sleep(2)
 
-  spinner.stop()
+  spinner.destroy()
   log.success('Env teardown complete.')
 }

@@ -1,6 +1,6 @@
-import { GlobalOptions as ColumifyOptions } from 'columnify'
-
 import { Spinner, SpinnerOptions } from './spinner/types'
+
+import { GlobalOptions as ColumifyOptions } from 'columnify'
 import { VerbaString } from './string/types'
 
 export type VerbaLoggerOptions = {
@@ -18,13 +18,13 @@ export type VerbaLoggerOptions = {
   outletPrefixes?: SimpleOutletPrefixesOptions
 }
 
-type SimpleOutlets = 'info' | 'step' | 'success' | 'warn' | 'error'
+export type SimpleOutlet = 'info' | 'step' | 'success' | 'warn' | 'error'
 
-export type SimpleOutletPrefixesOptions = Partial<Record<SimpleOutlets, VerbaString>>
+export type SimpleOutletPrefixesOptions = Partial<Record<SimpleOutlet, VerbaString>>
 
-export type SimpleOutletPrefixes = Record<SimpleOutlets, string>
+export type SimpleOutletPrefixes = Record<SimpleOutlet, string>
 
-type BaseOutletOptions<
+export type BaseOutletOptions<
   TCode extends string | number = string | number,
   TData extends any = any,
 > = {
@@ -47,9 +47,10 @@ type InfoOptions<
   TData extends any = any,
 > = VerbaString | BaseOutletOptions<TCode, TData>
 
-type StepOptions<
+export type StepOptions<
   TCode extends string | number = string | number,
   TData extends any = any,
+  TSpinner extends boolean | Omit<SpinnerOptions, 'text'> = boolean | Omit<SpinnerOptions, 'text'>
 > = VerbaString | (BaseOutletOptions<TCode, TData> & {
   /**
    * If set, the step will show a spinner on the left-hand-side.
@@ -59,11 +60,11 @@ type StepOptions<
    * * `true` - show default spinner
    * * `object` (SpinnerOptions) - show spinner and configure its appearance
    */
-  spinner?: boolean | Omit<SpinnerOptions, 'text'>
+  spinner?: TSpinner
 })
 
-type StepResult<TStepOptions extends StepOptions = StepOptions> = TStepOptions extends { spinner: any }
-  ? TStepOptions['spinner'] extends true | SpinnerOptions
+export type StepResult<TStepOptions extends StepOptions = StepOptions> = TStepOptions extends { spinner: any }
+  ? TStepOptions['spinner'] extends true | Omit<SpinnerOptions, 'text'>
     ? Spinner
     : void
   : void

@@ -1,8 +1,9 @@
-import ora from 'ora-classic'
-
 import { Spinner, SpinnerOptions } from './types'
+
+import { NATIVE_OUTLETS } from '../outlet'
 import { createIndentationString } from '../util/indentation'
 import { normalizeVerbaString } from '../string'
+import ora from 'ora-classic'
 
 export const createSpinner = (options?: SpinnerOptions): Spinner => {
   const spinner = ora({
@@ -13,15 +14,24 @@ export const createSpinner = (options?: SpinnerOptions): Spinner => {
     color: options?.color,
   })
 
-  spinner.start()
+  if (!(options?.disableAutoStart ?? false))
+    spinner.start()
 
   return {
     color: c => spinner.color = c,
     text: t => spinner.text = normalizeVerbaString(t),
-    stop: () => spinner.stop(),
+    start: () => spinner.start(),
+    pause: () => {
+      spinner.stop()
+      NATIVE_OUTLETS.log(spinner.frame())
+    },
+    clear: () => {
+      spinner.clear()
+    },
+    destroy: () => spinner.stop(),
     stopAndPersist: () => {
       spinner.stop()
-      console.log(spinner.frame())
+      NATIVE_OUTLETS.log(spinner.frame())
     },
   }
 }

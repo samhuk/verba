@@ -9,8 +9,8 @@ export const healthcheckAPI = async () => {
     spinner: true,
   })
 
-  await sleep(2)
+  await sleep(1)
 
-  spinner.stop()
+  spinner.destroy()
   log.success(c => `API healthy (${c.green('200 OK')}). Uptime: ${c.yellow('500s')}.`)
 }

@@ -1,5 +1,4 @@
 import { createGFError } from 'good-flow'
-
 import logger from './log'
 import { renderFancyString } from '../../src/verba/string'
 import { sleep } from './util'
@@ -32,7 +31,7 @@ export const doJob = async (jobName: string) => {
     spinner.text(c => `${baseLogText} | ${c.bold(i.toString())}%`)
   }
 
-  spinner.stop()
+  spinner.destroy()
 
   log.success(c => `Completed job ${c.cyan(jobName)}`)
 }

@@ -9,8 +9,16 @@ export const connectToDb = async () => {
     spinner: true,
   })
 
-  await sleep(2)
+  const interval = setInterval(() => {
+    log.warn('Waiting for DB...')
+  }, 100)
 
-  spinner.stop()
+  setTimeout(() => {
+    clearInterval(interval)
+  }, 3500)
+
+  await sleep(4)
+
+  spinner.destroy()
   log.success(c => `Connected to DB at ${c.cyan(c.underline('127.0.0.1:5432'))}.`)
 }

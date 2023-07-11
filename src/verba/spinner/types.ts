@@ -19,6 +19,13 @@ export type SpinnerOptions = {
    * The indentation of the spinner.
    */
   indentation?: number
+  /**
+   * If `true`, does not start the spinner animation straight away, but instead
+   * `spinner.start` must be called.
+   * 
+   * @default false
+   */
+  disableAutoStart?: boolean
 }
 
 export type Spinner = {
@@ -31,11 +38,25 @@ export type Spinner = {
    */
   color: (color: Color) => void
   /**
-   * Stops the spinner and clears the console line.
+   * Starts the spinner.
    */
-  stop: () => void;
+  start: () => void;
+  /**
+   * Temporarily clears the spinner.
+   */
+  clear: () => void;
+  /**
+   * Pauses the spinner.
+   */
+  pause: () => void;
+  /**
+   * Stops the spinner and clears the console line(s) it was occupying.
+   */
+  destroy: () => void;
   /**
    * Stops the spinner however keeps the latest frame on the console line.
+   * 
+   * Alias for `pause`.
    */
   stopAndPersist: () => void;
 }
