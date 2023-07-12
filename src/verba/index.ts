@@ -1,25 +1,14 @@
-import { AnyOutletOptions, BaseOutletOptions, NestOptions, SimpleOutlet, SimpleOutletPrefixes, VerbaLogger, VerbaLoggerOptions } from './types'
+import { BaseOutletOptions, NestOptions, VerbaLogger, VerbaLoggerOptions } from './types'
 import { Spinner, SpinnerOptions } from './spinner/types'
+import { createCodeStr, getParentCode } from './code'
 
 import { NATIVE_OUTLETS } from './outlet'
 import columify from 'columnify'
-import { createCodeStr } from './code'
 import { createIndentationString } from './util/indentation'
 import { createSimpleOutletLoggers } from './simpleOutlet'
 import { createSpinner } from './spinner'
 import { normalizeVerbaString } from './string'
 import { repeatStr } from './util/string'
-
-const getParentCode = (
-  nestOptionsList: NestOptions[],
-): string | number | undefined => {
-  for (let i = nestOptionsList.length; i >= 0; i -= 1) {
-    if (nestOptionsList[i]?.code != null)
-      return nestOptionsList[i].code
-  }
-
-  return undefined
-}
 
 const logStepWithSpinner = (
   options: (BaseOutletOptions & {
@@ -28,6 +17,7 @@ const logStepWithSpinner = (
   parentCode: string | number | undefined,
   indentation: number,
   indentationString: string,
+  onSpinnerDestroy: () => void,
 ): Spinner => {
   const code = options.code ?? parentCode
   const codeStr = createCodeStr(code)
@@ -54,10 +44,24 @@ const logStepWithSpinner = (
     start: spinner.start,
     clear: spinner.clear,
     pause: spinner.pause,
-    destroy: spinner.destroy,
-    stopAndPersist: () => spinner.stopAndPersist(),
+    destroy: () => {
+      spinner.destroy()
+      onSpinnerDestroy()
+    },
+    stopAndPersist: () => {
+      spinner.stopAndPersist()
+      onSpinnerDestroy()
+    },
   }
 }
+
+/**
+ * The spinners, no matter the "nestedness" of VerbaLogger, all share one terminal,
+ * so we track the current spinner that is occupying the terminal here. This could
+ * be done better, abstracting the specific "spinner" concept to a "generic terminal
+ * output occupier" interface. For now, spinner is fine.
+ */
+let currentSpinner: Spinner | undefined
 
 const _createVerbaLogger = <
   TCode extends string | number = string | number,
@@ -66,12 +70,9 @@ const _createVerbaLogger = <
 >(options: TOptions, nestOptionsList: NestOptions<TCode>[]): VerbaLogger<TOptions, TCode, TData> => {
   const indentation = nestOptionsList.reduce((acc, no) => acc + (no.indent ?? 0), 0)
   const indentationString = createIndentationString(indentation)
-
   const parentCode = getParentCode(nestOptionsList)
 
   const simpleOutletLoggers = createSimpleOutletLoggers(options)
-
-  let currentSpinner: Spinner | undefined
 
   return {
     log: msg => NATIVE_OUTLETS.log(normalizeVerbaString(msg)),
@@ -81,7 +82,10 @@ const _createVerbaLogger = <
     },
     step: _options => {
       if (typeof _options === 'object' && _options.spinner) {
-        currentSpinner = logStepWithSpinner(_options as any, parentCode, indentation, indentationString)
+        currentSpinner?.destroy()
+        currentSpinner = logStepWithSpinner(_options as any, parentCode, indentation, indentationString, () => {
+          currentSpinner = undefined
+        })
         return currentSpinner
       }
       
