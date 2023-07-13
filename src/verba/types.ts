@@ -97,6 +97,15 @@ export type NestOptions<
   TCode extends string | number = string | number,
 > = { indent?: number, code?: TCode }
 
+export type JsonOptions = {
+  /**
+   * If `true`, the output JSON will be indented as per `JSON.stringify({ ... }, null, 2)`.
+   * 
+   * @default false
+   */
+  pretty?: boolean
+}
+
 /**
  * Creates a Verba logger.
  *
@@ -196,7 +205,7 @@ export type VerbaLogger<
    */
   table: (data: any, options?: ColumifyOptions) => void
   /**
-   * Creates a nested logger with the provides options as defaults for subsequent
+   * Creates a nested logger with the provided options as defaults for subsequent
    * logging calls of the nested logger.
    *
    * This is useful for providing a default `code` for logs to avoid duplication.
@@ -209,6 +218,7 @@ export type VerbaLogger<
    * childLog.log('This is a child task') // Will have the `code` "CHILD_TASK"
    */
   nest: (options: NestOptions<TCode>) => VerbaLogger<TOptions, TCode, TData>
+  json: (value: any, options?: JsonOptions) => void
   /**
    * Logs empty lines to provide vertical spacing.
    *

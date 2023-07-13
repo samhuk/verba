@@ -17,14 +17,13 @@ const DEFAULT_SIMPLE_OUTLET_PREFIXES: SimpleOutletPrefixes = {
 
 type SimpleOutletLogger = (
   options: AnyOutletOptions,
-  parentCode: string | number | undefined,
   indentationString: string,
-  hasActiveLoggingStatement?: boolean
 ) => void
 
 const createSimpleOutletLogger = (
   options: VerbaLoggerOptions | undefined,
   outlet: SimpleOutlet,
+  parentCode: string | number | undefined,
 ): SimpleOutletLogger => {
   const outletPrefixFromOptions = options?.outletPrefixes?.[outlet]
   const outletPrefix = outletPrefixFromOptions != null
@@ -33,8 +32,8 @@ const createSimpleOutletLogger = (
 
   const nativeOutlet = NATIVE_OUTLETS.log
   
-  return (_options, parentCode, indentationString, hasActiveLoggingStatement) => {
-    const _prefix = (hasActiveLoggingStatement ? '\n' : '') + indentationString + outletPrefix
+  return (_options, indentationString) => {
+    const _prefix = indentationString + outletPrefix
 
     if (typeof _options !== 'object') {
       const codeStr = createCodeStr(parentCode)
@@ -55,10 +54,13 @@ const createSimpleOutletLogger = (
   }
 }
 
-export const createSimpleOutletLoggers = (options: VerbaLoggerOptions | undefined): Record<SimpleOutlet, SimpleOutletLogger> => ({
-  info: createSimpleOutletLogger(options, 'info'),
-  step: createSimpleOutletLogger(options, 'step'),
-  success: createSimpleOutletLogger(options, 'success'),
-  warn: createSimpleOutletLogger(options, 'warn'),
-  error: createSimpleOutletLogger(options, 'error'),
+export const createSimpleOutletLoggers = (
+  options: VerbaLoggerOptions | undefined,
+  parentCode: string | number | undefined,
+): Record<SimpleOutlet, SimpleOutletLogger> => ({
+  info: createSimpleOutletLogger(options, 'info', parentCode),
+  step: createSimpleOutletLogger(options, 'step', parentCode),
+  success: createSimpleOutletLogger(options, 'success', parentCode),
+  warn: createSimpleOutletLogger(options, 'warn', parentCode),
+  error: createSimpleOutletLogger(options, 'error', parentCode),
 })

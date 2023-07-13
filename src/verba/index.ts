@@ -3,6 +3,7 @@ import { Spinner, SpinnerOptions } from './spinner/types'
 import { createCodeStr, getParentCode } from './code'
 
 import { NATIVE_OUTLETS } from './outlet'
+import colorizeJson from 'json-colorizer'
 import columify from 'columnify'
 import { createIndentationString } from './util/indentation'
 import { createSimpleOutletLoggers } from './simpleOutlet'
@@ -71,14 +72,13 @@ const _createVerbaLogger = <
   const indentation = nestOptionsList.reduce((acc, no) => acc + (no.indent ?? 0), 0)
   const indentationString = createIndentationString(indentation)
   const parentCode = getParentCode(nestOptionsList)
-
-  const simpleOutletLoggers = createSimpleOutletLoggers(options)
+  const simpleOutletLoggers = createSimpleOutletLoggers(options, parentCode)
 
   return {
     log: msg => NATIVE_OUTLETS.log(normalizeVerbaString(msg)),
     info: _options => {
       currentSpinner?.clear()
-      simpleOutletLoggers.info(_options, parentCode, indentationString)
+      simpleOutletLoggers.info(_options, indentationString)
     },
     step: _options => {
       if (typeof _options === 'object' && _options.spinner) {
@@ -90,16 +90,16 @@ const _createVerbaLogger = <
       }
       
       currentSpinner?.clear()
-      simpleOutletLoggers.step(_options, parentCode, indentationString)
+      simpleOutletLoggers.step(_options, indentationString)
       return undefined as any
     },
     success: _options => {
       currentSpinner?.clear()
-      simpleOutletLoggers.success(_options, parentCode, indentationString)
+      simpleOutletLoggers.success(_options, indentationString)
     },
     warn: _options => {
       currentSpinner?.clear()
-      simpleOutletLoggers.warn(_options, parentCode, indentationString)
+      simpleOutletLoggers.warn(_options, indentationString)
     },
     // error: _options => undefined,
     table: (data, _options) => {
@@ -107,6 +107,12 @@ const _createVerbaLogger = <
       NATIVE_OUTLETS.log(columify(data, _options))
     },
     nest: _options => _createVerbaLogger(options, nestOptionsList.concat(_options)),
+    json: (value, _options) => {
+      currentSpinner?.clear()
+      NATIVE_OUTLETS.log(colorizeJson(value, {
+        pretty: _options?.pretty ?? false,
+      }))
+    },
     divider: () => {
       currentSpinner?.clear()
       NATIVE_OUTLETS.log(repeatStr('-', process.stdout.columns * 0.33))
