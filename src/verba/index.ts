@@ -1,4 +1,4 @@
-import { BaseOutletOptions, NestOptions, VerbaLogger, VerbaLoggerOptions } from './types'
+import { BaseOutletOptions, NestOptions, StepSpinner, VerbaLogger, VerbaLoggerOptions } from './types'
 import { Spinner, SpinnerOptions } from './spinner/types'
 import { createCodeStr, getParentCode } from './code'
 
@@ -10,6 +10,8 @@ import { createSimpleOutletLoggers } from './simpleOutlet'
 import { createSpinner } from './spinner'
 import { normalizeVerbaString } from './string'
 import { repeatStr } from './util/string'
+
+const IS_TTY = process.stdout.isTTY === true
 
 const logStepWithSpinner = (
   options: (BaseOutletOptions & {
@@ -82,14 +84,30 @@ const _createVerbaLogger = <
     },
     step: _options => {
       if (typeof _options === 'object' && _options.spinner) {
-        currentSpinner?.destroy()
-        currentSpinner = logStepWithSpinner(_options as any, parentCode, indentation, indentationString, () => {
-          currentSpinner = undefined
-        })
-        return currentSpinner
+        if (IS_TTY) {
+          currentSpinner?.destroy()
+          currentSpinner = logStepWithSpinner(_options as any, parentCode, indentation, indentationString, () => {
+            currentSpinner = undefined
+          })
+          return currentSpinner
+        }
+
+        // When stdout is not TTY, then spinner functionality is not possible.
+        // Therefore we log the initial message, and depending 
+        simpleOutletLoggers.step(_options, indentationString)
+        return {
+          start: () => simpleOutletLoggers.step(_options, indentationString),
+          color: () => undefined,
+          clear: () => undefined,
+          destroy: () => undefined,
+          pause: () => undefined,
+          stopAndPersist: () => undefined,
+          text: (s, onlyTty) => onlyTty
+            ? undefined
+            : simpleOutletLoggers.step({ ..._options, msg: s }, indentationString),
+        } as StepSpinner
       }
-      
-      currentSpinner?.clear()
+
       simpleOutletLoggers.step(_options, indentationString)
       return undefined as any
     },
@@ -124,6 +142,31 @@ const _createVerbaLogger = <
   }
 }
 
+/**
+ * Creates a `VerbaLogger` instance.
+ * 
+ * @example
+ * import verba from 'verba'
+ * 
+ * const log = verba()
+ * 
+ * // -- Simple outlets
+ * log.step('Starting task')
+ * log.info(f => `Estimated task length: ${f.cyan('5m4s')}`)
+ * log.success('Task completed')
+ * log.warn({
+ *   msg: f => `Env var ${f.bold('DB_URL')} is missing; using default.`,
+ *   code: 'ENV_VALIDATE',
+ * })
+ * // -- Nesting
+ * const childLog = log.nest({ code: 'CHILD_TASK' })
+ * childLog.step('Starting child task')
+ * // -- Other outlet
+ * log.divider()
+ * log.spacer()
+ * log.table([{...},{...],...])
+ * log.json({ foo: 'bar' })
+ */
 export const createVerbaLogger = <
   TCode extends string | number = string | number,
   TData extends any = any,

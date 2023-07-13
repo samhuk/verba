@@ -4,8 +4,8 @@ import { sleep } from './util'
 
 const MOCK_DB_INTRA_LOADING_MESSAGES: VerbaString[] = [
   f => `DB version: ${f.cyan('42.0.0')}.`,
-  f => `DB client healthy?: (${f.green('YES')})`,
-  f => `DB network latency: (${f.yellow('45ms')})`,
+  f => `DB client healthy?: ${f.green('YES')}`,
+  f => `DB network latency: ${f.yellow('45ms')}`,
 ]
 
 const log = logger.nest({ code: 'CONNECT_DB' })
@@ -16,7 +16,7 @@ export const connectToDb = async () => {
     spinner: true,
   })
 
-  // This tests logging while a spinner is active.
+  // This tests logging whilst a spinner is active.
   let i = 0
   const interval = setInterval(() => {
     log.info(MOCK_DB_INTRA_LOADING_MESSAGES[i])

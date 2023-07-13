@@ -9,7 +9,7 @@ export const doJob = async (jobName: string) => {
   const baseLogText = renderFancyString(c => `Doing job ${c.cyan(jobName)}`)
 
   const spinner = log.step({
-    msg: `${baseLogText} | 0%`,
+    msg: baseLogText,
     spinner: true,
   })
 
@@ -28,7 +28,8 @@ export const doJob = async (jobName: string) => {
   for (let i = 0; i < 100; i += 20) {
     // eslint-disable-next-line no-await-in-loop
     await sleep(0.1)
-    spinner.text(c => `${baseLogText} | ${c.bold(i.toString())}%`)
+    // Every other update is logged if terminal is not TTY.
+    spinner.text(c => `${baseLogText} | ${c.bold(i.toString())}%`, i % 40 === 0)
   }
 
   spinner.destroy()
