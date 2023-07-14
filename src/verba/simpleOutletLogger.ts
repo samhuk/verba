@@ -1,9 +1,11 @@
 import { AnyOutletOptions, SimpleOutlet, SimpleOutletPrefixes, VerbaLoggerOptions } from "./types"
 import { normalizeVerbaString, renderFancyString } from "./string"
 
-import { NATIVE_OUTLETS } from "./outlet"
+import { NATIVE_OUTLETS } from "./nativeOutlets"
 import { StringFormat } from "./string/types"
 import { createCodeStr } from "./code"
+
+export type SimpleOutletLoggers = Record<SimpleOutlet, SimpleOutletLogger>
 
 const createOutletPrefix = (name: string, format: StringFormat) => renderFancyString(c => `${c[format](c.bold(name))} `)
 
@@ -57,7 +59,7 @@ const createSimpleOutletLogger = (
 export const createSimpleOutletLoggers = (
   options: VerbaLoggerOptions | undefined,
   parentCode: string | number | undefined,
-): Record<SimpleOutlet, SimpleOutletLogger> => ({
+): SimpleOutletLoggers => ({
   info: createSimpleOutletLogger(options, 'info', parentCode),
   step: createSimpleOutletLogger(options, 'step', parentCode),
   success: createSimpleOutletLogger(options, 'success', parentCode),

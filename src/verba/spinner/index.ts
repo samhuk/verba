@@ -1,6 +1,6 @@
 import { Spinner, SpinnerOptions } from './types'
 
-import { NATIVE_OUTLETS } from '../outlet'
+import { NATIVE_OUTLETS } from '../nativeOutlets'
 import { createIndentationString } from '../util/indentation'
 import { normalizeVerbaString } from '../string'
 import ora from 'ora-classic'
