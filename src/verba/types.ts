@@ -3,6 +3,10 @@ import { Spinner, SpinnerOptions } from './spinner/types'
 import { GlobalOptions as ColumifyOptions } from 'columnify'
 import { VerbaString } from './string/types'
 
+export type MutableRef<T extends any = any> = {
+  current: T
+}
+
 export type VerbaLoggerOptions = {
   /**
    * Configures the prefixes that appear for each outlet,

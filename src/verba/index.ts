@@ -1,4 +1,4 @@
-import { NestOptions, VerbaLogger, VerbaLoggerOptions } from './types'
+import { MutableRef, NestOptions, VerbaLogger, VerbaLoggerOptions } from './types'
 
 import { NATIVE_OUTLETS } from './nativeOutlets'
 import { Spinner } from './spinner/types'
@@ -19,7 +19,9 @@ const IS_TTY = process.stdout.isTTY === true
  * This could be done better, i.e. abstracting to a generic terminal output occupier
  * interface. For now, however, this will suffice.
  */
-let currentSpinner: Spinner | undefined
+const spinnerRef: MutableRef<Spinner | undefined> = {
+  current: undefined,
+}
 
 const _createVerbaLogger = <
   TCode extends string | number = string | number,
@@ -31,44 +33,42 @@ const _createVerbaLogger = <
   const parentCode = getParentCode(nestOptionsList)
   const simpleOutletLoggers = createSimpleOutletLoggers(options, parentCode)
 
-  const stepLogger = createStepOutputLogger(IS_TTY, parentCode, indentation, indentationString, simpleOutletLoggers, () => {
-    currentSpinner = undefined
-  })
+  const stepLogger = createStepOutputLogger(IS_TTY, parentCode, indentation, indentationString, simpleOutletLoggers, spinnerRef)
 
   return {
     log: msg => NATIVE_OUTLETS.log(normalizeVerbaString(msg)),
     info: _options => {
-      currentSpinner?.clear()
+      spinnerRef.current?.clear()
       simpleOutletLoggers.info(_options, indentationString)
     },
-    step: _options => currentSpinner = stepLogger(_options, currentSpinner),
+    step: _options => stepLogger(_options) as any,
     success: _options => {
-      currentSpinner?.clear()
+      spinnerRef.current?.clear()
       simpleOutletLoggers.success(_options, indentationString)
     },
     warn: _options => {
-      currentSpinner?.clear()
+      spinnerRef.current?.clear()
       simpleOutletLoggers.warn(_options, indentationString)
     },
     // error: _options => undefined,
     table: (data, _options) => {
-      currentSpinner?.clear()
+      spinnerRef.current?.clear()
       NATIVE_OUTLETS.log(columify(data, _options))
     },
     nest: _options => _createVerbaLogger(options, nestOptionsList.concat(_options)),
     json: (value, _options) => {
-      currentSpinner?.clear()
+      spinnerRef.current?.clear()
       NATIVE_OUTLETS.log(colorizeJson(value, {
         pretty: _options?.pretty ?? false,
       }))
     },
     divider: () => {
-      currentSpinner?.clear()
+      spinnerRef.current?.clear()
       NATIVE_OUTLETS.log(repeatStr('-', process.stdout.columns * 0.33))
     },
     spacer: numLines => {
-      currentSpinner?.clear()
-      NATIVE_OUTLETS.log(repeatStr('\n', (numLines ?? 1 - 1)))
+      spinnerRef.current?.clear()
+      NATIVE_OUTLETS.log(repeatStr('\n', ((numLines ?? 1) - 1)))
     },
   }
 }
@@ -92,7 +92,7 @@ const _createVerbaLogger = <
  * // -- Nesting
  * const childLog = log.nest({ code: 'CHILD_TASK' })
  * childLog.step('Starting child task')
- * // -- Other outlet
+ * // -- Other outlets
  * log.divider()
  * log.spacer()
  * log.table([{...},{...],...])

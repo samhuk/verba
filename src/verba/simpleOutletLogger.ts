@@ -1,20 +1,17 @@
 import { AnyOutletOptions, SimpleOutlet, SimpleOutletPrefixes, VerbaLoggerOptions } from "./types"
-import { normalizeVerbaString, renderFancyString } from "./string"
+import { normalizeVerbaString, renderFancyString, renderFancyStringWithFormats } from "./string"
 
 import { NATIVE_OUTLETS } from "./nativeOutlets"
-import { StringFormat } from "./string/types"
 import { createCodeStr } from "./code"
 
 export type SimpleOutletLoggers = Record<SimpleOutlet, SimpleOutletLogger>
 
-const createOutletPrefix = (name: string, format: StringFormat) => renderFancyString(c => `${c[format](c.bold(name))} `)
-
 const DEFAULT_SIMPLE_OUTLET_PREFIXES: SimpleOutletPrefixes = {
-  info: createOutletPrefix('i', 'gray'),
-  step:  createOutletPrefix('*', 'cyan'),
-  success: createOutletPrefix('✔', 'green'),
-  warn: renderFancyString(c => `${c.yellow(c.underline(c.bold('WARN')))} `),
-  error: '',
+  info: renderFancyStringWithFormats('i', 'gray', 'bold') + ' ',
+  step:  renderFancyStringWithFormats('*', 'cyan', 'bold') + ' ',
+  success: renderFancyStringWithFormats('✔', 'green') + ' ',
+  warn: renderFancyStringWithFormats('WARN', 'bold', 'underline', 'yellow') + ' ',
+  error: renderFancyStringWithFormats('ERROR', 'bold', 'underline', 'red') + ' ',
 }
 
 type SimpleOutletLogger = (

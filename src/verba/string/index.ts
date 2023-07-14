@@ -1,6 +1,6 @@
-import colors from 'colors/safe'
+import { Colors, FancyString, NormalizeVerbaStringOptions, StringFormat, VerbaString } from './types'
 
-import { Colors, FancyString, NormalizeVerbaStringOptions, VerbaString } from './types'
+import colors from 'colors/safe'
 
 const colorizer: Colors = colors
 const decolorizer: Colors = {
@@ -52,4 +52,8 @@ export const normalizeVerbaString = (s: VerbaString, options?: NormalizeVerbaStr
 
 export const renderFancyString = (s: FancyString, options?: NormalizeVerbaStringOptions): string => (
   s((options?.disableColors ?? false) ? decolorizer : colorizer)
+)
+
+export const renderFancyStringWithFormats = (name: string, ...formats: StringFormat[]) => (
+  renderFancyString(c => formats.reduce((acc, f) => c[f](acc), name))
 )

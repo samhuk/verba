@@ -1,4 +1,4 @@
-import { BaseOutletOptions, StepOptions, StepSpinner } from "./types"
+import { BaseOutletOptions, MutableRef, StepOptions, StepResult, StepSpinner } from "./types"
 import { Spinner, SpinnerOptions } from "./spinner/types"
 
 import { SimpleOutletLoggers } from "./simpleOutletLogger"
@@ -14,7 +14,7 @@ export const logStepWithSpinner = (
   parentCode: string | number | undefined,
   indentation: number,
   indentationString: string,
-  onSpinnerDestroy: () => void,
+  spinnerRef: MutableRef<Spinner | undefined>,
 ): StepSpinner => {
   const code = options.code ?? parentCode
   const codeStr = createCodeStr(code)
@@ -43,11 +43,11 @@ export const logStepWithSpinner = (
     pause: spinner.pause,
     destroy: () => {
       spinner.destroy()
-      onSpinnerDestroy()
+      spinnerRef.current = undefined
     },
     stopAndPersist: () => {
       spinner.stopAndPersist()
-      onSpinnerDestroy()
+      spinnerRef.current = undefined
     },
   }
 }
@@ -72,7 +72,6 @@ export const createNonTTYSpinnerShim = (
       : simpleOutletLoggers.step({ ...options, msg: s }, indentationString),
   } as StepSpinner
 }
-  
 
 export const createStepOutputLogger = (
     isTty: boolean,
@@ -80,17 +79,16 @@ export const createStepOutputLogger = (
     indentation: number,
     indentationString: string,
     simpleOutletLoggers: SimpleOutletLoggers,
-    onSpinnerDestroy: () => void,
-) => (options: StepOptions, currentSpinner: Spinner | undefined) => {
+    spinnerRef: MutableRef<Spinner | undefined>,
+) => (options: StepOptions): StepSpinner | void => {
   if (typeof options === 'object' && options.spinner) {
     if (isTty) {
-      currentSpinner?.destroy()
-      return logStepWithSpinner(options as any, parentCode, indentation, indentationString, onSpinnerDestroy)
+      spinnerRef.current?.destroy()
+      return spinnerRef.current = logStepWithSpinner(options as any, parentCode, indentation, indentationString, spinnerRef)
     }
 
-    return createNonTTYSpinnerShim(simpleOutletLoggers, options, indentationString)
+    return spinnerRef.current = createNonTTYSpinnerShim(simpleOutletLoggers, options, indentationString)
   }
 
   simpleOutletLoggers.step(options, indentationString)
-  return undefined as any
 }
