@@ -1,37 +1,37 @@
-import { BaseOutletOptions, MutableRef, StepOptions, StepResult, StepSpinner } from "./types"
-import { Spinner, SpinnerOptions } from "./spinner/types"
+import { BaseOutletOptions, NestState } from "../../types"
+import { Spinner, SpinnerOptions } from "../../spinner/types"
+import { StepOptions, StepSpinner } from "../../step/types"
+import { isVerbaString, normalizeVerbaString } from "../../verbaString"
 
+import { MutableRef } from "../../util/types"
 import { SimpleOutletLoggers } from "./simpleOutletLogger"
-import { VerbaString } from "./string/types"
-import { createCodeStr } from "./code"
-import { createSpinner } from "./spinner"
-import { normalizeVerbaString } from "./string"
+import { VerbaString } from "../../verbaString/types"
+import { createCodeStr } from "../../code"
+import { createConsoleSpinner } from "../../spinner"
 
 export const logStepWithSpinner = (
   options: (BaseOutletOptions & {
     spinner?: true | Omit<SpinnerOptions, 'text'>
   }),
-  parentCode: string | number | undefined,
-  indentation: number,
-  indentationString: string,
+  nestState: NestState,
   spinnerRef: MutableRef<Spinner | undefined>,
 ): StepSpinner => {
-  const code = options.code ?? parentCode
+  const code = options.code === null ? undefined : (options.code ?? nestState.code)
   const codeStr = createCodeStr(code)
   const msg = Array.isArray(options.msg)
-    ? options.msg.map(s => normalizeVerbaString(s)).join(`\n${indentationString}`)
+    ? options.msg.map(s => normalizeVerbaString(s)).join(`\n${nestState.indentationString}`)
     : normalizeVerbaString(options.msg)
 
-  const spinner = createSpinner(
+  const spinner = createConsoleSpinner(
     typeof options.spinner === 'boolean'
       ? {
         text: codeStr + msg,
         color: 'cyan',
-        indentation,
+        indentation: nestState.indent,
       }
       : {
         ...options.spinner,
-        indentation: options.spinner?.indentation ?? indentation,
+        indentation: options.spinner?.indentation ?? nestState.indent,
       },
   )
 
@@ -39,7 +39,7 @@ export const logStepWithSpinner = (
     text: s => spinner.text(code != null ? codeStr + normalizeVerbaString(s) : s),
     color: spinner.color,
     start: spinner.start,
-    clear: spinner.clear,
+    temporarilyClear: spinner.temporarilyClear,
     pause: spinner.pause,
     destroy: () => {
       spinner.destroy()
@@ -63,7 +63,7 @@ export const createNonTTYSpinnerShim = (
   return {
     start: () => simpleOutletLoggers.step(options, indentationString),
     color: () => undefined,
-    clear: () => undefined,
+    temporarilyClear: () => undefined,
     destroy: () => undefined,
     pause: () => undefined,
     stopAndPersist: () => undefined,
@@ -75,20 +75,18 @@ export const createNonTTYSpinnerShim = (
 
 export const createStepOutputLogger = (
     isTty: boolean,
-    parentCode: string | number | undefined,
-    indentation: number,
-    indentationString: string,
+    nestState: NestState,
     simpleOutletLoggers: SimpleOutletLoggers,
     spinnerRef: MutableRef<Spinner | undefined>,
 ) => (options: StepOptions): StepSpinner | void => {
-  if (typeof options === 'object' && options.spinner) {
+  if (!isVerbaString(options) && options.spinner) {
     if (isTty) {
       spinnerRef.current?.destroy()
-      return spinnerRef.current = logStepWithSpinner(options as any, parentCode, indentation, indentationString, spinnerRef)
+      return spinnerRef.current = logStepWithSpinner(options as any, nestState, spinnerRef)
     }
 
-    return spinnerRef.current = createNonTTYSpinnerShim(simpleOutletLoggers, options, indentationString)
+    return spinnerRef.current = createNonTTYSpinnerShim(simpleOutletLoggers, options, nestState.indentationString)
   }
 
-  simpleOutletLoggers.step(options, indentationString)
+  simpleOutletLoggers.step(options, nestState.indentationString)
 }

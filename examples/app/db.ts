@@ -1,4 +1,4 @@
-import { VerbaString } from '../../src/verba/string/types'
+import { VerbaString } from '../../src'
 import logger from './log'
 import { sleep } from './util'
 

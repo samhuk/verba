@@ -1,5 +1,5 @@
 import { NestOptions } from "./types"
-import { renderFancyString } from "./string"
+import { renderFancyString } from "./verbaString"
 
 /**
  * Navigates backwards through the given nest options list and returns

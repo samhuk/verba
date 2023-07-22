@@ -1,11 +1,11 @@
 import { Spinner, SpinnerOptions } from './types'
 
-import { NATIVE_OUTLETS } from '../nativeOutlets'
+import { NATIVE_OUTLETS } from '../plugin/console/nativeOutlets'
 import { createIndentationString } from '../util/indentation'
-import { normalizeVerbaString } from '../string'
+import { normalizeVerbaString } from '../verbaString'
 import ora from 'ora-classic'
 
-export const createSpinner = (options?: SpinnerOptions): Spinner => {
+export const createConsoleSpinner = (options?: SpinnerOptions): Spinner => {
   const spinner = ora({
     // We must subtract one because ora's prefixText doesn't seem to behave well.
     prefixText: options?.indentation != null ? createIndentationString(options.indentation - 1) : '',
@@ -25,9 +25,7 @@ export const createSpinner = (options?: SpinnerOptions): Spinner => {
       spinner.stop()
       NATIVE_OUTLETS.log(spinner.frame())
     },
-    clear: () => {
-      spinner.clear()
-    },
+    temporarilyClear: () => spinner.clear(),
     destroy: () => spinner.stop(),
     stopAndPersist: () => {
       spinner.stop()

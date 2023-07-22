@@ -11,7 +11,7 @@ export type NormalizeVerbaStringOptions = {
 
 export type FancyString = (c: Colors) => string
 
-export type VerbaString = string | FancyString
+export type VerbaString = string | FancyString | (string | FancyString)[]
 
 export type StringFormat = Exclude<
   keyof Colors,

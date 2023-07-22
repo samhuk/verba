@@ -1,12 +1,12 @@
+import { FancyString } from '../../src/verba/verbaString/types'
 import { createGFError } from 'good-flow'
 import logger from './log'
-import { renderFancyString } from '../../src/verba/string'
 import { sleep } from './util'
 
 const log = logger.nest({ code: 'JOB', indent: 2 })
 
 export const doJob = async (jobName: string) => {
-  const baseLogText = renderFancyString(c => `Doing job ${c.cyan(jobName)}`)
+  const baseLogText: FancyString = c => `Doing job ${c.cyan(jobName)}`
 
   const spinner = log.step({
     msg: baseLogText,
@@ -29,7 +29,7 @@ export const doJob = async (jobName: string) => {
     // eslint-disable-next-line no-await-in-loop
     await sleep(0.1)
     // Every other update is logged if terminal is not TTY.
-    spinner.text(c => `${baseLogText} | ${c.bold(i.toString())}%`, i % 40 === 0)
+    spinner.text([baseLogText, c => ` | ${c.bold(i.toString())}%`], i % 40 === 0)
   }
 
   spinner.destroy()

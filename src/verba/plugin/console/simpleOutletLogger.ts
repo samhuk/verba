@@ -1,8 +1,8 @@
-import { AnyOutletOptions, SimpleOutlet, SimpleOutletPrefixes, VerbaLoggerOptions } from "./types"
-import { normalizeVerbaString, renderFancyString, renderFancyStringWithFormats } from "./string"
+import { AnyOutletOptions, SimpleOutlet, SimpleOutletPrefixes, VerbaLoggerOptions } from "../../types"
+import { isVerbaString, normalizeVerbaString, renderFancyStringWithFormats } from "../../verbaString"
 
 import { NATIVE_OUTLETS } from "./nativeOutlets"
-import { createCodeStr } from "./code"
+import { createCodeStr } from "../../code"
 
 export type SimpleOutletLoggers = Record<SimpleOutlet, SimpleOutletLogger>
 
@@ -29,14 +29,14 @@ const createSimpleOutletLogger = (
     ? normalizeVerbaString(outletPrefixFromOptions)
     : DEFAULT_SIMPLE_OUTLET_PREFIXES[outlet]
 
-  const nativeOutlet = NATIVE_OUTLETS.log
+  const nativeLog = NATIVE_OUTLETS.log
   
   return (_options, indentationString) => {
     const _prefix = indentationString + outletPrefix
 
-    if (typeof _options !== 'object') {
+    if (isVerbaString(_options)) {
       const codeStr = createCodeStr(parentCode)
-      nativeOutlet(_prefix + codeStr + normalizeVerbaString(_options))
+      nativeLog(_prefix + codeStr + normalizeVerbaString(_options))
       return
     }
 
@@ -45,11 +45,11 @@ const createSimpleOutletLogger = (
 
     if (Array.isArray(_options.msg)) {
       // eslint-disable-next-line max-len
-      nativeOutlet(_prefix + codeStr + _options.msg.map(s => normalizeVerbaString(s)).join(indentationString))
+      nativeLog(_prefix + codeStr + _options.msg.map(s => normalizeVerbaString(s)).join(indentationString))
       return
     }
 
-    nativeOutlet(_prefix + codeStr + normalizeVerbaString(_options.msg))
+    nativeLog(_prefix + codeStr + normalizeVerbaString(_options.msg))
   }
 }
 

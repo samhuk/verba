@@ -1,6 +1,11 @@
-import { Code } from './codes'
-import verba from '../../src'
+import verba, { consolePlugin } from '../../src'
 
-const log = verba<Code>()
+import { Code } from './codes'
+
+const log = verba<Code>({
+    plugins: [
+        consolePlugin,
+    ],
+})
 
 export default log

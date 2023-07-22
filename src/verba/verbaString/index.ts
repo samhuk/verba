@@ -44,11 +44,18 @@ const decolorizer: Colors = {
   stripColors: () => '',
 }
 
-export const normalizeVerbaString = (s: VerbaString, options?: NormalizeVerbaStringOptions): string => (
-  typeof s === 'function'
-    ? s((options?.disableColors ?? false) ? decolorizer : colorizer)
-    : s
-)
+export const normalizeVerbaString = (s: VerbaString, options?: NormalizeVerbaStringOptions): string => {
+  const _colorizer = (options?.disableColors ?? false) ? decolorizer : colorizer
+
+  switch (typeof s) {
+    case 'function':
+      return s(_colorizer)
+    case 'string':
+      return s
+    default:
+      return s.map(_s => (typeof _s === 'string' ? _s : _s(_colorizer))).join('')
+  }
+}
 
 export const renderFancyString = (s: FancyString, options?: NormalizeVerbaStringOptions): string => (
   s((options?.disableColors ?? false) ? decolorizer : colorizer)
@@ -57,3 +64,8 @@ export const renderFancyString = (s: FancyString, options?: NormalizeVerbaString
 export const renderFancyStringWithFormats = (name: string, ...formats: StringFormat[]) => (
   renderFancyString(c => formats.reduce((acc, f) => c[f](acc), name))
 )
+
+export const isVerbaString = (v: unknown): v is VerbaString => {
+  const typeOfV = typeof v
+  return typeOfV === 'string' || typeOfV === 'function' || Array.isArray(typeOfV)
+}

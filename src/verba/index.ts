@@ -1,74 +1,97 @@
-import { MutableRef, NestOptions, VerbaLogger, VerbaLoggerOptions } from './types'
+import { InstantiatedVerbaPlugin, VerbaPluginEventHandlers } from './plugin/types'
+import { NestState, Outlet, VerbaLogger, VerbaLoggerOptions } from './types'
+import { StepResult, StepSpinner } from './step/types'
 
-import { NATIVE_OUTLETS } from './nativeOutlets'
-import { Spinner } from './spinner/types'
-import colorizeJson from 'json-colorizer'
-import columify from 'columnify'
+import { ListenerStore } from './util/listenerStore/types'
 import { createIndentationString } from './util/indentation'
-import { createSimpleOutletLoggers } from './simpleOutletLogger'
-import { createStepOutputLogger } from './step'
-import { getParentCode } from './code'
-import { normalizeVerbaString } from './string'
-import { repeatStr } from './util/string'
-
-const IS_TTY = process.stdout.isTTY === true
-
-/**
- * The spinners, no matter the "nestedness" of a VerbaLogger, all share one terminal,
- * therefore we globally track the current spinner that is occupying the terminal.
- * This could be done better, i.e. abstracting to a generic terminal output occupier
- * interface. For now, however, this will suffice.
- */
-const spinnerRef: MutableRef<Spinner | undefined> = {
-  current: undefined,
-}
+import { createListenerStore } from './util/listenerStore'
 
 const _createVerbaLogger = <
   TCode extends string | number = string | number,
   TData extends any = any,
   TOptions extends VerbaLoggerOptions = VerbaLoggerOptions,
->(options: TOptions, nestOptionsList: NestOptions<TCode>[]): VerbaLogger<TOptions, TCode, TData> => {
-  const indentation = nestOptionsList.reduce((acc, no) => acc + (no.indent ?? 0), 0)
-  const indentationString = createIndentationString(indentation)
-  const parentCode = getParentCode(nestOptionsList)
-  const simpleOutletLoggers = createSimpleOutletLoggers(options, parentCode)
-
-  const stepLogger = createStepOutputLogger(IS_TTY, parentCode, indentation, indentationString, simpleOutletLoggers, spinnerRef)
+>(
+  options: TOptions,
+  instantiatedPlugins: InstantiatedVerbaPlugin[],
+  listeners: ListenerStore<keyof VerbaPluginEventHandlers<TCode, TData>, VerbaPluginEventHandlers<TCode, TData>>,
+  nestState: NestState<TCode>,
+): VerbaLogger<TOptions, TCode, TData> => {
+  const nestedInstantiatedPlugins = instantiatedPlugins.map(p => p(nestState))
 
   return {
-    log: msg => NATIVE_OUTLETS.log(normalizeVerbaString(msg)),
-    info: _options => {
-      spinnerRef.current?.clear()
-      simpleOutletLoggers.info(_options, indentationString)
+    nest: _options => {
+      const indent = nestState.indent + (_options.indent ?? 0)
+      return _createVerbaLogger(
+        options,
+        instantiatedPlugins,
+        listeners,
+        {
+          indent,
+          indentationString: createIndentationString(indent),
+          code: _options.code === null ? undefined : (nestState.code ?? _options.code),
+        },
+      )
     },
-    step: _options => stepLogger(_options) as any,
+    log: msg => {
+      listeners.call('onBeforeLog', { outlet: Outlet.LOG, msg }, nestState)
+      nestedInstantiatedPlugins.forEach(p => p.log(msg))
+      listeners.call('onAfterLog', { outlet: Outlet.LOG, msg }, nestState)
+    },
+    info: _options => {
+      listeners.call('onBeforeLog', { outlet: Outlet.INFO, options: _options }, nestState)
+      nestedInstantiatedPlugins.forEach(p => p.info(_options))
+      listeners.call('onAfterLog', { outlet: Outlet.INFO, options: _options }, nestState)
+    },
+    step: _options => {
+      listeners.call('onBeforeLog', { outlet: Outlet.STEP, options: _options }, nestState)
+      if (!Array.isArray(_options) && typeof _options === 'object' && _options.spinner) {
+        const results = nestedInstantiatedPlugins.map(p => p.step(_options)).filter(v => v != null) as StepSpinner[]
+        const result: StepSpinner = {
+          text: (...args) => results.forEach(r => r.text(...args)),
+          color: (...args) => results.forEach(r => r.color(...args)),
+          start: (...args) => results.forEach(r => r.start(...args)),
+          temporarilyClear: (...args) => results.forEach(r => r.temporarilyClear(...args)),
+          pause: (...args) => results.forEach(r => r.pause(...args)),
+          destroy: (...args) => results.forEach(r => r.destroy(...args)),
+          stopAndPersist: (...args) => results.forEach(r => r.stopAndPersist(...args)),
+        }
+        listeners.call('onAfterLog', { outlet: Outlet.STEP, options: _options }, nestState)
+        return result as any
+      }
+      else {
+        nestedInstantiatedPlugins.forEach(p => p.step(_options))
+        listeners.call('onAfterLog', { outlet: Outlet.STEP, options: _options }, nestState)
+      }
+    },
     success: _options => {
-      spinnerRef.current?.clear()
-      simpleOutletLoggers.success(_options, indentationString)
+      listeners.call('onBeforeLog', { outlet: Outlet.SUCCESS, options: _options }, nestState)
+      nestedInstantiatedPlugins.forEach(p => p.success(_options))
+      listeners.call('onAfterLog', { outlet: Outlet.SUCCESS, options: _options }, nestState)
     },
     warn: _options => {
-      spinnerRef.current?.clear()
-      simpleOutletLoggers.warn(_options, indentationString)
+      listeners.call('onBeforeLog', { outlet: Outlet.WARN, options: _options }, nestState)
+      nestedInstantiatedPlugins.forEach(p => p.warn(_options))
+      listeners.call('onAfterLog', { outlet: Outlet.WARN, options: _options }, nestState)
     },
-    // error: _options => undefined,
     table: (data, _options) => {
-      spinnerRef.current?.clear()
-      NATIVE_OUTLETS.log(columify(data, _options))
+      listeners.call('onBeforeLog', { outlet: Outlet.TABLE, options: _options, data }, nestState)
+      nestedInstantiatedPlugins.forEach(p => p.table(data, _options))
+      listeners.call('onAfterLog', { outlet: Outlet.TABLE, options: _options, data }, nestState)
     },
-    nest: _options => _createVerbaLogger(options, nestOptionsList.concat(_options)),
     json: (value, _options) => {
-      spinnerRef.current?.clear()
-      NATIVE_OUTLETS.log(colorizeJson(value, {
-        pretty: _options?.pretty ?? false,
-      }))
+      listeners.call('onBeforeLog', { outlet: Outlet.JSON, options: _options, value }, nestState)
+      nestedInstantiatedPlugins.forEach(p => p.json(value, _options))
+      listeners.call('onAfterLog', { outlet: Outlet.JSON, options: _options, value }, nestState)
     },
     divider: () => {
-      spinnerRef.current?.clear()
-      NATIVE_OUTLETS.log(repeatStr('-', process.stdout.columns * 0.33))
+      listeners.call('onBeforeLog', { outlet: Outlet.DIVIDER }, nestState)
+      nestedInstantiatedPlugins.forEach(p => p.divider())
+      listeners.call('onAfterLog', { outlet: Outlet.DIVIDER }, nestState)
     },
-    spacer: numLines => {
-      spinnerRef.current?.clear()
-      NATIVE_OUTLETS.log(repeatStr('\n', ((numLines ?? 1) - 1)))
+    spacer: _options => {
+      listeners.call('onBeforeLog', { outlet: Outlet.SPACER, numLines: _options }, nestState)
+      nestedInstantiatedPlugins.forEach(p => p.spacer(_options))
+      listeners.call('onAfterLog', { outlet: Outlet.SPACER, numLines: _options }, nestState)
     },
   }
 }
@@ -103,7 +126,18 @@ export const createVerbaLogger = <
   TData extends any = any,
   TOptions extends VerbaLoggerOptions = VerbaLoggerOptions,
 // eslint-disable-next-line arrow-body-style
->(options?: TOptions): VerbaLogger<TOptions, TCode, TData> => _createVerbaLogger(
+>(options?: TOptions): VerbaLogger<TOptions, TCode, TData> => {
+  const listeners = createListenerStore<keyof VerbaPluginEventHandlers<TCode, TData>, VerbaPluginEventHandlers<TCode, TData>>()
+  const instantiatedPlugins = options?.plugins?.map(p => p(options, listeners)) ?? []
+  
+  return _createVerbaLogger(
     options ?? { },
-    [],
+    instantiatedPlugins,
+    listeners,
+    {
+      code: undefined,
+      indent: 0,
+      indentationString: '',
+    },
   )
+}
