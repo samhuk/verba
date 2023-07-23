@@ -44,11 +44,15 @@ export const verbaDecolorizer: Colors = {
   stripColors: () => '',
 }
 
+const getColorizer = (options?: NormalizeVerbaStringOptions) => (
+  (options?.disableColors ?? false) ? verbaDecolorizer : verbaColorizer
+)
+
 /**
  * Normalizes the given `VerbaString` `s` to a `string`.
  */
 export const normalizeVerbaString = (s: VerbaString, options?: NormalizeVerbaStringOptions): string => {
-  const _colorizer = (options?.disableColors ?? false) ? verbaDecolorizer : verbaColorizer
+  const _colorizer = getColorizer(options)
 
   switch (typeof s) {
     case 'function':
@@ -64,18 +68,19 @@ export const normalizeVerbaString = (s: VerbaString, options?: NormalizeVerbaStr
  * Renders the given `FancyString` `s` to a `string`
  */
 export const renderFancyString = (s: FancyString, options?: NormalizeVerbaStringOptions): string => (
-  s((options?.disableColors ?? false) ? verbaDecolorizer : verbaColorizer)
+  s(getColorizer(options))
 )
 
 /**
  * Renders the given string `s` with the given `formats`.
  * 
  * @example
- * const formattedString = renderStringWithFormats('foo', 'white', 'bold', 'underline')
+ * const formattedString = renderStringWithFormats('foo', ['white', 'bold', 'underline'])
  */
-export const renderStringWithFormats = (s: string, ...formats: StringFormat[]) => (
-  renderFancyString(c => formats.reduce((acc, f) => c[f](acc), s))
-)
+export const renderStringWithFormats = (s: string, formats: StringFormat[], options?: NormalizeVerbaStringOptions) => {
+  const _colorizer = getColorizer(options)
+  return formats.reduce((acc, format) => _colorizer[format](acc), s)
+}
 
 /**
  * Determines if the given `value` represents a `VerbaString`, i.e. a `string`,

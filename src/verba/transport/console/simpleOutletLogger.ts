@@ -7,11 +7,11 @@ import { createCodeStr } from "../../code"
 export type SimpleOutletLoggers = Record<SimpleOutlet, SimpleOutletLogger>
 
 const DEFAULT_SIMPLE_OUTLET_PREFIXES: SimpleOutletPrefixes = {
-  info: renderStringWithFormats('i', 'gray', 'bold') + ' ',
-  step:  renderStringWithFormats('*', 'cyan', 'bold') + ' ',
-  success: renderStringWithFormats('✔', 'green') + ' ',
-  warn: renderStringWithFormats('WARN', 'bold', 'underline', 'yellow') + ' ',
-  error: renderStringWithFormats('ERROR', 'bold', 'underline', 'red') + ' ',
+  info: renderStringWithFormats('i', ['gray', 'bold']) + ' ',
+  step:  renderStringWithFormats('*', ['cyan', 'bold']) + ' ',
+  success: renderStringWithFormats('✔', ['green']) + ' ',
+  warn: renderStringWithFormats('WARN', ['bold', 'underline', 'yellow']) + ' ',
+  error: renderStringWithFormats('ERROR', ['bold', 'underline', 'red']) + ' ',
 }
 
 type SimpleOutletLogger = (

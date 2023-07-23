@@ -1,6 +1,6 @@
 import { createListenerStore } from '.'
 
-describe('listenerStore', () => {
+describe('verba/util/listenerStore', () => {
   describe('createListenerStore', () => {
     const fn = createListenerStore
 
