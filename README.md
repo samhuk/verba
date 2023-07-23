@@ -29,16 +29,17 @@ End-game Javascript logging library.
 
 ## Usage Overview
 
+Install:
 ```
 npm i -S verba
 ```
 
+Basic usage:
 ```typescript
-import verba, { VerbaTransport } from 'verba'
+import verba from 'verba'
 
 const log = verba()
 
-// -- Basic usage
 log.info('...')
 log.step('...')
 log.warn('...')
@@ -50,19 +51,29 @@ log.table([
 ])
 log.spacer()
 log.divider()
+```
 
-// -- Advanced usage
+Advanced usage:
+```typescript
+import verba, { VerbaTransport } from 'verba'
+
+// Defining allowed log codes
+type Code = 'INIT' | 'ENV_VALIDATE' | 'CONNECT_DB' | ...
+const log = verba<Code>()
+
 // Message formatting & log codes
 log.info({
   msg: f => `${f.green('Hello')}, ${f.blue('world!')}`,
   code: 'HELLO_WORLD_MSG',
 })
+
 // Providing default log codes & indentation
 const childTaskLog = log.nest({ code: 'CHILD_TASK', indent: 2 })
 childTaskLog.info('...')
 childTaskLog.step('...')
+
 // Custom transports
-const transport: VerbaTransport = (loggerOptions, listeners) => {
+const myTransport: VerbaTransport = (loggerOptions, listeners) => {
   ...
   return nestState => {
     ...
@@ -71,14 +82,11 @@ const transport: VerbaTransport = (loggerOptions, listeners) => {
       info: options => ...,
       step: options => ...,
       success: options => ...,
-      warn: options => ...,
-      table: (data, options) => ...,
-      json: (data, options) => ...,
-      divider: () => ...,
-      spacer: numLines => ...,
+      ...
     }
   }
 }
+const customLogger = verba({ transports: [myTransport] })
 ```
 
 ## Transports
