@@ -11,7 +11,14 @@ import { createVerbaLogger } from './verba'
 // Transports
 export { consoleTransport } from './verba/transport/console/index'
 // VerbaString
-export { isVerbaString, normalizeVerbaString, renderFancyString, renderFancyStringWithFormats } from './verba/verbaString/index'
+export {
+  isVerbaString,
+  normalizeVerbaString,
+  renderFancyString,
+  renderStringWithFormats,
+  verbaColorizer,
+  verbaDecolorizer,
+} from './verba/verbaString/index'
 // Default
 export default createVerbaLogger
 // Types

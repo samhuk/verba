@@ -2,8 +2,8 @@ import { Colors, FancyString, NormalizeVerbaStringOptions, StringFormat, VerbaSt
 
 import colors from 'colors/safe'
 
-const colorizer: Colors = colors
-const decolorizer: Colors = {
+export const verbaColorizer: Colors = colors
+export const verbaDecolorizer: Colors = {
   black: s => s,
   red: s => s,
   green: s => s,
@@ -44,8 +44,11 @@ const decolorizer: Colors = {
   stripColors: () => '',
 }
 
+/**
+ * Normalizes the given `VerbaString` `s` to a `string`.
+ */
 export const normalizeVerbaString = (s: VerbaString, options?: NormalizeVerbaStringOptions): string => {
-  const _colorizer = (options?.disableColors ?? false) ? decolorizer : colorizer
+  const _colorizer = (options?.disableColors ?? false) ? verbaDecolorizer : verbaColorizer
 
   switch (typeof s) {
     case 'function':
@@ -57,15 +60,31 @@ export const normalizeVerbaString = (s: VerbaString, options?: NormalizeVerbaStr
   }
 }
 
+/**
+ * Renders the given `FancyString` `s` to a `string`
+ */
 export const renderFancyString = (s: FancyString, options?: NormalizeVerbaStringOptions): string => (
-  s((options?.disableColors ?? false) ? decolorizer : colorizer)
+  s((options?.disableColors ?? false) ? verbaDecolorizer : verbaColorizer)
 )
 
-export const renderFancyStringWithFormats = (name: string, ...formats: StringFormat[]) => (
-  renderFancyString(c => formats.reduce((acc, f) => c[f](acc), name))
+/**
+ * Renders the given string `s` with the given `formats`.
+ * 
+ * @example
+ * const formattedString = renderStringWithFormats('foo', 'white', 'bold', 'underline')
+ */
+export const renderStringWithFormats = (s: string, ...formats: StringFormat[]) => (
+  renderFancyString(c => formats.reduce((acc, f) => c[f](acc), s))
 )
 
-export const isVerbaString = (v: unknown): v is VerbaString => {
-  const typeOfV = typeof v
+/**
+ * Determines if the given `value` represents a `VerbaString`, i.e. a `string`,
+ * `function`, or `(string | function)[]`.
+ * 
+ * Note that the above types are not very unique, therefore be cautious about
+ * what other types that `value` could be.
+ */
+export const isVerbaString = (value: unknown): value is VerbaString => {
+  const typeOfV = typeof value
   return typeOfV === 'string' || typeOfV === 'function' || Array.isArray(typeOfV)
 }

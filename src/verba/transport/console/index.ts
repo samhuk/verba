@@ -27,12 +27,18 @@ export const consoleTransport: VerbaTransport = (options, listeners) => {
     current: undefined,
   }
 
+  // Before the log of any outlet apart from `step`, temporarily clear
+  // the spinner from the console line, allowing the non-`step` call to
+  // print to the console line before the spinner reprints it's frame.
   listeners.add('onBeforeLog', _options => {
     if (_options.outlet !== Outlet.STEP)
       spinnerRef.current?.temporarilyClear()
   })
 
   return nestState => {
+    // For every logger and nested loggers thereof, pre-create some loggers that
+    // bake-in some things like indentation and such for better performance and
+    // reduced code-dupe.
     const simpleOutletLoggers = createSimpleOutletLoggers(options, nestState.code)
     const stepLogger = createStepOutputLogger(isTty, nestState, simpleOutletLoggers, spinnerRef)
 

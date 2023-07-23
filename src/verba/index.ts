@@ -3,8 +3,13 @@ import { NestState, Outlet, VerbaLogger, VerbaLoggerOptions } from './types'
 
 import { ListenerStore } from './util/listenerStore/types'
 import { StepSpinner } from './step/types'
+import { consoleTransport } from './transport/console'
 import { createIndentationString } from './util/indentation'
 import { createListenerStore } from './util/listenerStore'
+
+const DEFAULT_OPTIONS: VerbaLoggerOptions = {
+  transports: [consoleTransport],
+}
 
 const _createVerbaLogger = <
   TCode extends string | number = string | number,
@@ -127,11 +132,11 @@ export const createVerbaLogger = <
   TOptions extends VerbaLoggerOptions = VerbaLoggerOptions,
 // eslint-disable-next-line arrow-body-style
 >(options?: TOptions): VerbaLogger<TOptions, TCode, TData> => {
+  const _options: VerbaLoggerOptions = options ?? { }
   const listeners = createListenerStore<keyof VerbaTransportEventHandlers<TCode, TData>, VerbaTransportEventHandlers<TCode, TData>>()
-  const instantiatedTransports = options?.transports?.map(p => p(options, listeners)) ?? []
-  
+  const instantiatedTransports = (_options.transports ?? [consoleTransport])?.map(p => p(_options, listeners)) ?? []
   return _createVerbaLogger(
-    options ?? { },
+    _options,
     instantiatedTransports,
     listeners,
     {
