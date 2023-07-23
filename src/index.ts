@@ -8,8 +8,8 @@
 import { createVerbaLogger } from './verba'
 
 // -- Exports
-// Plugins
-export { consolePlugin } from './verba/plugin/console/index'
+// Transports
+export { consoleTransport } from './verba/transport/console/index'
 // VerbaString
 export { isVerbaString, normalizeVerbaString, renderFancyString, renderFancyStringWithFormats } from './verba/verbaString/index'
 // Default

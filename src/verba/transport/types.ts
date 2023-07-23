@@ -47,7 +47,7 @@ type OutletHandlerFnOptions<
   'outlet'
 >
 
-export type VerbaPluginEventHandlers<
+export type VerbaTransportEventHandlers<
   TCode extends string | number = string | number,
   TData extends any = any
 > = {
@@ -55,20 +55,61 @@ export type VerbaPluginEventHandlers<
   onAfterLog: (options: OutletHandlerFnOptions<TCode, TData>, nestState: NestState<TCode>) => void
 }
 
-export type NestedInstantiatedVerbaPlugin<
+export type NestedInstantiatedVerbaTransport<
   TCode extends string | number = string | number,
   TData extends any = any
 > = OutletToHandlerFn<TCode, TData>
 
-export type InstantiatedVerbaPlugin<
-  TCode extends string | number = string | number,
-  TData extends any = any
-> = (nestState: NestState<TCode>) => NestedInstantiatedVerbaPlugin<TCode, TData>
-
-export type VerbaPlugin<
+export type InstantiatedVerbaTransport<
   TCode extends string | number = string | number,
   TData extends any = any
 > = (
+  /**
+   * The current nest state of the logger.
+   */
+  nestState: NestState<TCode>
+) => NestedInstantiatedVerbaTransport<TCode, TData>
+
+/**
+ * Defines how log messages are outputted.
+ * 
+ * @example
+ * import verba, { VerbaTransport } from 'verba'
+ * 
+ * const transport: VerbaTransport = (loggerOptions, listeners) => {
+ *   // Parse top-level logger options, add event listeners, perform setup...
+ *   return nestState => {
+ *     // ...
+ *     return {
+ *       log: msg => ...,
+ *       info: options => ...,
+ *       step: options => ...,
+ *       success: options => ...,
+ *       warn: options => ...,
+ *       table: (data, options) => ...,
+ *       json: (data, options) => ...,
+ *       divider: () => ...,
+ *       spacer: numLines => ...,
+ *     }
+ *   }
+ * }
+ * 
+ * const log = verba({ plugins: [transport] })
+ */
+export type VerbaTransport<
+  TCode extends string | number = string | number,
+  TData extends any = any
+> = (
+  /**
+   * The top-level verba-logger options that was received.
+   */
   options: VerbaLoggerOptions,
-  listeners: ListenerStore<keyof VerbaPluginEventHandlers<TCode, TData>, VerbaPluginEventHandlers<TCode, TData>>,
-) => InstantiatedVerbaPlugin<TCode, TData>
+  /**
+   * A listener store that can be used to add listeners to various events of
+   * the verba logger.
+   */
+  listeners: ListenerStore<
+    keyof VerbaTransportEventHandlers<TCode, TData>,
+    VerbaTransportEventHandlers<TCode, TData>
+  >,
+) => InstantiatedVerbaTransport<TCode, TData>

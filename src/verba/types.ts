@@ -1,8 +1,8 @@
 import { StepOptions, StepResult } from './step/types'
 
 import { GlobalOptions as ColumifyOptions } from 'columnify'
-import { VerbaPlugin } from './plugin/types'
 import { VerbaString } from './verbaString/types'
+import { VerbaTransport } from './transport/types'
 
 export type VerbaLoggerOptions = {
   /**
@@ -18,7 +18,34 @@ export type VerbaLoggerOptions = {
    * })
    */
   outletPrefixes?: SimpleOutletPrefixesOptions
-  plugins?: VerbaPlugin[]
+  /**
+   * Verba Transports, defining how log messages are outputted. By default,
+   * this is a console transport that outputs log messages to the Node.js `console`.
+   * 
+   * @example
+   * import verba, { VerbaTransport } from 'verba'
+   * 
+   * const transport: VerbaTransport = (loggerOptions, listeners) => {
+   *   ...
+   *   return nestState => {
+   *     ...
+   *     return {
+   *       log: msg => ...,
+   *       info: options => ...,
+   *       step: options => ...,
+   *       success: options => ...,
+   *       warn: options => ...,
+   *       table: (data, options) => ...,
+   *       json: (data, options) => ...,
+   *       divider: () => ...,
+   *       spacer: numLines => ...,
+   *     }
+   *   }
+   * }
+   * 
+   * const log = verba({ plugins: [transport] })
+   */
+  transports?: VerbaTransport[]
 }
 
 export enum Outlet {
@@ -52,7 +79,7 @@ export type BaseOutletOptions<
    */
   data?: TData
   /**
-   * An optional code to describe the area of the app that the code is in.
+   * Optional code to describe the area of the app that the log message is about.
    */
   code?: TCode
 }
@@ -89,13 +116,31 @@ export type AnyOutletOptions<
 export type NestOptions<
   TCode extends string | number = string | number,
 > = {
-  indent?: number,
+  /**
+   * Add on a default indentation for all subsequent calls to the child logger.
+   */
+  indent?: number
+  /**
+   * Define a default code for all subsequent calls to the child logger.
+   */
   code?: TCode
 }
 
 export type NestState<TCode extends string | number = string | number> = {
-  indent: number,
-  indentationString: string,
+  /**
+   * The current indentation index of the logger.
+   */
+  indent: number
+  /**
+   * The current indentation string of the logger.
+   */
+  indentationString: string
+  /**
+   * The current log code of the logger. This will be used as the default
+   * log code for subsequent calls to the logger, however can be overridden
+   * by specifying the `code` for particular log messages as a different code
+   * or explicitly `null` to remove the code.
+   */
   code: TCode | undefined
 }
 

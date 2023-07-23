@@ -2,7 +2,7 @@ import { MutableRef } from "../../util/types"
 import { NATIVE_OUTLETS } from "./nativeOutlets"
 import { Outlet } from "../../types"
 import { Spinner } from "../../spinner/types"
-import { VerbaPlugin } from "../types"
+import { VerbaTransport } from "../types"
 import colorizeJson from 'json-colorizer'
 import columify from 'columnify'
 import { createSimpleOutletLoggers } from "./simpleOutletLogger"
@@ -10,7 +10,11 @@ import { createStepOutputLogger } from "./step"
 import { normalizeVerbaString } from "../../verbaString"
 import { repeatStr } from "../../util/string"
 
-export const consolePlugin: VerbaPlugin = (options, listeners) => {
+/**
+ * A Verba Transport that outputs log messages to the Node.js `console`,
+ * supporting TTY and non-TTY consoles.
+ */
+export const consoleTransport: VerbaTransport = (options, listeners) => {
   const isTty = process.stdout.isTTY === true
 
   /**

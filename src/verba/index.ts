@@ -1,8 +1,8 @@
-import { InstantiatedVerbaPlugin, VerbaPluginEventHandlers } from './plugin/types'
+import { InstantiatedVerbaTransport, VerbaTransportEventHandlers } from './transport/types'
 import { NestState, Outlet, VerbaLogger, VerbaLoggerOptions } from './types'
-import { StepResult, StepSpinner } from './step/types'
 
 import { ListenerStore } from './util/listenerStore/types'
+import { StepSpinner } from './step/types'
 import { createIndentationString } from './util/indentation'
 import { createListenerStore } from './util/listenerStore'
 
@@ -12,18 +12,18 @@ const _createVerbaLogger = <
   TOptions extends VerbaLoggerOptions = VerbaLoggerOptions,
 >(
   options: TOptions,
-  instantiatedPlugins: InstantiatedVerbaPlugin[],
-  listeners: ListenerStore<keyof VerbaPluginEventHandlers<TCode, TData>, VerbaPluginEventHandlers<TCode, TData>>,
+  instantiatedTransports: InstantiatedVerbaTransport[],
+  listeners: ListenerStore<keyof VerbaTransportEventHandlers<TCode, TData>, VerbaTransportEventHandlers<TCode, TData>>,
   nestState: NestState<TCode>,
 ): VerbaLogger<TOptions, TCode, TData> => {
-  const nestedInstantiatedPlugins = instantiatedPlugins.map(p => p(nestState))
+  const nestedInstantiatedTransports = instantiatedTransports.map(p => p(nestState))
 
   return {
     nest: _options => {
       const indent = nestState.indent + (_options.indent ?? 0)
       return _createVerbaLogger(
         options,
-        instantiatedPlugins,
+        instantiatedTransports,
         listeners,
         {
           indent,
@@ -34,18 +34,18 @@ const _createVerbaLogger = <
     },
     log: msg => {
       listeners.call('onBeforeLog', { outlet: Outlet.LOG, msg }, nestState)
-      nestedInstantiatedPlugins.forEach(p => p.log(msg))
+      nestedInstantiatedTransports.forEach(p => p.log(msg))
       listeners.call('onAfterLog', { outlet: Outlet.LOG, msg }, nestState)
     },
     info: _options => {
       listeners.call('onBeforeLog', { outlet: Outlet.INFO, options: _options }, nestState)
-      nestedInstantiatedPlugins.forEach(p => p.info(_options))
+      nestedInstantiatedTransports.forEach(p => p.info(_options))
       listeners.call('onAfterLog', { outlet: Outlet.INFO, options: _options }, nestState)
     },
     step: _options => {
       listeners.call('onBeforeLog', { outlet: Outlet.STEP, options: _options }, nestState)
       if (!Array.isArray(_options) && typeof _options === 'object' && _options.spinner) {
-        const results = nestedInstantiatedPlugins.map(p => p.step(_options)).filter(v => v != null) as StepSpinner[]
+        const results = nestedInstantiatedTransports.map(p => p.step(_options)).filter(v => v != null) as StepSpinner[]
         const result: StepSpinner = {
           text: (...args) => results.forEach(r => r.text(...args)),
           color: (...args) => results.forEach(r => r.color(...args)),
@@ -59,38 +59,38 @@ const _createVerbaLogger = <
         return result as any
       }
       else {
-        nestedInstantiatedPlugins.forEach(p => p.step(_options))
+        nestedInstantiatedTransports.forEach(p => p.step(_options))
         listeners.call('onAfterLog', { outlet: Outlet.STEP, options: _options }, nestState)
       }
     },
     success: _options => {
       listeners.call('onBeforeLog', { outlet: Outlet.SUCCESS, options: _options }, nestState)
-      nestedInstantiatedPlugins.forEach(p => p.success(_options))
+      nestedInstantiatedTransports.forEach(p => p.success(_options))
       listeners.call('onAfterLog', { outlet: Outlet.SUCCESS, options: _options }, nestState)
     },
     warn: _options => {
       listeners.call('onBeforeLog', { outlet: Outlet.WARN, options: _options }, nestState)
-      nestedInstantiatedPlugins.forEach(p => p.warn(_options))
+      nestedInstantiatedTransports.forEach(p => p.warn(_options))
       listeners.call('onAfterLog', { outlet: Outlet.WARN, options: _options }, nestState)
     },
     table: (data, _options) => {
       listeners.call('onBeforeLog', { outlet: Outlet.TABLE, options: _options, data }, nestState)
-      nestedInstantiatedPlugins.forEach(p => p.table(data, _options))
+      nestedInstantiatedTransports.forEach(p => p.table(data, _options))
       listeners.call('onAfterLog', { outlet: Outlet.TABLE, options: _options, data }, nestState)
     },
     json: (value, _options) => {
       listeners.call('onBeforeLog', { outlet: Outlet.JSON, options: _options, value }, nestState)
-      nestedInstantiatedPlugins.forEach(p => p.json(value, _options))
+      nestedInstantiatedTransports.forEach(p => p.json(value, _options))
       listeners.call('onAfterLog', { outlet: Outlet.JSON, options: _options, value }, nestState)
     },
     divider: () => {
       listeners.call('onBeforeLog', { outlet: Outlet.DIVIDER }, nestState)
-      nestedInstantiatedPlugins.forEach(p => p.divider())
+      nestedInstantiatedTransports.forEach(p => p.divider())
       listeners.call('onAfterLog', { outlet: Outlet.DIVIDER }, nestState)
     },
     spacer: _options => {
       listeners.call('onBeforeLog', { outlet: Outlet.SPACER, numLines: _options }, nestState)
-      nestedInstantiatedPlugins.forEach(p => p.spacer(_options))
+      nestedInstantiatedTransports.forEach(p => p.spacer(_options))
       listeners.call('onAfterLog', { outlet: Outlet.SPACER, numLines: _options }, nestState)
     },
   }
@@ -127,12 +127,12 @@ export const createVerbaLogger = <
   TOptions extends VerbaLoggerOptions = VerbaLoggerOptions,
 // eslint-disable-next-line arrow-body-style
 >(options?: TOptions): VerbaLogger<TOptions, TCode, TData> => {
-  const listeners = createListenerStore<keyof VerbaPluginEventHandlers<TCode, TData>, VerbaPluginEventHandlers<TCode, TData>>()
-  const instantiatedPlugins = options?.plugins?.map(p => p(options, listeners)) ?? []
+  const listeners = createListenerStore<keyof VerbaTransportEventHandlers<TCode, TData>, VerbaTransportEventHandlers<TCode, TData>>()
+  const instantiatedTransports = options?.transports?.map(p => p(options, listeners)) ?? []
   
   return _createVerbaLogger(
     options ?? { },
-    instantiatedPlugins,
+    instantiatedTransports,
     listeners,
     {
       code: undefined,

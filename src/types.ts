@@ -6,5 +6,5 @@
  */
 
 export type { VerbaLogger, VerbaLoggerOptions } from './verba/types'
-export type { VerbaPlugin } from './verba/plugin/types'
+export type { VerbaTransport } from './verba/transport/types'
 export type { VerbaString } from './verba/verbaString/types'
