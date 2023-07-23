@@ -1,5 +1,7 @@
 import { normalizeVerbaString, renderFancyString, renderStringWithFormats } from '.'
 
+const isTty = process.stdout.isTTY
+
 describe('verba/verbaString', () => {
   describe('normalizeVerbaString', () => {
     const fn = normalizeVerbaString
@@ -11,12 +13,12 @@ describe('verba/verbaString', () => {
 
     test('function', () => {
       const result = fn(f => `${f.blue('foo')} ${f.bold('bar')}`)
-      expect(result).toBe('[34mfoo[39m [1mbar[22m')
+      expect(result).toBe(isTty ? '[34mfoo[39m [1mbar[22m' : 'foo bar')
     })
 
     test('array', () => {
       const result = fn(['foo', f => ` ${f.blue('bar')} ${f.bold('fizz')} `, 'buzz'])
-      expect(result).toBe('foo [34mbar[39m [1mfizz[22m buzz')
+      expect(result).toBe(isTty ? 'foo [34mbar[39m [1mfizz[22m buzz' : 'foo bar fizz buzz')
     })
 
     test('empty array', () => {
@@ -30,7 +32,7 @@ describe('verba/verbaString', () => {
 
     test('basic test', () => {
       const result = fn(f => `${f.blue('foo')} ${f.bold('bar')}`)
-      expect(result).toBe('[34mfoo[39m [1mbar[22m')
+      expect(result).toBe(isTty ? '[34mfoo[39m [1mbar[22m' : 'foo bar')
     })
 
     test('fn returning empty string', () => {
@@ -49,12 +51,12 @@ describe('verba/verbaString', () => {
 
     test('function', () => {
       const result = fn(f => `${f.blue('foo')} ${f.bold('bar')}`)
-      expect(result).toBe('[34mfoo[39m [1mbar[22m')
+      expect(result).toBe(isTty ? '[34mfoo[39m [1mbar[22m' : 'foo bar')
     })
 
     test('array', () => {
       const result = fn(['foo', f => ` ${f.blue('bar')} ${f.bold('fizz')} `, 'buzz'])
-      expect(result).toBe('foo [34mbar[39m [1mfizz[22m buzz')
+      expect(result).toBe(isTty ? 'foo [34mbar[39m [1mfizz[22m buzz' : 'foo bar fizz buzz')
     })
 
     test('empty array', () => {
@@ -68,7 +70,7 @@ describe('verba/verbaString', () => {
 
     test('basic test', () => {
       const result = fn('foo', ['blue', 'bold', 'underline'])
-      expect(result).toBe('[4m[1m[34mfoo[39m[22m[24m')
+      expect(result).toBe(isTty ? '[4m[1m[34mfoo[39m[22m[24m' : 'foo')
     })
 
     test('empty string', () => {

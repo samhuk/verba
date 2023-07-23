@@ -11,16 +11,6 @@
       }
     },
     {
-      "label": "IntegrationTestsDebugPreLaunchTask",
-      "type": "shell",
-      "command": "npm run build-integration-tests",
-      "presentation": {
-        "reveal": "silent",
-        "revealProblems": "onProblem",
-        "close": true
-      }
-    },
-    {
       "label": "exampleDebugPreLaunchTask",
       "type": "shell",
       "command": "npm run build-examples",
