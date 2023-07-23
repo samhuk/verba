@@ -81,9 +81,9 @@ const transport: VerbaTransport = (loggerOptions, listeners) => {
 }
 ```
 
-## Transport
+## Transports
 
-The way Verba logs are outputted can be defined by Transports. By default, Verba uses `consoleTransport` from [./src/verba/transport/console/index.ts](src/verba/transport/console/index.ts). This outputs log messages to the Node.js `console`.
+The way Verba logs are outputted can be defined by **Transports**. By default, Verba uses `consoleTransport` from [./src/verba/transport/console/index.ts](src/verba/transport/console/index.ts). This outputs log messages to the Node.js `console`.
 
 Custom transports can be a way to define different ways to output log message.
 
