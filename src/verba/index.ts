@@ -7,10 +7,6 @@ import { consoleTransport } from './transport/console'
 import { createIndentationString } from './util/indentation'
 import { createListenerStore } from './util/listenerStore'
 
-const DEFAULT_OPTIONS: VerbaLoggerOptions = {
-  transports: [consoleTransport],
-}
-
 const _createVerbaLogger = <
   TCode extends string | number = string | number,
   TData extends any = any,

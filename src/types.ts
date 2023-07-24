@@ -5,6 +5,6 @@
  * E.g. `import { PackageNameOptions } from 'npm-package-name`
  */
 
-export type { VerbaLogger, VerbaLoggerOptions } from './verba/types'
-export type { VerbaTransport } from './verba/transport/types'
+export type { VerbaLogger, VerbaLoggerOptions, NestState } from './verba/types'
+export type { VerbaTransport, InstantiatedVerbaTransport, NestedInstantiatedVerbaTransport } from './verba/transport/types'
 export type { VerbaString } from './verba/verbaString/types'

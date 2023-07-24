@@ -71,6 +71,7 @@
     "lines-between-class-members": "off",
     "no-param-reassign": "warn",
     "object-shorthand": ["error", "properties"],
-    "space-before-function-paren": "off"
+    "space-before-function-paren": "off",
+    "eol-last": "error"
   }
 }
