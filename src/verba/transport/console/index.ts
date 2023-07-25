@@ -11,6 +11,33 @@ import { normalizeVerbaString } from "../../verbaString"
 import { repeatStr } from "../../util/string"
 
 /**
+ * Colors config object for the json-colorizer package for TTY consoles.
+ * 
+ * See below comment for `DEFAULT_FOREGROUND_JSON_COLORS` about why '1' is used.
+ */
+const TTY_JSON_COLORS = {
+  STRING_KEY: '1', // Make string keys the default foreground color
+  NULL_LITERAL: 'grey', // Make null literal values a bit lighter
+}
+
+/**
+ * Colors config object for the json-colorizer package that, due to
+ * the package's rubbish way of doing options, is a workaround to enable
+ * default foreground colors for text (that will work in light and dark themes).
+ */
+const DEFAULT_FOREGROUND_JSON_COLORS = {
+  BOOLEAN_LITERAL: '1',
+  BRACE: '1',
+  BRACKET: '1',
+  COLON: '1',
+  COMMA: '1',
+  NULL_LITERAL: '1',
+  NUMBER_LITERAL: '1',
+  STRING_KEY: '1',
+  STRING_LITERAL: '1',
+}
+
+/**
  * A Verba Transport that outputs log messages to the Node.js `console`,
  * supporting TTY and non-TTY consoles.
  */
@@ -40,10 +67,10 @@ export const consoleTransport: VerbaTransport = (options, listeners) => {
     // bake-in some things like indentation and such for better performance and
     // reduced code-dupe.
     const simpleOutletLoggers = createSimpleOutletLoggers(options, nestState.code)
-    const stepLogger = createStepOutputLogger(isTty, nestState, simpleOutletLoggers, spinnerRef)
+    const stepLogger = createStepOutputLogger(isTty, nestState, simpleOutletLoggers.step, spinnerRef)
 
     return {
-      log: msg => NATIVE_OUTLETS.log(normalizeVerbaString(msg)),
+      log: _options => NATIVE_OUTLETS.log(normalizeVerbaString(_options.msg)),
       info: _options => simpleOutletLoggers.info(_options, nestState.indentationString),
       step: _options => stepLogger(_options) as any,
       success: _options => simpleOutletLoggers.success(_options, nestState.indentationString),
@@ -51,8 +78,9 @@ export const consoleTransport: VerbaTransport = (options, listeners) => {
       table: (data, _options) => NATIVE_OUTLETS.log(columify(data, _options)),
       json: (value, _options) => NATIVE_OUTLETS.log(colorizeJson(value, {
         pretty: _options?.pretty ?? false,
+        colors: isTty ? TTY_JSON_COLORS : DEFAULT_FOREGROUND_JSON_COLORS,
       })),
-      spacer: numLines => NATIVE_OUTLETS.log(repeatStr('\n', ((numLines ?? 1) - 1))),
+      spacer: _options => NATIVE_OUTLETS.log(repeatStr('\n', _options.numLines - 1)),
       divider: () => NATIVE_OUTLETS.log(repeatStr('-', process.stdout.columns * 0.33)),
     }
   }

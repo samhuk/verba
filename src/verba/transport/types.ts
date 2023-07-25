@@ -1,39 +1,50 @@
-import { InfoOptions, JsonOptions, NestState, Outlet, SuccessOptions, VerbaLoggerOptions, WarnOptions } from "../types"
-import { StepOptions, StepResult } from "../step/types"
+import {
+  NestState,
+  NormalizedDividerOptions,
+  NormalizedJsonOptions,
+  NormalizedSimpleOutletOptions,
+  NormalizedSpacerOptions,
+  NormalizedTableOptions,
+  Outlet,
+  VerbaLoggerOptions,
+} from "../types"
+import { NormalizedStepOptions, StepResult } from "../step/types"
 
-import { GlobalOptions as ColumifyOptions } from 'columnify'
 import { ListenerStore } from "../util/listenerStore/types"
 import { TypeDependantBaseIntersection } from '../util/types'
-import { VerbaString } from "../verbaString/types"
 
 export type OutletToHandlerArgsObjs<
   TCode extends string | number = string | number,
   TData extends any = any
 > = {
-  [Outlet.LOG]: { msg: VerbaString },
-  [Outlet.INFO]: { options: InfoOptions<TCode, TData> },
-  [Outlet.STEP]: { options: StepOptions<TCode, TData> },
-  [Outlet.SUCCESS]: { options: SuccessOptions<TCode, TData> },
-  [Outlet.WARN]: { options: WarnOptions<TCode, TData> },
-  [Outlet.TABLE]: { data: any, options?: ColumifyOptions },
-  [Outlet.JSON]: { value: any, options?: JsonOptions },
-  [Outlet.DIVIDER]: { },
-  [Outlet.SPACER]: { numLines?: number },
+  // -- Simple outlets
+  [Outlet.LOG]: { options: NormalizedSimpleOutletOptions<TCode, TData> },
+  [Outlet.INFO]: { options: NormalizedSimpleOutletOptions<TCode, TData> },
+  [Outlet.STEP]: { options: NormalizedStepOptions<TCode, TData> },
+  [Outlet.SUCCESS]: { options: NormalizedSimpleOutletOptions<TCode, TData> },
+  [Outlet.WARN]: { options: NormalizedSimpleOutletOptions<TCode, TData> },
+  // -- Other outlets
+  [Outlet.TABLE]: { data: any, options: NormalizedTableOptions<TCode, TData> },
+  [Outlet.JSON]: { value: any, options: NormalizedJsonOptions<TCode, TData> },
+  [Outlet.DIVIDER]: { options: NormalizedDividerOptions<TCode, TData> },
+  [Outlet.SPACER]: { options: NormalizedSpacerOptions<TCode, TData> },
 }
 
-export type OutletToHandlerFn<
+export type OutletToTransportHandlerFn<
   TCode extends string | number = string | number,
   TData extends any = any
 > = {
-  [Outlet.LOG]: (msg: VerbaString) => void
-  [Outlet.INFO]: (options: InfoOptions<TCode, TData>) => void,
-  [Outlet.STEP]: <TStepOptions extends StepOptions<TCode>>(options: TStepOptions) => StepResult<TStepOptions> | undefined,
-  [Outlet.SUCCESS]: (options: SuccessOptions<TCode, TData>) => void,
-  [Outlet.WARN]: (options: WarnOptions<TCode, TData>) => void,
-  [Outlet.TABLE]: (data: any, options?: ColumifyOptions) => void,
-  [Outlet.JSON]: (value: any, options?: JsonOptions) => void,
-  [Outlet.DIVIDER]: () => void,
-  [Outlet.SPACER]: (numLines?: number) => void,
+  // -- Simple outlets
+  [Outlet.LOG]: (options: NormalizedSimpleOutletOptions<TCode, TData>) => void,
+  [Outlet.INFO]: (options: NormalizedSimpleOutletOptions<TCode, TData>) => void,
+  [Outlet.STEP]: <TOptions extends NormalizedStepOptions<TCode, TData>>(options: TOptions) => StepResult<TOptions>,
+  [Outlet.SUCCESS]: (options: NormalizedSimpleOutletOptions<TCode, TData>) => void,
+  [Outlet.WARN]: (options: NormalizedSimpleOutletOptions<TCode, TData>) => void,
+  // -- Other outlets
+  [Outlet.TABLE]: (data: any, options: NormalizedTableOptions<TCode>) => void,
+  [Outlet.JSON]: (value: any, options: NormalizedJsonOptions<TCode>) => void,
+  [Outlet.DIVIDER]: (options: NormalizedDividerOptions<TCode>) => void,
+  [Outlet.SPACER]: (options: NormalizedSpacerOptions<TCode>) => void,
 }
 
 type OutletHandlerFnOptions<
@@ -58,7 +69,7 @@ export type VerbaTransportEventHandlers<
 export type NestedInstantiatedVerbaTransport<
   TCode extends string | number = string | number,
   TData extends any = any
-> = OutletToHandlerFn<TCode, TData>
+> = OutletToTransportHandlerFn<TCode, TData>
 
 export type InstantiatedVerbaTransport<
   TCode extends string | number = string | number,
@@ -103,7 +114,7 @@ export type VerbaTransport<
   /**
    * The top-level verba-logger options that was received.
    */
-  options: VerbaLoggerOptions,
+  options: VerbaLoggerOptions<TCode, TData>,
   /**
    * A listener store that can be used to add listeners to various events of
    * the verba logger.

@@ -4,10 +4,12 @@
  *
  * E.g. `import { createPackageName, PackageNameOptions } from 'npm-package-name`
  */
-// -- Imports
+// -- Imports (for exporting later)
 import { createVerbaLogger } from './verba'
 
 // -- Exports
+// Util
+export { isSimpleOutlet } from './verba'
 // Transports
 export { consoleTransport } from './verba/transport/console/index'
 // VerbaString
@@ -19,6 +21,7 @@ export {
   verbaColorizer,
   verbaDecolorizer,
 } from './verba/verbaString/index'
+export { Outlet } from './verba/types'
 // Default
 export default createVerbaLogger
 // Types

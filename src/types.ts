@@ -7,4 +7,5 @@
 
 export type { VerbaLogger, VerbaLoggerOptions, NestState } from './verba/types'
 export type { VerbaTransport, InstantiatedVerbaTransport, NestedInstantiatedVerbaTransport } from './verba/transport/types'
+export type { OutletFilter, OutletFilterOptions } from './verba/outletFilter/types'
 export type { VerbaString } from './verba/verbaString/types'

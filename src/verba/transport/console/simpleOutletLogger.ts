@@ -1,5 +1,5 @@
-import { AnyOutletOptions, SimpleOutlet, SimpleOutletPrefixes, VerbaLoggerOptions } from "../../types"
-import { isVerbaString, normalizeVerbaString, renderStringWithFormats } from "../../verbaString"
+import { NormalizedSimpleOutletOptions, SimpleOutlet, SimpleOutletPrefixes, VerbaLoggerOptions } from "../../types"
+import { normalizeVerbaString, renderStringWithFormats } from "../../verbaString"
 
 import { NATIVE_OUTLETS } from "./nativeOutlets"
 import { createCodeStr } from "../../code"
@@ -11,11 +11,10 @@ const DEFAULT_SIMPLE_OUTLET_PREFIXES: SimpleOutletPrefixes = {
   step:  renderStringWithFormats('*', ['cyan', 'bold']) + ' ',
   success: renderStringWithFormats('✔', ['green']) + ' ',
   warn: renderStringWithFormats('WARN', ['bold', 'underline', 'yellow']) + ' ',
-  error: renderStringWithFormats('ERROR', ['bold', 'underline', 'red']) + ' ',
 }
 
 type SimpleOutletLogger = (
-  options: AnyOutletOptions,
+  options: NormalizedSimpleOutletOptions,
   indentationString: string,
 ) => void
 
@@ -33,22 +32,8 @@ const createSimpleOutletLogger = (
   
   return (_options, indentationString) => {
     const _prefix = indentationString + outletPrefix
-
-    if (isVerbaString(_options)) {
-      const codeStr = createCodeStr(parentCode)
-      nativeLog(_prefix + codeStr + normalizeVerbaString(_options))
-      return
-    }
-
     const code = _options.code ?? parentCode
     const codeStr = createCodeStr(code)
-
-    if (Array.isArray(_options.msg)) {
-      // eslint-disable-next-line max-len
-      nativeLog(_prefix + codeStr + _options.msg.map(s => normalizeVerbaString(s)).join(indentationString))
-      return
-    }
-
     nativeLog(_prefix + codeStr + normalizeVerbaString(_options.msg))
   }
 }
@@ -61,5 +46,4 @@ export const createSimpleOutletLoggers = (
   step: createSimpleOutletLogger(options, 'step', parentCode),
   success: createSimpleOutletLogger(options, 'success', parentCode),
   warn: createSimpleOutletLogger(options, 'warn', parentCode),
-  error: createSimpleOutletLogger(options, 'error', parentCode),
 })

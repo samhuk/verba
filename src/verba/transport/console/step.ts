@@ -1,6 +1,6 @@
-import { BaseOutletOptions, NestState } from "../../types"
+import { NestState, SimpleOutletOptions } from "../../types"
+import { NormalizedStepOptions, StepSpinner } from "../../step/types"
 import { Spinner, SpinnerOptions } from "../../spinner/types"
-import { StepOptions, StepSpinner } from "../../step/types"
 import { isVerbaString, normalizeVerbaString } from "../../verbaString"
 
 import { MutableRef } from "../../util/types"
@@ -9,8 +9,8 @@ import { VerbaString } from "../../verbaString/types"
 import { createCodeStr } from "../../code"
 import { createConsoleSpinner } from "../../spinner"
 
-export const logStepWithSpinner = (
-  options: (BaseOutletOptions & {
+const logStepWithSpinner = (
+  options: (Exclude<SimpleOutletOptions, VerbaString> & {
     spinner?: true | Omit<SpinnerOptions, 'text'>
   }),
   nestState: NestState,
@@ -18,9 +18,7 @@ export const logStepWithSpinner = (
 ): StepSpinner => {
   const code = options.code === null ? undefined : (options.code ?? nestState.code)
   const codeStr = createCodeStr(code)
-  const msg = Array.isArray(options.msg)
-    ? options.msg.map(s => normalizeVerbaString(s)).join(`\n${nestState.indentationString}`)
-    : normalizeVerbaString(options.msg)
+  const msg = normalizeVerbaString(options.msg)
 
   const spinner = createConsoleSpinner(
     typeof options.spinner === 'boolean'
@@ -52,16 +50,16 @@ export const logStepWithSpinner = (
   }
 }
 
-export const createNonTTYSpinnerShim = (
-  simpleOutletLoggers: SimpleOutletLoggers,
-  options: Exclude<StepOptions, VerbaString>,
+const createNonTTYSpinnerShim = (
+  stepSimpleOutletLoggers: SimpleOutletLoggers['step'],
+  options: NormalizedStepOptions,
   indentationString: string,
 ) => {
   // When stdout is not TTY, then spinner functionality is not possible.
-  // Therefore we log the initial message, and depending 
-  simpleOutletLoggers.step(options, indentationString)
+  // Therefore we log the initial message, and then return a step spinner shim.
+  stepSimpleOutletLoggers(options, indentationString)
   return {
-    start: () => simpleOutletLoggers.step(options, indentationString),
+    start: () => stepSimpleOutletLoggers(options, indentationString),
     color: () => undefined,
     temporarilyClear: () => undefined,
     destroy: () => undefined,
@@ -69,24 +67,27 @@ export const createNonTTYSpinnerShim = (
     stopAndPersist: () => undefined,
     text: (s, onlyTty) => onlyTty
       ? undefined
-      : simpleOutletLoggers.step({ ...options, msg: s }, indentationString),
+      : stepSimpleOutletLoggers({ ...options, msg: s }, indentationString),
   } as StepSpinner
 }
 
 export const createStepOutputLogger = (
     isTty: boolean,
     nestState: NestState,
-    simpleOutletLoggers: SimpleOutletLoggers,
+    stepSimpleOutletLoggers: SimpleOutletLoggers['step'],
     spinnerRef: MutableRef<Spinner | undefined>,
-) => (options: StepOptions): StepSpinner | void => {
+) => (options: NormalizedStepOptions): StepSpinner | void => {
+  // If the options is an object with a truthy `spinner` prop, then do spinner
   if (!isVerbaString(options) && options.spinner) {
+    // If the current console is TTY, then do real spinner
     if (isTty) {
       spinnerRef.current?.destroy()
       return spinnerRef.current = logStepWithSpinner(options as any, nestState, spinnerRef)
     }
-
-    return spinnerRef.current = createNonTTYSpinnerShim(simpleOutletLoggers, options, nestState.indentationString)
+    // Else (current console is not TTY), then do fake spinner
+    return spinnerRef.current = createNonTTYSpinnerShim(stepSimpleOutletLoggers, options, nestState.indentationString)
   }
 
-  simpleOutletLoggers.step(options, nestState.indentationString)
+  // Else (options is not truthy spinner), log normal step
+  stepSimpleOutletLoggers(options, nestState.indentationString)
 }

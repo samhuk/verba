@@ -29,12 +29,14 @@ End-game Javascript logging library.
 
 ## Usage Overview
 
-Install:
+### Install
+
 ```
 npm i -S verba
 ```
 
-Basic usage:
+### Basic Usage
+
 ```typescript
 import verba from 'verba'
 
@@ -53,47 +55,42 @@ log.spacer()
 log.divider()
 ```
 
-Advanced usage:
-```typescript
-import verba, { VerbaTransport } from 'verba'
+### Advanced Usage
 
-// Defining allowed log codes
+Defining allowed log codes:
+
+```typescript
 type Code = 'INIT' | 'ENV_VALIDATE' | 'CONNECT_DB' | ...
 const log = verba<Code>()
+```
 
-// Message formatting & log codes
+Message formatting, log codes, and log data:
+
+```typescript
 log.info({
   msg: f => `${f.green('Hello')}, ${f.blue('world!')}`,
   code: 'HELLO_WORLD_MSG',
+  data: { verbose: true }
 })
+```
 
-// Providing default log codes & indentation
+Providing default log codes and indentation:
+
+```typescript
 const childTaskLog = log.nest({ code: 'CHILD_TASK', indent: 2 })
 childTaskLog.info('...')
 childTaskLog.step('...')
-
-// Custom transports
-const myTransport: VerbaTransport = (loggerOptions, listeners) => {
-  ...
-  return nestState => {
-    ...
-    return {
-      log: msg => ...,
-      info: options => ...,
-      step: options => ...,
-      success: options => ...,
-      ...
-    }
-  }
-}
-const customLogger = verba({ transports: [myTransport] })
 ```
+
+For further advanced usage guidance, see the following sections.
 
 ## Transports
 
-The way Verba logs are outputted can be defined by **Transports**. By default, Verba uses `consoleTransport` from [./src/verba/transport/console/index.ts](src/verba/transport/console/index.ts). This outputs log messages to the Node.js `console`.
+Where and how Verba logs are outputted can be defined by **Transports**.
 
-Custom transports can be a way to define different ways to output log message.
+By default, Verba uses only `consoleTransport` ([./src/verba/transport/console/index.ts](src/verba/transport/console/index.ts)). This outputs log messages to the Node.js `console`.
+
+Custom transports can be a way to define completely different ways to output log messages. For example:
 
 ```typescript
 import verba, { VerbaTransport } from 'verba'
@@ -117,13 +114,52 @@ const transport: VerbaTransport = (
       warn: options => ...,
       table: (data, options) => ...,
       json: (data, options) => ...,
-      divider: () => ...,
-      spacer: numLines => ...,
+      divider: options => ...,
+      spacer: options => ...,
     }
   }
 }
 
-const log = verba({ plugins: [transport] })
+const log = verba({ transports: [transport] })
+```
+
+## Outlet Filters
+
+Verba log messages can be included and excluded via **Outlet Filters**.
+
+One can filter based on any aspect of any log message, for example the `Outlet` of the log message (e.g. `log`, `step`, `info`, `table`, `json`, etc.), the options supplied to them, the data supplied to `table`, and so on.
+
+### Example - Exclude tables over 5 rows
+
+```typescript
+import verba, { OutletFilter } from 'verba'
+
+const excludeLargeTables: OutletFilter = options => (
+  options.outlet !== Outlet.TABLE || options.data?.length < 6
+)
+const log = verba({
+  outletFilters: [excludeLargeTables]
+})
+log.table([1, 2, 3, 4, 5]) // Included
+log.table([1, 2, 3, 4, 5, 6]) // Excluded
+```
+
+### Example - Exclude verbose logs
+
+```typescript
+import verba, { OutletFilter } from 'verba'
+
+type LogMessageData = { verbose: boolean }
+const excludeVerbose: OutletFilter<string, LogMessageData> = options => (
+  !options.options.data.verbose
+)
+const log = verba<string, LogMessageData>({
+  outletFilters: [excludeVerbose]
+})
+log.info({
+  msg: 'This is verbose and therefore excluded',
+  data: { verbose: true }
+})
 ```
 
 ## Examples
@@ -134,7 +170,32 @@ To see how to run the examples locally, see [./contributing/development.md#examp
 
 ## Development
 
-See [./contributing/development.md](./contributing/development.md)
+Install NPM dependencies:
+```
+npm i
+```
+
+Lint Typescript code:
+```shell
+npm run lint
+```
+
+Build and run unit tests:
+```shell
+npm run unit-tests
+```
+
+Build all Typescript code (excluding app example):
+```shell
+npm run build-ts
+```
+
+Build and run app example:
+```shell
+npm run example
+```
+
+See [./contributing/development.md](./contributing/development.md) for more information
 
 ---
 

@@ -1,16 +1,21 @@
 import { StepOptions, StepResult } from './step/types'
 
 import { GlobalOptions as ColumifyOptions } from 'columnify'
+import { OutletFilter } from './outletFilter/types'
 import { VerbaString } from './verbaString/types'
 import { VerbaTransport } from './transport/types'
 
-export type VerbaLoggerOptions = {
+export type VerbaLoggerOptions<
+  TCode extends string | number = string | number,
+  TData extends any = any,
+> = {
   /**
    * Configures the prefixes that appear for each outlet,
    * i.e. `info`, `step`, etc.
    *
    * @example
-   * const log = createVerbaLogger({
+   * import verba from 'verba'
+   * const log = verba({
    *   outletPrefixes: {
    *     info: 'info',
    *     step: f => f.cyan(f.underline('step')),
@@ -18,6 +23,16 @@ export type VerbaLoggerOptions = {
    * })
    */
   outletPrefixes?: SimpleOutletPrefixesOptions
+  /**
+   * Log message filters. These apply to all defined transports.
+   * 
+   * @example
+   * import verba, { OutletFilter } from 'verba'
+   * // Filter out table log messages
+   * const myFilter: OutletFilter = options => options.outlet !== Outlet.TABLE
+   * const log = verba({ outletFilters: [myFilter] })
+   */
+  outletFilters?: OutletFilter<TCode, TData>[]
   /**
    * Verba Transports, defining how log messages are outputted. By default,
    * this is a console transport that outputs log messages to the Node.js `console`.
@@ -45,7 +60,7 @@ export type VerbaLoggerOptions = {
    * 
    * const log = verba({ plugins: [transport] })
    */
-  transports?: VerbaTransport[]
+  transports?: VerbaTransport<TCode, TData>[]
 }
 
 export enum Outlet {
@@ -59,59 +74,6 @@ export enum Outlet {
   DIVIDER = "divider",
   SPACER = "spacer",
 }
-
-export type SimpleOutlet = 'info' | 'step' | 'success' | 'warn' | 'error'
-
-export type SimpleOutletPrefixesOptions = Partial<Record<SimpleOutlet, VerbaString>>
-
-export type SimpleOutletPrefixes = Record<SimpleOutlet, string>
-
-export type BaseOutletOptions<
-  TCode extends string | number = string | number,
-  TData extends any = any,
-> = {
-  /**
-   * The log message.
-   */
-  msg: VerbaString
-  /**
-   * Optional miscellaneous data associated with the log message.
-   */
-  data?: TData
-  /**
-   * Optional code to describe the area of the app that the log message is about.
-   */
-  code?: TCode
-}
-
-export type InfoOptions<
-  TCode extends string | number = string | number,
-  TData extends any = any,
-> = VerbaString | BaseOutletOptions<TCode, TData>
-
-export type SuccessOptions<
-  TCode extends string | number = string | number,
-  TData extends any = any,
-> = VerbaString | BaseOutletOptions<TCode, TData>
-
-export type WarnOptions<
-  TCode extends string | number = string | number,
-  TData extends any = any,
-> = VerbaString | BaseOutletOptions<TCode, TData>
-
-export type ErrorOptions<
-  TCode extends string | number = string | number,
-  TData extends any = any,
-> = VerbaString | BaseOutletOptions<TCode, TData>
-
-export type AnyOutletOptions<
-  TCode extends string | number = string | number,
-  TData extends any = any,
-> = InfoOptions<TCode, TData>
-  | StepOptions<TCode, TData>
-  | SuccessOptions<TCode, TData>
-  | WarnOptions<TCode, TData>
-  | ErrorOptions<TCode, TData>
 
 export type NestOptions<
   TCode extends string | number = string | number,
@@ -144,13 +106,193 @@ export type NestState<TCode extends string | number = string | number> = {
   code: TCode | undefined
 }
 
-export type JsonOptions = {
+export type SimpleOutlet = 'info' | 'step' | 'success' | 'warn'
+
+export type SimpleOutletPrefixesOptions = Partial<Record<SimpleOutlet, VerbaString>>
+
+export type SimpleOutletPrefixes = Record<SimpleOutlet, string>
+
+export type SimpleOutletOptions<
+  TCode extends string | number = string | number,
+  TData extends any = any,
+> = VerbaString | {
+  /**
+   * The log message.
+   * 
+   * @example
+   * '5 users found'
+   * f => `${f.yellow('5')} users found`
+   */
+  msg: VerbaString
+  /**
+   * Optional data to associate with the log message.
+   */
+  data?: TData
+  /**
+   * Optional code to describe the area of the app that the log message is about.
+   * 
+   * @example
+   * 'INIT'
+   * 'CONNECT_DB'
+   * 'USER_AUTHENTICATE'
+   * ...
+   */
+  code?: TCode
+}
+
+export type NormalizedSimpleOutletOptions<
+  TCode extends string | number = string | number,
+  TData extends any = any,
+> = {
+  /**
+   * The log message.
+   */
+  msg: VerbaString
+  /**
+   * Data associated with the log message.
+   */
+  data: TData | undefined
+  /**
+   * Log code of the log message.
+   */
+  code: TCode | undefined
+}
+
+export type JsonOptions<
+  TCode extends string | number = string | number,
+  TData extends any = any,
+> = {
   /**
    * If `true`, the output JSON will be indented as per `JSON.stringify({ ... }, null, 2)`.
    * 
    * @default false
    */
   pretty?: boolean
+  /**
+   * Optional data to associate with the log message.
+   */
+  data?: TData
+  /**
+   * Optional log code for the log message.
+   */
+  code?: TCode
+}
+
+export type NormalizedJsonOptions<
+  TCode extends string | number = string | number,
+  TData extends any = any,
+> = {
+  /**
+   * If `true`, the output JSON will be indented as per `JSON.stringify({ ... }, null, 2)`.
+   */
+  pretty: boolean
+  /**
+   * Data associated with the log message.
+   */
+  data: TData | undefined
+  /**
+   * Log code of the log message.
+   */
+  code: TCode | undefined
+}
+
+export type TableOptions<
+  TCode extends string | number = string | number,
+  TData extends any = any,
+> = ColumifyOptions & {
+  /**
+   * Optional log code for the log message.
+   */
+  code?: TCode
+  /**
+   * Optional data to associate with the log message.
+   */
+  data?: TData
+}
+
+export type NormalizedTableOptions<
+  TCode extends string | number = string | number,
+  TData extends any = any,
+> = ColumifyOptions & {
+  /**
+   * Log code of the log message.
+   */
+  code: TCode | undefined
+  /**
+   * Data associated with the log message.
+   */
+  data: TData | undefined
+}
+/**
+ * Options for `spacer` log calls. This can take either an integer value
+ * to denote the number of lines, or an object to provide more information.
+ * 
+ * @default 1
+ */
+export type SpacerOptions<
+  TCode extends string | number = string | number,
+  TData extends any = any,
+> = number | {
+  /**
+   * The number of lines.
+   * 
+   * @default 1
+   */
+  numLines?: number
+  /**
+   * Optional data to associate with the log message.
+   */
+  data?: TData
+  /**
+   * Optional log code for the log message.
+   */
+  code?: TCode
+}
+
+export type NormalizedSpacerOptions<
+  TCode extends string | number = string | number,
+  TData extends any = any,
+> = {
+  /**
+   * The number of lines.
+   */
+  numLines: number
+  /**
+   * Log code of the log message.
+   */
+  code: TCode | undefined
+  /**
+   * Data associated with the log message.
+   */
+  data: TData | undefined
+}
+
+export type DividerOptions<
+  TCode extends string | number = string | number,
+  TData extends any = any,
+> = {
+  /**
+   * Optional log code for the log message.
+   */
+  code?: TCode
+  /**
+   * Optional data to associate with the log message.
+   */
+  data?: TData
+}
+
+export type NormalizedDividerOptions<
+  TCode extends string | number = string | number,
+  TData extends any = any,
+> = {
+  /**
+   * Log code of the log message.
+   */
+  code: TCode | undefined
+  /**
+   * Data associated with the log message.
+   */
+  data: TData | undefined
 }
 
 /**
@@ -162,22 +304,37 @@ export type JsonOptions = {
  * log.info('Hello, world!')
  */
 export type VerbaLogger<
-  TOptions extends VerbaLoggerOptions = VerbaLoggerOptions,
   TCode extends string | number = string | number,
   TData extends any = any,
+  TOptions extends VerbaLoggerOptions<TCode, TData> = VerbaLoggerOptions<TCode, TData>,
 > = {
   /**
-   * Logs a message with no prefix or otherwise additional formatting.
+   * Creates a nested logger with the provided options as defaults for subsequent
+   * logging calls of the nested logger.
    *
-   * Alias for `console.log`.
+   * This is useful for providing a default `code` for logs to avoid duplication.
    *
-   * @param msg The log message
+   * @returns `VerbaLogger`
+   *
+   * @example
+   * import verba from 'verba'
+   * const log = verba()
+   * const childLog = log.nest({ code: 'CHILD_TASK' })
+   * childLog.log('This is a child task') // Will have the `code` "CHILD_TASK"
+   */
+  nest: (options: NestOptions<TCode>) => VerbaLogger<TCode, TData, TOptions>
+  /**
+   * Logs a message with no prefix, i.e. can be used as an alias of `console.log`
    *
    * @example
    * log.log('Hello, world!')
    * log.log(f => f.cyan('Hello, world!'))
+   * log.log({
+   *   msg: 'Hello, world!',
+   *   code: 'HELLO_WORLD_MSG'
+   * })
    */
-  log: (msg: VerbaString) => void
+  log: (msg: SimpleOutletOptions<TCode, TData>) => void
   /**
    * Logs an informational message.
    *
@@ -189,7 +346,7 @@ export type VerbaLogger<
    *   code: 'USER_METRICS'
    * })
    */
-  info: (options: InfoOptions<TCode>) => void
+  info: (options: SimpleOutletOptions<TCode>) => void
   /**
    * Logs a step/action message.
    * 
@@ -216,7 +373,7 @@ export type VerbaLogger<
    * const users = await findUsers()
    * spinner.stop()
    */
-  step: <TStepOptions extends StepOptions<TCode>>(options: TStepOptions) => StepResult<TStepOptions>
+  step: <TStepOptions extends StepOptions<TCode, TData>>(options: TStepOptions) => StepResult<TStepOptions>
   /**
    * Logs a success message.
    *
@@ -228,7 +385,7 @@ export type VerbaLogger<
    *   code: 'USER_METRICS'
    * })
    */
-  success: (options: SuccessOptions<TCode>) => void
+  success: (options: SimpleOutletOptions<TCode>) => void
   /**
    * Logs a warning message.
    *
@@ -240,52 +397,61 @@ export type VerbaLogger<
    *   code: 'USER_METRICS'
    * })
    */
-  warn: (options: WarnOptions<TCode>) => void
-  // TODO: Implement errors, using good-flow?
-  // error: (options: GFError<{ code: TCode, [prop: string]: any }>) => void
+  warn: (options: SimpleOutletOptions<TCode>) => void
   /**
    * Prints the given data as a table using [columnify](https://github.com/timoxley/columnify).
    *
    * @param data Data to print
-   * @param options Options to configure the table (from columnify).
-   */
-  table: (data: any, options?: ColumifyOptions) => void
-  /**
-   * Creates a nested logger with the provided options as defaults for subsequent
-   * logging calls of the nested logger.
-   *
-   * This is useful for providing a default `code` for logs to avoid duplication.
-   *
-   * @returns `VerbaLogger`
-   *
+   * @param options Optional additional configuration
+   * 
    * @example
-   * const log = createVerbaLogger()
-   * const childLog = log.nest({ code: 'CHILD_TASK' })
-   * childLog.log('This is a child task') // Will have the `code` "CHILD_TASK"
+   * const data = [
+   *   { col1: 'a', col2: 'b' },
+   *   { col1: 'c', col2: 'd' }
+   * ]
+   * log.table(data)
+   * log.table(data, {
+   *   code: 'TABLE_DATA_MSG' // Optional log code
+   * })
    */
-  nest: (options: NestOptions<TCode>) => VerbaLogger<TOptions, TCode, TData>
+  table: (data: any, options?: TableOptions<TCode>) => void
   /**
    * Logs any value with JSON syntax highlighting.
    *
    * @param value The value to log
-   * @param options Optional options to configure the appearance.
+   * @param options Optional additional configuration
+   * 
+   * @example
+   * log.json({ foo: 'bar', fizz: 'buzz' })
+   * log.json(
+   *   { foo: 'bar', fizz: 'buzz' },
+   *   {
+   *     pretty: true, // Pretty-print (indentation)
+   *     code: 'JSON_DATA_MSG', // Optional log code
+   *   }
+   * )
    */
-  json: (value: any, options?: JsonOptions) => void
+  json: (value: any, options?: JsonOptions<TCode>) => void
   /**
    * Logs empty lines to provide vertical spacing.
-   *
-   * @param numLines Number of empty lines. Default: `1`
    *
    * @example
    * log.spacer() // 1 empty line
    * log.spacer(5) // 5 empty lines
+   * log.spacer({
+   *   numLines: 5,
+   *   code: 'SPACER' // Optional log code
+   * })
    */
-  spacer: (numLines?: number) => void
+  spacer: (options?: SpacerOptions<TCode>) => void
   /**
    * Logs a horizontal line divider.
    *
    * @example
    * log.divider()
+   * log.divider({
+   *   code: 'DIVIDER' // Optional log code
+   * })
    */
-  divider: () => void
+  divider: (options?: DividerOptions<TCode>) => void
 }

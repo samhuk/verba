@@ -1,13 +1,13 @@
+import { NormalizedSimpleOutletOptions, SimpleOutletOptions } from "../types"
 import { Spinner, SpinnerOptions } from "../spinner/types"
 
-import { BaseOutletOptions } from "../types"
 import { VerbaString } from "../verbaString/types"
 
 export type StepOptions<
   TCode extends string | number = string | number,
   TData extends any = any,
   TSpinner extends boolean | Omit<SpinnerOptions, 'text'> = boolean | Omit<SpinnerOptions, 'text'>
-> = VerbaString | (BaseOutletOptions<TCode, TData> & {
+> = VerbaString | (SimpleOutletOptions<TCode, TData> & {
   /**
    * If set, the step will show a spinner on the left-hand-side and return
    * a `Spinner` object that can be used to interact with it.
@@ -36,6 +36,12 @@ export type StepOptions<
    */
   spinner?: TSpinner
 })
+
+export type NormalizedStepOptions<
+  TCode extends string | number = string | number,
+  TData extends any = any,
+  TSpinner extends boolean | Omit<SpinnerOptions, 'text'> = boolean | Omit<SpinnerOptions, 'text'>
+> = NormalizedSimpleOutletOptions<TCode, TData> & Pick<Exclude<StepOptions<TCode, TData, TSpinner>, VerbaString>, 'spinner'>
 
 export type StepSpinner = Omit<Spinner, 'text'> & {
   /**
