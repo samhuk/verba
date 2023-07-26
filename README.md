@@ -89,7 +89,7 @@ const spinner = log.step({
   msg: 'Doing job',
   spinner: true
 })
-// Update text of spinner when progress updates occur
+// Update spinner text when progress updates occur
 spinner.text('Doing job | 100%')
 // Either clear the spinner and text line...
 spinner.destroy()
