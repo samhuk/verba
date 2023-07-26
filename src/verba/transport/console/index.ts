@@ -1,5 +1,4 @@
 import { MutableRef } from "../../util/types"
-import { NATIVE_OUTLETS } from "./nativeOutlets"
 import { Outlet } from "../../types"
 import { Spinner } from "../../spinner/types"
 import { VerbaTransport } from "../types"
@@ -70,18 +69,18 @@ export const consoleTransport: VerbaTransport = (options, listeners) => {
     const stepLogger = createStepOutputLogger(isTty, nestState, simpleOutletLoggers.step, spinnerRef)
 
     return {
-      log: _options => NATIVE_OUTLETS.log(normalizeVerbaString(_options.msg)),
+      log: _options => console.log(normalizeVerbaString(_options.msg)),
       info: _options => simpleOutletLoggers.info(_options, nestState.indentationString),
       step: _options => stepLogger(_options) as any,
       success: _options => simpleOutletLoggers.success(_options, nestState.indentationString),
       warn: _options => simpleOutletLoggers.warn(_options, nestState.indentationString),
-      table: (data, _options) => NATIVE_OUTLETS.log(columify(data, _options)),
-      json: (value, _options) => NATIVE_OUTLETS.log(colorizeJson(value, {
+      table: (data, _options) => console.log(columify(data, _options)),
+      json: (value, _options) => console.log(colorizeJson(value, {
         pretty: _options?.pretty ?? false,
         colors: isTty ? TTY_JSON_COLORS : DEFAULT_FOREGROUND_JSON_COLORS,
       })),
-      spacer: _options => NATIVE_OUTLETS.log(repeatStr('\n', _options.numLines - 1)),
-      divider: () => NATIVE_OUTLETS.log(repeatStr('-', process.stdout.columns * 0.33)),
+      spacer: _options => console.log(repeatStr('\n', _options.numLines - 1)),
+      divider: () => console.log(repeatStr('-', process.stdout.columns * 0.33)),
     }
   }
 }

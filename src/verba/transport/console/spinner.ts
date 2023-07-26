@@ -1,6 +1,5 @@
 import { Spinner, SpinnerOptions } from '../../spinner/types'
 
-import { NATIVE_OUTLETS } from './nativeOutlets'
 import { createIndentationString } from '../../util/indentation'
 import { normalizeVerbaString } from '../../verbaString'
 import ora from 'ora-classic'
@@ -34,13 +33,13 @@ export const createConsoleSpinner = (options?: SpinnerOptions): Spinner => {
     start: () => spinner.start(),
     pause: () => {
       spinner.stop()
-      NATIVE_OUTLETS.log(spinner.frame())
+      console.log(spinner.frame())
     },
     temporarilyClear: () => spinner.clear(),
     destroy: () => spinner.stop(),
     stopAndPersist: () => {
       spinner.stop()
-      NATIVE_OUTLETS.log(spinner.frame())
+      console.log(spinner.frame())
     },
   }
 }
