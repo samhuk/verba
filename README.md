@@ -82,7 +82,24 @@ childTaskLog.info('...')
 childTaskLog.step('...')
 ```
 
-For further advanced usage guidance, see the following sections.
+Loading spinners (only for TTY consoles):
+
+```typescript
+const spinner = log.step({
+  msg: 'Doing job',
+  spinner: true
+})
+// Update text of spinner when progress updates occur
+spinner.text('Doing job | 100%')
+// Either clear the spinner and text line...
+spinner.destroy()
+// ...Or stop the spinning and leave in console
+spinner.stopAndPersist()
+log.success('Finished job')
+...
+```
+
+For further advanced usage guidance, see the proceeding sections.
 
 ## Transports
 
