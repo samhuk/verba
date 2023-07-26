@@ -28,6 +28,10 @@ export type SpinnerOptions = {
   disableAutoStart?: boolean
 }
 
+/**
+ * Interface that wraps that of the `ora-classic` package (which is
+ * quite bad).
+ */
 export type Spinner = {
   /**
    * Updates the text after the spinner.

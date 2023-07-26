@@ -7,7 +7,7 @@ import { MutableRef } from "../../util/types"
 import { SimpleOutletLoggers } from "./simpleOutletLogger"
 import { VerbaString } from "../../verbaString/types"
 import { createCodeStr } from "./code"
-import { createConsoleSpinner } from "../../spinner"
+import { createConsoleSpinner } from "./spinner"
 
 const logStepWithSpinner = (
   options: (Exclude<SimpleOutletOptions, VerbaString> & {
