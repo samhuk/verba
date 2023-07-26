@@ -55,7 +55,7 @@ const createNonTTYSpinnerShim = (
   stepSimpleOutletLoggers: SimpleOutletLoggers['step'],
   options: NormalizedStepOptions,
   indentationString: string,
-) => {
+): StepSpinner => {
   // When stdout is not TTY, then spinner functionality is not possible.
   // Therefore we log the initial message, and then return a step spinner shim.
   stepSimpleOutletLoggers(options, indentationString)
@@ -69,7 +69,7 @@ const createNonTTYSpinnerShim = (
     text: (s, onlyTty) => onlyTty
       ? undefined
       : stepSimpleOutletLoggers({ ...options, msg: s }, indentationString),
-  } as StepSpinner
+  }
 }
 
 export const createStepOutputLogger = (
