@@ -2,7 +2,7 @@ import { NormalizedSimpleOutletOptions, SimpleOutlet, SimpleOutletPrefixes, Verb
 import { normalizeVerbaString, renderStringWithFormats } from "../../verbaString"
 
 import { NATIVE_OUTLETS } from "./nativeOutlets"
-import { createCodeStr } from "../../code"
+import { createCodeStr } from "./code"
 
 export type SimpleOutletLoggers = Record<SimpleOutlet, SimpleOutletLogger>
 

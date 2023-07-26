@@ -151,10 +151,7 @@ const _createVerbaLogger = <
         listeners.call('onAfterLog', { outlet: Outlet.STEP, options: normalizedOptions }, nestState)
         return result as any
       }
-      else {
-        if (excluded)
-          return
-
+      else if (!excluded) {
         listeners.call('onBeforeLog', { outlet: Outlet.STEP, options: normalizedOptions }, nestState)
         nestedInstantiatedTransports.forEach(p => p.step(normalizedOptions))
         listeners.call('onAfterLog', { outlet: Outlet.STEP, options: normalizedOptions }, nestState)

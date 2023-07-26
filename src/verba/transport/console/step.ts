@@ -6,7 +6,7 @@ import { isVerbaString, normalizeVerbaString } from "../../verbaString"
 import { MutableRef } from "../../util/types"
 import { SimpleOutletLoggers } from "./simpleOutletLogger"
 import { VerbaString } from "../../verbaString/types"
-import { createCodeStr } from "../../code"
+import { createCodeStr } from "./code"
 import { createConsoleSpinner } from "../../spinner"
 
 const logStepWithSpinner = (
