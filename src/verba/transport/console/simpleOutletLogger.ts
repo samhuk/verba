@@ -1,6 +1,7 @@
-import { NormalizedSimpleOutletOptions, SimpleOutlet, SimpleOutletPrefixes, VerbaLoggerOptions } from "../../types"
+import { NormalizedSimpleOutletOptions, SimpleOutlet, SimpleOutletPrefixes } from "../../outlet/types"
 import { normalizeVerbaString, renderStringWithFormats } from "../../verbaString"
 
+import { VerbaLoggerOptions } from "../../types"
 import { createCodeStr } from "./code"
 
 export type SimpleOutletLoggers = Record<SimpleOutlet, SimpleOutletLogger>

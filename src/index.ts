@@ -21,7 +21,7 @@ export {
   verbaColorizer,
   verbaDecolorizer,
 } from './verba/verbaString/index'
-export { Outlet } from './verba/types'
+export { Outlet } from './verba/outlet/types'
 // Default
 export default createVerbaLogger
 // Types

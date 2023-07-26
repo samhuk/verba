@@ -1,5 +1,5 @@
-import { Outlet } from "../types"
-import { OutletToHandlerArgsObjs } from "../transport/types"
+import { Outlet, OutletToHandlerArgsObjs } from "../outlet/types"
+
 import { TypeDependantBaseIntersection } from "../util/types"
 
 export type OutletFilterOptions<

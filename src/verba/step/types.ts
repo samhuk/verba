@@ -1,4 +1,4 @@
-import { NormalizedSimpleOutletOptions, SimpleOutletOptions } from "../types"
+import { NormalizedSimpleOutletOptions, SimpleOutletOptions } from "../outlet/types"
 import { Spinner, SpinnerOptions } from "../spinner/types"
 
 import { VerbaString } from "../verbaString/types"

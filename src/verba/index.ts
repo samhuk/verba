@@ -1,6 +1,10 @@
 import { InstantiatedVerbaTransport, VerbaTransport, VerbaTransportEventHandlers } from './transport/types'
 import {
   NestState,
+  VerbaLogger,
+  VerbaLoggerOptions,
+} from './types'
+import {
   NormalizedDividerOptions,
   NormalizedJsonOptions,
   NormalizedSimpleOutletOptions,
@@ -9,9 +13,7 @@ import {
   Outlet,
   SimpleOutlet,
   SimpleOutletOptions,
-  VerbaLogger,
-  VerbaLoggerOptions,
-} from './types'
+} from './outlet/types'
 import { NormalizedStepOptions, StepOptions, StepSpinner } from './step/types'
 
 import { ListenerStore } from './util/listenerStore/types'

@@ -1,34 +1,20 @@
 import {
   NestState,
+  VerbaLoggerOptions,
+} from "../types"
+import {
   NormalizedDividerOptions,
   NormalizedJsonOptions,
   NormalizedSimpleOutletOptions,
   NormalizedSpacerOptions,
   NormalizedTableOptions,
   Outlet,
-  VerbaLoggerOptions,
-} from "../types"
+  OutletToHandlerArgsObjs,
+} from "../outlet/types"
 import { NormalizedStepOptions, StepResult } from "../step/types"
 
 import { ListenerStore } from "../util/listenerStore/types"
 import { TypeDependantBaseIntersection } from '../util/types'
-
-export type OutletToHandlerArgsObjs<
-  TCode extends string | number = string | number,
-  TData extends any = any
-> = {
-  // -- Simple outlets
-  [Outlet.LOG]: { options: NormalizedSimpleOutletOptions<TCode, TData> },
-  [Outlet.INFO]: { options: NormalizedSimpleOutletOptions<TCode, TData> },
-  [Outlet.STEP]: { options: NormalizedStepOptions<TCode, TData> },
-  [Outlet.SUCCESS]: { options: NormalizedSimpleOutletOptions<TCode, TData> },
-  [Outlet.WARN]: { options: NormalizedSimpleOutletOptions<TCode, TData> },
-  // -- Other outlets
-  [Outlet.TABLE]: { data: any, options: NormalizedTableOptions<TCode, TData> },
-  [Outlet.JSON]: { value: any, options: NormalizedJsonOptions<TCode, TData> },
-  [Outlet.DIVIDER]: { options: NormalizedDividerOptions<TCode, TData> },
-  [Outlet.SPACER]: { options: NormalizedSpacerOptions<TCode, TData> },
-}
 
 export type OutletToTransportHandlerFn<
   TCode extends string | number = string | number,

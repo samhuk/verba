@@ -1,10 +1,11 @@
-import { NestState, SimpleOutletOptions } from "../../types"
 import { NormalizedStepOptions, StepSpinner } from "../../step/types"
 import { Spinner, SpinnerOptions } from "../../spinner/types"
 import { isVerbaString, normalizeVerbaString } from "../../verbaString"
 
 import { MutableRef } from "../../util/types"
+import { NestState } from "../../types"
 import { SimpleOutletLoggers } from "./simpleOutletLogger"
+import { SimpleOutletOptions } from "../../outlet/types"
 import { VerbaString } from "../../verbaString/types"
 import { createCodeStr } from "./code"
 import { createConsoleSpinner } from "./spinner"

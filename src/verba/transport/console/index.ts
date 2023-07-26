@@ -1,5 +1,5 @@
 import { MutableRef } from "../../util/types"
-import { Outlet } from "../../types"
+import { Outlet } from "../../outlet/types"
 import { Spinner } from "../../spinner/types"
 import { VerbaTransport } from "../types"
 import colorizeJson from 'json-colorizer'
