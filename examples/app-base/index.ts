@@ -23,6 +23,7 @@ export const app = async (jobs: string[]) => {
     splash()
 
     log.step({ msg: 'Starting app.', code: 'INIT' })
+    log.info(f => `Cache health: ${f.green('OK')}`)
 
     validateEnv()
 
@@ -53,3 +54,5 @@ export const app = async (jobs: string[]) => {
 
   process.exit(0)
 }
+
+export default app

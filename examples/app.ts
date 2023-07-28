@@ -1,8 +1,8 @@
-import { app } from '../app/app'
+import app from './app-base'
 
 app([
   'open_garage',
-  'get_in_car!',
+  'get_in_car',
   'start_engine',
   'drive_to_work',
   'do_work',
