@@ -1,4 +1,3 @@
-import { MutableRef } from "../../util/types"
 import { Outlet } from "../../outlet/types"
 import { Spinner } from "../../spinner/types"
 import { VerbaTransport } from "../types"
@@ -8,6 +7,8 @@ import { createSimpleOutletLoggers } from "./simpleOutletLogger"
 import { createStepOutputLogger } from "./step"
 import { normalizeVerbaString } from "../../verbaString"
 import { repeatStr } from "../../util/string"
+import { useRef } from '../../util/misc'
+import { ConsoleTransportOptions } from './types'
 
 /**
  * Colors config object for the json-colorizer package for TTY consoles.
@@ -37,10 +38,21 @@ const DEFAULT_FOREGROUND_JSON_COLORS = {
 }
 
 /**
- * A Verba Transport that outputs log messages to the Node.js `console`,
- * supporting TTY and non-TTY consoles.
+ * A Verba Transport that outputs log messages to the Node.js `console.log`,
+ * supporting TTY and non-TTY terminals.
+ *
+ * This is the default Transport that Verba uses if none are explicitly
+ * defined.
+ * 
+ * @example
+ * import verba, { consoleTransport } from 'verba'
+ * // Explicit definition of console transport (this is default)
+ * const log = verba({ transports: [consoleTransport()] })
  */
-export const consoleTransport: VerbaTransport = (options, listeners) => {
+export const consoleTransport = <
+  TCode extends string | number = string | number,
+  TData extends any = any
+>(transportOptions?: ConsoleTransportOptions<TCode, TData>): VerbaTransport<TCode, TData> => (loggerOptions, listeners) => {
   const isTty = process.stdout.isTTY === true
 
   /**
@@ -49,35 +61,37 @@ export const consoleTransport: VerbaTransport = (options, listeners) => {
    * This could be done better, i.e. abstracting to a generic console occupier
    * interface. For now, however, this will suffice.
    */
-  const spinnerRef: MutableRef<Spinner | undefined> = {
-    current: undefined,
-  }
+  const spinnerRef = useRef<Spinner | undefined>(undefined)
 
   // Before the log of any outlet apart from `step`, temporarily clear
   // the spinner from the console line, allowing the non-`step` call to
   // print to the console line before the spinner reprints it's frame.
   listeners.add('onBeforeLog', _options => {
-    if (_options.outlet !== Outlet.STEP)
+    if (_options.outlet !== Outlet.STEP || !_options.options.spinner)
       spinnerRef.current?.temporarilyClear()
+    else
+      spinnerRef.current?.destroy()
   })
 
   return nestState => {
-    // For every logger and nested loggers thereof, pre-create some loggers that
+    // For every logger and nested loggers thereof, pre-create simple outlet loggers that
     // bake-in some things like indentation and such for better performance and
     // reduced code-dupe.
-    const simpleOutletLoggers = createSimpleOutletLoggers(options, nestState.code)
-    const stepLogger = createStepOutputLogger(isTty, nestState, simpleOutletLoggers.step, spinnerRef)
+    const simpleOutletLoggers = createSimpleOutletLoggers(transportOptions as any, loggerOptions as any, nestState)
+    const stepLogger = createStepOutputLogger(transportOptions as any, isTty, nestState, simpleOutletLoggers.step, spinnerRef)
+
+    const jsonColors = (isTty && !(transportOptions?.disableColors ?? false)) ? TTY_JSON_COLORS : DEFAULT_FOREGROUND_JSON_COLORS
 
     return {
       log: _options => console.log(normalizeVerbaString(_options.msg)),
-      info: _options => simpleOutletLoggers.info(_options, nestState.indentationString),
+      info: _options => simpleOutletLoggers.info(_options),
       step: _options => stepLogger(_options) as any,
-      success: _options => simpleOutletLoggers.success(_options, nestState.indentationString),
-      warn: _options => simpleOutletLoggers.warn(_options, nestState.indentationString),
+      success: _options => simpleOutletLoggers.success(_options),
+      warn: _options => simpleOutletLoggers.warn(_options),
       table: (data, _options) => console.log(columify(data, _options)),
       json: (value, _options) => console.log(colorizeJson(value, {
         pretty: _options?.pretty ?? false,
-        colors: isTty ? TTY_JSON_COLORS : DEFAULT_FOREGROUND_JSON_COLORS,
+        colors: jsonColors,
       })),
       spacer: _options => console.log(repeatStr('\n', _options.numLines - 1)),
       divider: () => console.log(repeatStr('-', process.stdout.columns * 0.33)),

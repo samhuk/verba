@@ -2,6 +2,8 @@ import { normalizeVerbaString, renderFancyString, renderStringWithFormats } from
 
 const isTty = process.stdout.isTTY
 
+console.log('-- isTty:', process.stdout.isTTY)
+
 describe('verba/verbaString', () => {
   describe('normalizeVerbaString', () => {
     const fn = normalizeVerbaString

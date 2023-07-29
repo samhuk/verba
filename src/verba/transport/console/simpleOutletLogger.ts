@@ -1,47 +1,61 @@
 import { NormalizedSimpleOutletOptions, SimpleOutlet, SimpleOutletPrefixes } from "../../outlet/types"
 import { normalizeVerbaString, renderStringWithFormats } from "../../verbaString"
 
-import { VerbaLoggerOptions } from "../../types"
+import { NestState, VerbaLoggerOptions } from "../../types"
 import { createCodeStr } from "./code"
+import { ConsoleTransportOptions } from './types'
+import { NormalizeVerbaStringOptions } from '../../verbaString/types'
 
 export type SimpleOutletLoggers = Record<SimpleOutlet, SimpleOutletLogger>
 
-const DEFAULT_SIMPLE_OUTLET_PREFIXES: SimpleOutletPrefixes = {
-  info: renderStringWithFormats('i', ['gray', 'bold']) + ' ',
-  step:  renderStringWithFormats('*', ['cyan', 'bold']) + ' ',
-  success: renderStringWithFormats('✔', ['green']) + ' ',
-  warn: renderStringWithFormats('WARN', ['bold', 'underline', 'yellow']) + ' ',
-}
+const createDefaultSimpleOutletPrefixes = (options?: NormalizeVerbaStringOptions): SimpleOutletPrefixes => ({
+  info: renderStringWithFormats('i', ['gray', 'bold'], options) + ' ',
+  step:  renderStringWithFormats('*', ['cyan', 'bold'], options) + ' ',
+  success: renderStringWithFormats('✔', ['green'], options) + ' ',
+  warn: renderStringWithFormats('WARN', ['bold', 'underline', 'yellow'], options) + ' ',
+})
 
 type SimpleOutletLogger = (
   options: NormalizedSimpleOutletOptions,
-  indentationString: string,
 ) => void
 
 const createSimpleOutletLogger = (
+  transportOptions: ConsoleTransportOptions | undefined,
   options: VerbaLoggerOptions | undefined,
   outlet: SimpleOutlet,
-  parentCode: string | number | undefined,
+  nestState: NestState,
 ): SimpleOutletLogger => {
   const outletPrefixFromOptions = options?.outletPrefixes?.[outlet]
   const outletPrefix = outletPrefixFromOptions != null
-    ? normalizeVerbaString(outletPrefixFromOptions)
-    : DEFAULT_SIMPLE_OUTLET_PREFIXES[outlet]
+    ? normalizeVerbaString(outletPrefixFromOptions, transportOptions)
+    : createDefaultSimpleOutletPrefixes(transportOptions)[outlet]
+    
+  const createDefaultOutput = (outletOptions: NormalizedSimpleOutletOptions)=> {
+    const _prefix = nestState.indentationString + outletPrefix
+    const code = outletOptions.code ?? nestState.code
+    const codeStr = createCodeStr(code, transportOptions)
+    return _prefix + codeStr + normalizeVerbaString(outletOptions.msg, transportOptions)
+  }
+
+  const override = transportOptions?.simpleOutletOverrides?.[outlet]
+  if (override != null) {
+    return outletOptions => {
+      console.log(override(outletOptions) || createDefaultOutput(outletOptions))
+    }
+  }
   
-  return (_options, indentationString) => {
-    const _prefix = indentationString + outletPrefix
-    const code = _options.code ?? parentCode
-    const codeStr = createCodeStr(code)
-    console.log(_prefix + codeStr + normalizeVerbaString(_options.msg))
+  return outletOptions => {
+    console.log(createDefaultOutput(outletOptions))
   }
 }
 
 export const createSimpleOutletLoggers = (
-  options: VerbaLoggerOptions | undefined,
-  parentCode: string | number | undefined,
+  transportOptions: ConsoleTransportOptions | undefined,
+  loggerOptions: VerbaLoggerOptions | undefined,
+  nestState: NestState,
 ): SimpleOutletLoggers => ({
-  info: createSimpleOutletLogger(options, 'info', parentCode),
-  step: createSimpleOutletLogger(options, 'step', parentCode),
-  success: createSimpleOutletLogger(options, 'success', parentCode),
-  warn: createSimpleOutletLogger(options, 'warn', parentCode),
+  info: createSimpleOutletLogger(transportOptions, loggerOptions, 'info', nestState),
+  step: createSimpleOutletLogger(transportOptions, loggerOptions, 'step', nestState),
+  success: createSimpleOutletLogger(transportOptions, loggerOptions, 'success', nestState),
+  warn: createSimpleOutletLogger(transportOptions, loggerOptions, 'warn', nestState),
 })

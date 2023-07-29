@@ -279,7 +279,7 @@ export const createVerbaLogger = <
   const _options: TOptions = options ?? { } as TOptions
   const listeners = createListenerStore<keyof VerbaTransportEventHandlers<TCode, TData>, VerbaTransportEventHandlers<TCode, TData>>()
   const transports: VerbaTransport<TCode, TData>[] = _options.transports
-    ?? ([consoleTransport] as unknown as VerbaTransport<TCode, TData>[])
+    ?? ([consoleTransport()] as unknown as VerbaTransport<TCode, TData>[])
   const instantiatedTransports = transports.map(p => p(_options, listeners)) ?? []
   return _createVerbaLogger<TCode, TData, TOptions>(
     _options,

@@ -99,7 +99,17 @@ log.success('Finished job')
 ...
 ```
 
-For further advanced usage guidance, see the proceeding sections.
+Disabling colors for `consoleTransport`:
+
+```typescript
+import verba, { consoleTransport } from 'verba'
+const transport = consoleTransport({
+  disableColors: true
+})
+const log = verba({ transports: [transport] })
+```
+
+For more usage information, see the next sections.
 
 ## Transports
 

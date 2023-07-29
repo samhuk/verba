@@ -1,4 +1,4 @@
-import verba, { Outlet, OutletFilter } from '../../src'
+import verba, { Outlet, OutletFilter, consoleTransport } from '../../src'
 
 import { Code } from './codes'
 
@@ -16,6 +16,9 @@ const log = verba<Code, LogMessageData>({
   outletFilters: [
     excludeLargeTables,
     removeVerboseLogs,
+  ],
+  transports: [
+    consoleTransport<Code, LogMessageData>(),
   ],
 })
 
