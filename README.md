@@ -57,11 +57,12 @@ log.divider()
 
 ### Advanced Usage
 
-Defining allowed log codes:
+Defining allowed log codes and log message data:
 
 ```typescript
-type Code = 'INIT' | 'ENV_VALIDATE' | 'CONNECT_DB' | ...
-const log = verba<Code>()
+type LogCode = 'INIT' | 'ENV_VALIDATE' | 'CONNECT_DB' | ...
+type LogData = { verbose: boolean, ... }
+const log = verba<LogCode, LogData>()
 ```
 
 Message formatting, log codes, and log data:
@@ -109,13 +110,20 @@ const transport = consoleTransport({
 const log = verba({ transports: [transport] })
 ```
 
+Using both console and file built-in transports:
+
+```typescript
+import verba, { consoleTransport, fileTransport } from 'verba'
+const log = verba({ transports: [consoleTransport, fileTransport] })
+```
+
 For more usage information, see the next sections.
 
 ## Transports
 
 Where and how Verba logs are outputted can be defined by **Transports**.
 
-By default, Verba uses only `consoleTransport` ([./src/verba/transport/console/index.ts](src/verba/transport/console/index.ts)). This outputs log messages to the Node.js `console`.
+Verba has two built-in transports: `consoleTransport` and `fileTransport` (defined [here](src/verba/transport)). By default, `consoleTransport` is used.
 
 Custom transports can be a way to define completely different ways to output log messages. For example:
 
