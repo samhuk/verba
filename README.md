@@ -241,7 +241,7 @@ log.info({
 
 ## Examples
 
-An example app that fully demonstrates the usage of Verba is at [./examples/app](./examples/app).
+An example app that fully demonstrates the usage of Verba is at [./examples/app-base](./examples/app-base).
 
 To see how to run the examples locally, see [./contributing/development.md#examples](./contributing/development.md#examples).
 
