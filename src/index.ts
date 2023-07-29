@@ -11,7 +11,8 @@ import { createVerbaLogger } from './verba'
 // Util
 export { isSimpleOutlet } from './verba'
 // Transports
-export { consoleTransport } from './verba/transport/console/index'
+export { consoleTransport } from './verba/transport/console'
+export { fileTransport } from './verba/transport/file'
 // VerbaString
 export {
   isVerbaString,

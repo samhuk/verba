@@ -9,10 +9,10 @@ import { SimpleOutletOptions } from "../../outlet/types"
 import { VerbaString } from "../../verbaString/types"
 import { createCodeStr } from "./code"
 import { createConsoleSpinner } from "./spinner"
-import { ConsoleTransportOptions } from './types'
+import { BaseTransportOptions } from './types'
 
 const logStepWithSpinner = (
-  transportOptions: ConsoleTransportOptions | undefined,
+  transportOptions: BaseTransportOptions | undefined,
   options: (Exclude<SimpleOutletOptions, VerbaString> & {
     spinner?: true | Omit<SpinnerOptions, 'text'>
   }),
@@ -36,8 +36,12 @@ const logStepWithSpinner = (
       },
   )
 
+  const setText: StepSpinner['text'] = s => code != null
+    ? spinner.text(codeStr + normalizeVerbaString(s, transportOptions))
+    : spinner.text(s)
+
   return {
-    text: s => spinner.text(code != null ? codeStr + normalizeVerbaString(s, transportOptions) : s),
+    text: setText,
     color: spinner.color,
     start: spinner.start,
     temporarilyClear: spinner.temporarilyClear,
@@ -74,7 +78,7 @@ const createNonTTYSpinnerShim = (
 }
 
 export const createStepOutputLogger = (
-  transportOptions: ConsoleTransportOptions | undefined,
+  transportOptions: BaseTransportOptions | undefined,
   isTty: boolean,
   nestState: NestState,
   stepSimpleOutletLoggers: SimpleOutletLoggers['step'],

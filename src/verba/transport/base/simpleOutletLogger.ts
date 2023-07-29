@@ -3,7 +3,7 @@ import { normalizeVerbaString, renderStringWithFormats } from "../../verbaString
 
 import { NestState, VerbaLoggerOptions } from "../../types"
 import { createCodeStr } from "./code"
-import { ConsoleTransportOptions } from './types'
+import { BaseTransportOptions } from './types'
 import { NormalizeVerbaStringOptions } from '../../verbaString/types'
 
 export type SimpleOutletLoggers = Record<SimpleOutlet, SimpleOutletLogger>
@@ -20,7 +20,7 @@ type SimpleOutletLogger = (
 ) => void
 
 const createSimpleOutletLogger = (
-  transportOptions: ConsoleTransportOptions | undefined,
+  transportOptions: BaseTransportOptions,
   options: VerbaLoggerOptions | undefined,
   outlet: SimpleOutlet,
   nestState: NestState,
@@ -40,17 +40,17 @@ const createSimpleOutletLogger = (
   const override = transportOptions?.simpleOutletOverrides?.[outlet]
   if (override != null) {
     return outletOptions => {
-      console.log(override(outletOptions) || createDefaultOutput(outletOptions))
+      transportOptions.dispatch(override(outletOptions) || createDefaultOutput(outletOptions))
     }
   }
   
   return outletOptions => {
-    console.log(createDefaultOutput(outletOptions))
+    transportOptions.dispatch(createDefaultOutput(outletOptions))
   }
 }
 
 export const createSimpleOutletLoggers = (
-  transportOptions: ConsoleTransportOptions | undefined,
+  transportOptions: BaseTransportOptions,
   loggerOptions: VerbaLoggerOptions | undefined,
   nestState: NestState,
 ): SimpleOutletLoggers => ({

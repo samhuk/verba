@@ -1,0 +1,40 @@
+-- Example App --
+
+* INIT Starting app.
+i Cache health: OK
+WARN ENV_VALIDATE DB_URL environment variable is not defined. Using default.
+* CONNECT_DB Connecting to DB.
+i CONNECT_DB DB version: 42.0.0.
+i CONNECT_DB DB client healthy?: YES
+i CONNECT_DB DB network latency: 45ms
+✔ CONNECT_DB Connected to DB at 127.0.0.1:5432.
+* HEALTHCHECK_API Healthchecking API.
+✔ HEALTHCHECK_API API healthy (200 OK). Uptime: 500s.
+* JOBS Doing 6 jobs.
+  * JOB Doing job open_garage
+  * JOB Doing job open_garage | 20%
+  * JOB Doing job open_garage | 60%
+  ✔ JOB Completed job open_garage
+  * JOB Doing job get_in_car
+  * JOB Doing job get_in_car | 20%
+  * JOB Doing job get_in_car | 60%
+  ✔ JOB Completed job get_in_car
+  * JOB Doing job start_engine
+  * JOB Doing job start_engine | 20%
+  * JOB Doing job start_engine | 60%
+  ✔ JOB Completed job start_engine
+  * JOB Doing job drive_to_work
+  * JOB Doing job drive_to_work | 20%
+  * JOB Doing job drive_to_work | 60%
+  ✔ JOB Completed job drive_to_work
+  * JOB Doing job do_work
+  * JOB Doing job do_work | 20%
+  * JOB Doing job do_work | 60%
+  ✔ JOB Completed job do_work
+  * JOB Doing job drive_home
+  * JOB Doing job drive_home | 20%
+  * JOB Doing job drive_home | 60%
+  ✔ JOB Completed job drive_home
+✔ JOBS Completed 6 jobs in 3.3s.
+* TEARDOWN_ENV Tearing down.
+✔ TEARDOWN_ENV Env teardown complete.
