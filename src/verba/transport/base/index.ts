@@ -39,13 +39,6 @@ const DEFAULT_FOREGROUND_JSON_COLORS = {
 
 /**
  * A Verba Transport for typical console and file transports, supporting TTY and non-TTY terminals.
- *
- * This is the default Transport that Verba uses if none are explicitly defined.
- * 
- * @example
- * import verba, { consoleTransport } from 'verba'
- * // Explicit definition of console transport (this is default)
- * const log = verba({ transports: [consoleTransport()] })
  */
 export const baseTransport = <
   TCode extends string | number = string | number,

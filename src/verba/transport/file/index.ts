@@ -92,6 +92,15 @@ const createFileTransportDispatchService = (
   }
 }
 
+/**
+ * A Verba Transport for outputting to a file.
+ * 
+ * @example
+ * import verba, { fileTransport } from 'verba'
+ * const log = verba({
+ *   transports: [fileTransport({ outfile: 'log.txt' })]
+ * })
+ */
 export const fileTransport = <
   TCode extends string | number = string | number,
   TData extends any = any
