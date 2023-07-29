@@ -1,5 +1,5 @@
 import { WriteStream } from 'fs'
-import { SimpleOutlet } from '../../outlet/types'
+import { SimpleOutlet, SimpleOutletPrefixesOptions } from '../../outlet/types'
 import { SimpleOutletOverride } from '../base/types'
 
 export type FileTransportOutFile = string | WriteStream
@@ -59,4 +59,18 @@ export type FileTransportOptions<
    * @default undefined
    */
   batchOptions?: FileTransportBatchOptions
+  /**
+   * Configures the prefixes that appear for each outlet,
+   * i.e. `info`, `step`, etc.
+   *
+   * @example
+   * import verba from 'verba'
+   * const log = verba({
+   *   outletPrefixes: {
+   *     info: 'info',
+   *     step: f => f.cyan(f.underline('step')),
+   *   }
+   * })
+   */
+  outletPrefixes?: SimpleOutletPrefixesOptions
 }

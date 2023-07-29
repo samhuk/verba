@@ -154,13 +154,59 @@ const transport: VerbaTransport = (
 const log = verba({ transports: [transport] })
 ```
 
+## Aliases
+
+New custom outlets can be added and built-in outlets can be modified (such as `log`, `info`, `step`, etc.) with **Aliases**.
+
+Aliases are useful when you need to:
+* Integrate Verba into a legacy codebase, as aliases allow you to replace the built-in outlets with shims that have arguments compatible with your codebase.
+* Add new custom outlets that do conveninent things that would otherwise need multiple log calls.
+
+**Note:** Aliases that define *new* outlets will not interact with any defined Transports of the logger instance.
+
+### Example 1 - Adding a new `header` outlet
+
+```typescript
+import verba from 'verba'
+
+const log = verba().setAliases({
+  header: logger => (s: string) => {
+    logger.log(f => f.bold(f.italic(`-- ${s} --`)))
+    logger.spacer()
+  },
+})
+```
+
+### Example 2 - Modifying the bulit-in `warn` outlet
+
+```typescript
+import verba from 'verba'
+
+type MyLegacyCodebaseLogOptions = {
+  message: string
+  severity: 'urgent' | 'critical' | ...
+}
+
+const log = verba().setAliases({
+  // Provide a shim for the built-in `warn` outlet
+  warn: logger => (options: MyLegacyCodebaseLogOptions) => {
+    logger.warn({
+      msg: options.message,
+      data: { severity: options.severity },
+    })
+  },
+})
+```
+
 ## Outlet Filters
 
 Verba log messages can be included and excluded via **Outlet Filters**.
 
+Outlet Filters filter messages *before* Transports.
+
 One can filter based on any aspect of any log message, for example the `Outlet` of the log message (e.g. `log`, `step`, `info`, `table`, `json`, etc.), the options supplied to them, the data supplied to `table`, and so on.
 
-### Example - Exclude tables over 5 rows
+### Example 1 - Exclude tables over 5 rows
 
 ```typescript
 import verba, { OutletFilter } from 'verba'
@@ -175,7 +221,7 @@ log.table([1, 2, 3, 4, 5]) // Included
 log.table([1, 2, 3, 4, 5, 6]) // Excluded
 ```
 
-### Example - Exclude verbose logs
+### Example 2 - Exclude verbose logs
 
 ```typescript
 import verba, { OutletFilter } from 'verba'

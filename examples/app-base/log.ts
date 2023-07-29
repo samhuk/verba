@@ -8,7 +8,7 @@ const excludeLargeTables: OutletFilter<Code, LogMessageData> = options => (
   options.outlet !== Outlet.TABLE || options.data?.length < 10
 )
 
-const removeVerboseLogs: OutletFilter<string, LogMessageData> = options => (
+const removeVerboseLogs: OutletFilter<Code, LogMessageData> = options => (
   !options.options.data?.verbose
 )
 
@@ -18,9 +18,14 @@ const log = verba<Code, LogMessageData>({
     removeVerboseLogs,
   ],
   transports: [
-    consoleTransport<Code, LogMessageData>(),
-    fileTransport<Code, LogMessageData>(),
+    consoleTransport(),
+    fileTransport(),
   ],
+}).setAliases({
+  header: logger => (s: string) => {
+    logger.log(f => f.bold(f.italic(`-- ${s} --`)))
+    logger.spacer()
+  },
 })
 
 export default log

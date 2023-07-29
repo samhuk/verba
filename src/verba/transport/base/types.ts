@@ -1,4 +1,4 @@
-import { NormalizedSimpleOutletOptions, SimpleOutlet } from '../../outlet/types'
+import { NormalizedSimpleOutletOptions, SimpleOutlet, SimpleOutletPrefixesOptions } from '../../outlet/types'
 
 /**
  * Overrides the logging behavior of simple outlets
@@ -16,4 +16,5 @@ export type BaseTransportOptions<
   isTty: boolean
   disableColors?: boolean
   simpleOutletOverrides?: Partial<{ [outlet in SimpleOutlet]: SimpleOutletOverride<TCode, TData> }>
+  outletPrefixes?: SimpleOutletPrefixesOptions
 }

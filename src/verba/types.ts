@@ -1,27 +1,14 @@
-import { DividerOptions, JsonOptions, SimpleOutletOptions, SimpleOutletPrefixesOptions, SpacerOptions, TableOptions } from './outlet/types'
+import { DividerOptions, JsonOptions, SimpleOutletOptions, SpacerOptions, TableOptions } from './outlet/types'
 import { StepOptions, StepResult } from './step/types'
 
 import { OutletFilter } from './outletFilter/types'
 import { VerbaTransport } from './transport/types'
+import { Aliases } from './alias/types'
 
 export type VerbaLoggerOptions<
   TCode extends string | number = string | number,
   TData extends any = any,
 > = {
-  /**
-   * Configures the prefixes that appear for each outlet,
-   * i.e. `info`, `step`, etc.
-   *
-   * @example
-   * import verba from 'verba'
-   * const log = verba({
-   *   outletPrefixes: {
-   *     info: 'info',
-   *     step: f => f.cyan(f.underline('step')),
-   *   }
-   * })
-   */
-  outletPrefixes?: SimpleOutletPrefixesOptions
   /**
    * Log message filters. These apply to all defined transports.
    * 
@@ -93,34 +80,10 @@ export type NestState<TCode extends string | number = string | number> = {
   code: TCode | undefined
 }
 
-/**
- * Creates a Verba logger.
- *
- * @example
- * import verba from 'verba'
- * const log = verba()
- * log.info('Hello, world!')
- */
-export type VerbaLogger<
+export type VerbaLoggerBaseOutlets<
   TCode extends string | number = string | number,
   TData extends any = any,
-  TOptions extends VerbaLoggerOptions<TCode, TData> = VerbaLoggerOptions<TCode, TData>,
 > = {
-  /**
-   * Creates a nested logger with the provided options as defaults for subsequent
-   * logging calls of the nested logger.
-   *
-   * This is useful for providing a default `code` for logs to avoid duplication.
-   *
-   * @returns `VerbaLogger`
-   *
-   * @example
-   * import verba from 'verba'
-   * const log = verba()
-   * const childLog = log.nest({ code: 'CHILD_TASK' })
-   * childLog.log('This is a child task') // Will have the `code` "CHILD_TASK"
-   */
-  nest: (options: NestOptions<TCode>) => VerbaLogger<TCode, TData, TOptions>
   /**
    * Logs a message with no prefix, i.e. can be used as an alias of `console.log`
    *
@@ -144,7 +107,7 @@ export type VerbaLogger<
    *   code: 'USER_METRICS'
    * })
    */
-  info: (options: SimpleOutletOptions<TCode>) => void
+  info: (options: SimpleOutletOptions<TCode, TData>) => void
   /**
    * Logs a step/action message.
    * 
@@ -183,7 +146,7 @@ export type VerbaLogger<
    *   code: 'USER_METRICS'
    * })
    */
-  success: (options: SimpleOutletOptions<TCode>) => void
+  success: (options: SimpleOutletOptions<TCode, TData>) => void
   /**
    * Logs a warning message.
    *
@@ -195,7 +158,7 @@ export type VerbaLogger<
    *   code: 'USER_METRICS'
    * })
    */
-  warn: (options: SimpleOutletOptions<TCode>) => void
+  warn: (options: SimpleOutletOptions<TCode, TData>) => void
   /**
    * Prints the given data as a table using [columnify](https://github.com/timoxley/columnify).
    *
@@ -212,7 +175,7 @@ export type VerbaLogger<
    *   code: 'TABLE_DATA_MSG' // Optional log code
    * })
    */
-  table: (data: any, options?: TableOptions<TCode>) => void
+  table: (data: any, options?: TableOptions<TCode, TData>) => void
   /**
    * Logs any value with JSON syntax highlighting.
    *
@@ -229,7 +192,7 @@ export type VerbaLogger<
    *   }
    * )
    */
-  json: (value: any, options?: JsonOptions<TCode>) => void
+  json: (value: any, options?: JsonOptions<TCode, TData>) => void
   /**
    * Logs empty lines to provide vertical spacing.
    *
@@ -241,7 +204,7 @@ export type VerbaLogger<
    *   code: 'SPACER' // Optional log code
    * })
    */
-  spacer: (options?: SpacerOptions<TCode>) => void
+  spacer: (options?: SpacerOptions<TCode, TData>) => void
   /**
    * Logs a horizontal line divider.
    *
@@ -251,5 +214,49 @@ export type VerbaLogger<
    *   code: 'DIVIDER' // Optional log code
    * })
    */
-  divider: (options?: DividerOptions<TCode>) => void
+  divider: (options?: DividerOptions<TCode, TData>) => void
 }
+
+/**
+ * Creates a Verba logger.
+ *
+ * @example
+ * import verba from 'verba'
+ * const log = verba()
+ * log.info('Hello, world!')
+ */
+export type VerbaLogger<
+  TCode extends string | number = string | number,
+  TData extends any = any,
+  TAliases extends Aliases<TCode, TData> = {},
+> = {
+  /**
+   * Creates a nested logger with the provided options as defaults for subsequent
+   * logging calls of the nested logger.
+   *
+   * This is useful for providing a default `code` for logs to avoid duplication.
+   *
+   * @returns `VerbaLogger`
+   *
+   * @example
+   * import verba from 'verba'
+   * const log = verba()
+   * const childLog = log.nest({ code: 'CHILD_TASK' })
+   * childLog.log('This is a child task') // Will have the `code` "CHILD_TASK"
+   */
+  nest: (options: NestOptions<TCode>) => VerbaLogger<TCode, TData>
+  /**
+   * Sets the aliases for the logger instance.
+   * 
+   * Aliases are useful for adding new custom outlets on the logger instance
+   * in order to, for example:
+   * * Replace the existing base outlets (such as `log`, `info`, etc.)
+   * * Add on new custom outlets
+   */
+  setAliases: <TNewAliases extends Aliases<TCode, TData>>(aliases: TNewAliases) => VerbaLogger<TCode, TData, TNewAliases>
+}
+  // Add on the base outlets, excluding those that the aliases define.
+  & Omit<VerbaLoggerBaseOutlets<TCode, TData>, keyof TAliases>
+  // Add on the aliases
+  & { [TAliasName in keyof TAliases]: ReturnType<TAliases[TAliasName]> }
+

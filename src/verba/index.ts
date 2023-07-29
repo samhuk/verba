@@ -1,7 +1,8 @@
-import { InstantiatedVerbaTransport, VerbaTransport, VerbaTransportEventHandlers } from './transport/types'
+import { InstantiatedVerbaTransport, NestedInstantiatedVerbaTransport, VerbaTransport, VerbaTransportEventHandlers } from './transport/types'
 import {
   NestState,
   VerbaLogger,
+  VerbaLoggerBaseOutlets,
   VerbaLoggerOptions,
 } from './types'
 import {
@@ -21,6 +22,7 @@ import { consoleTransport } from './transport/console'
 import { createIndentationString } from './util/indentation'
 import { createListenerStore } from './util/listenerStore'
 import { isVerbaString } from './verbaString'
+import { Aliases } from './alias/types'
 
 /**
  * Determines if the given `outlet` is one of the simple outlets,
@@ -77,29 +79,16 @@ const normalizeStepOptions = <
 const _createVerbaLogger = <
   TCode extends string | number = string | number,
   TData extends any = any,
-  TOptions extends VerbaLoggerOptions<TCode, TData> = VerbaLoggerOptions<TCode, TData>,
+  TAliases extends Aliases<TCode, TData> = Aliases<TCode, TData>,
 >(
-  options: TOptions,
+  options: VerbaLoggerOptions<TCode, TData>,
+  aliases: TAliases,
   instantiatedTransports: InstantiatedVerbaTransport<TCode, TData>[],
+  nestedInstantiatedTransports: NestedInstantiatedVerbaTransport<TCode, TData>[],
   listeners: ListenerStore<keyof VerbaTransportEventHandlers<TCode, TData>, VerbaTransportEventHandlers<TCode, TData>>,
   nestState: NestState<TCode>,
-): VerbaLogger<TCode, TData, TOptions> => {
-  const nestedInstantiatedTransports = instantiatedTransports.map(p => p(nestState))
-
-  return {
-    nest: _options => {
-      const indent = nestState.indent + (_options.indent ?? 0)
-      return _createVerbaLogger(
-        options,
-        instantiatedTransports,
-        listeners,
-        {
-          indent,
-          indentationString: createIndentationString(indent),
-          code: _options.code === null ? undefined : (nestState.code ?? _options.code),
-        },
-      )
-    },
+): VerbaLogger<TCode, TData, TAliases> => {
+  const baseOutlets: VerbaLoggerBaseOutlets<TCode, TData> = {
     log: _options => {
       const normalizedOptions = normalizeSimpleOutletOptions(_options)
       const excluded = options.outletFilters
@@ -243,6 +232,40 @@ const _createVerbaLogger = <
       listeners.call('onAfterLog', { outlet: Outlet.SPACER, options: normalizedOptions }, nestState)
     },
   }
+
+  const aliasOutlets: any = {}
+
+  Object.entries(aliases ?? {}).forEach(([aliasName, aliasFactory]) => {
+    aliasOutlets[aliasName] = aliasFactory(baseOutlets)
+  })
+  
+  return {
+    nest: _options => {
+      const indent = nestState.indent + (_options.indent ?? 0)
+      return _createVerbaLogger(
+        options,
+        aliases,
+        instantiatedTransports,
+        instantiatedTransports.map(p => p(nestState)),
+        listeners,
+        {
+          indent,
+          indentationString: createIndentationString(indent),
+          code: _options.code === null ? undefined : (nestState.code ?? _options.code),
+        },
+      )
+    },
+    setAliases: newAliases => _createVerbaLogger(
+      options,
+      newAliases,
+      instantiatedTransports,
+      nestedInstantiatedTransports,
+      listeners,
+      nestState,
+    ),
+    ...baseOutlets,
+    ...aliasOutlets,
+  }
 }
 
 /**
@@ -273,22 +296,23 @@ const _createVerbaLogger = <
 export const createVerbaLogger = <
   TCode extends string | number = string | number,
   TData extends any = any,
-  TOptions extends VerbaLoggerOptions<TCode, TData> = VerbaLoggerOptions<TCode, TData>,
-// eslint-disable-next-line arrow-body-style
->(options?: TOptions): VerbaLogger<TCode, TData, TOptions> => {
-  const _options: TOptions = options ?? { } as TOptions
+>(options?: VerbaLoggerOptions<TCode, TData>): VerbaLogger<TCode, TData, {}> => {
+  const _options = options ?? { }
   const listeners = createListenerStore<keyof VerbaTransportEventHandlers<TCode, TData>, VerbaTransportEventHandlers<TCode, TData>>()
   const transports: VerbaTransport<TCode, TData>[] = _options.transports
-    ?? ([consoleTransport()] as unknown as VerbaTransport<TCode, TData>[])
+    ?? ([consoleTransport()] as VerbaTransport<TCode, TData>[])
   const instantiatedTransports = transports.map(p => p(_options, listeners)) ?? []
-  return _createVerbaLogger<TCode, TData, TOptions>(
+  const nestState: NestState<TCode> = {
+    code: undefined,
+    indent: 0,
+    indentationString: '',
+  }
+  return _createVerbaLogger(
     _options,
+    {},
     instantiatedTransports,
+    instantiatedTransports.map(p => p(nestState)),
     listeners,
-    {
-      code: undefined,
-      indent: 0,
-      indentationString: '',
-    },
+    nestState,
   )
 }

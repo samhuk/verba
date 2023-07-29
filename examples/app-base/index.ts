@@ -13,15 +13,9 @@ const createMockMetrics = (jobs: string[]) => jobs.map(jobName => ({
   'People Encountered': Math.round(Math.random() * 5),
 }))
 
-const splash = () => {
-  log.log(f => f.italic(f.bold('-- Example App --')))
-  log.spacer()
-}
-
 export const app = async (jobs: string[]) => {
   try {
-    splash()
-
+    log.header('Example App')
     log.step({ msg: 'Starting app.', code: 'INIT' })
     log.info(f => `Cache health: ${f.green('OK')}`)
 

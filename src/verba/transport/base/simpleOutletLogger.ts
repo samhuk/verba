@@ -25,7 +25,7 @@ const createSimpleOutletLogger = (
   outlet: SimpleOutlet,
   nestState: NestState,
 ): SimpleOutletLogger => {
-  const outletPrefixFromOptions = options?.outletPrefixes?.[outlet]
+  const outletPrefixFromOptions = transportOptions?.outletPrefixes?.[outlet]
   const outletPrefix = outletPrefixFromOptions != null
     ? normalizeVerbaString(outletPrefixFromOptions, transportOptions)
     : createDefaultSimpleOutletPrefixes(transportOptions)[outlet]

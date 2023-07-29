@@ -17,7 +17,9 @@ import { BaseTransportOptions } from './types'
  */
 const TTY_JSON_COLORS = {
   STRING_KEY: '1', // Make string keys the default foreground color
-  NULL_LITERAL: 'grey', // Make null literal values a bit lighter
+  NULL_LITERAL: 'grey', // Make null literal values a bit faded
+  NUMBER_LITERAL: 'yellow',
+  STRING_LITERAL: 'green',
 }
 
 /**

@@ -2,6 +2,7 @@ import logger from './log'
 import { sleep } from './util'
 
 const MOCK_JSON_LOG_OBJ = {
+  key: '123',
   teardownDt: 1234,
   teardownEpoch: Date.now(),
   dbConnected: false,
