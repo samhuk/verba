@@ -16,10 +16,6 @@
 </p>
 
 <div align="center">
-  <b>NOTE: WIP project.</b>
-</div>
-
-<div align="center">
   <img src="./img/demo.gif" />
 </div>
 
