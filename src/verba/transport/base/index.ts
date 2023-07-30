@@ -3,11 +3,12 @@ import { VerbaTransport } from "../types"
 import colorizeJson from 'json-colorizer'
 import columify from 'columnify'
 import { createSimpleOutletLoggers } from "./simpleOutletLogger"
-import { createStepOutputLogger } from "./step"
+import { createStepLogger } from "./step"
 import { normalizeVerbaString } from "../../verbaString"
 import { repeatStr } from "../../util/string"
 import { useRef } from '../../util/misc'
 import { BaseTransportOptions, TtyConsoleOccupier } from './types'
+import { createConsoleProgressBar } from '../../progressBar'
 
 /**
  * Colors config object for the json-colorizer package for TTY consoles.
@@ -58,10 +59,10 @@ export const baseTransport = <
   // the non-spinner log message to print to the console line. The spinner will
   // asynchronously print again later on.
   listeners.add('onBeforeLog', _options => {
-    if (_options.outlet !== Outlet.STEP || !_options.options.spinner)
-      ttyConsoleOccupierRef.current?.onInterruptedByOtherLog()
-    else
+    if (_options.outlet === Outlet.TABLE || (_options.outlet === Outlet.STEP && _options.options.spinner))
       ttyConsoleOccupierRef.current?.destroy()
+    else
+      ttyConsoleOccupierRef.current?.onInterruptedByOtherLog()
   })
 
   return nestState => {
@@ -70,7 +71,7 @@ export const baseTransport = <
     // reduced code-dupe.
     const simpleOutletLoggers = createSimpleOutletLoggers(transportOptions as any, loggerOptions as any, nestState)
     // eslint-disable-next-line max-len
-    const stepLogger = createStepOutputLogger(transportOptions as any, transportOptions.isTty, nestState, simpleOutletLoggers.step, ttyConsoleOccupierRef)
+    const stepLogger = createStepLogger(transportOptions as any, transportOptions.isTty, nestState, simpleOutletLoggers.step, ttyConsoleOccupierRef)
 
     const jsonColors = (transportOptions.isTty && !(transportOptions?.disableColors ?? false)) ? TTY_JSON_COLORS : DEFAULT_FOREGROUND_JSON_COLORS
 
@@ -82,11 +83,22 @@ export const baseTransport = <
       warn: _options => simpleOutletLoggers.warn(_options),
       table: (data, _options) => transportOptions.dispatch(columify(data, _options)),
       json: (value, _options) => transportOptions.dispatch(colorizeJson(value, {
-        pretty: _options?.pretty ?? false,
+        pretty: _options.pretty,
         colors: jsonColors,
       })),
       spacer: _options => transportOptions.dispatch(repeatStr('\n', _options.numLines - 1)),
       divider: () => transportOptions.dispatch(repeatStr('-', process.stdout.columns * 0.33)),
+      progressBar: _options => {
+        const progressBar = createConsoleProgressBar(_options)
+        ttyConsoleOccupierRef.current = {
+          destroy: progressBar.destroy,
+          onInterruptedByOtherLog: () => {
+            progressBar.clear()
+            setTimeout(() => progressBar.render(), 0)
+          },
+        }
+        return progressBar
+      },
     }
   }
 }

@@ -1,9 +1,10 @@
-import { DividerOptions, JsonOptions, SimpleOutletOptions, SpacerOptions, TableOptions } from './outlet/types'
+import { DividerOptions, JsonOptions, ProgressBarOptions, SimpleOutletOptions, SpacerOptions, TableOptions } from './outlet/types'
 import { StepOptions, StepResult } from './step/types'
 
 import { OutletFilter } from './outletFilter/types'
 import { VerbaTransport } from './transport/types'
 import { Aliases } from './alias/types'
+import { ProgressBar } from './progressBar/types'
 
 export type VerbaLoggerOptions<
   TCode extends string | number = string | number,
@@ -92,7 +93,8 @@ export type VerbaLoggerBaseOutlets<
    * log.log(f => f.cyan('Hello, world!'))
    * log.log({
    *   msg: 'Hello, world!',
-   *   code: 'HELLO_WORLD_MSG'
+   *   code: 'HELLO_WORLD_MSG', // Optional log code
+   *   data: { ... }, // Optional data
    * })
    */
   log: (msg: SimpleOutletOptions<TCode, TData>) => void
@@ -104,7 +106,8 @@ export type VerbaLoggerBaseOutlets<
    * log.info(f => `${f.yellow('5') users found}`)
    * log.info({
    *   msg: '5 users found',
-   *   code: 'USER_METRICS'
+   *   code: 'USER_METRICS', // Optional log code
+   *   data: { ... }, // Optional data
    * })
    */
   info: (options: SimpleOutletOptions<TCode, TData>) => void
@@ -122,13 +125,15 @@ export type VerbaLoggerBaseOutlets<
    * log.step(f => `Finding up to ${f.yellow('5')} users.`)
    * log.step({
    *   msg: 'Finding up to 5 users.',
-   *   code: 'USER_METRICS'
+   *   code: 'USER_METRICS', // Optional log code
+   *   data: { ... }, // Optional data
    * })
    *
    * // -- With spinner --
    * const spinner = log.step({
    *   msg: 'Finding up to 5 users.',
-   *   code: 'USER_METRICS',
+   *   code: 'USER_METRICS', // Optional log code
+   *   data: { ... }, // Optional data
    *   spinner: true,
    * })
    * const users = await findUsers()
@@ -143,7 +148,8 @@ export type VerbaLoggerBaseOutlets<
    * log.success(f => `Processed ${f.yellow('5')} users.`)
    * log.success({
    *   msg: 'Processed 5 users.',
-   *   code: 'USER_METRICS'
+   *   code: 'USER_METRICS', // Optional log code
+   *   data: { ... }, // Optional data
    * })
    */
   success: (options: SimpleOutletOptions<TCode, TData>) => void
@@ -155,7 +161,8 @@ export type VerbaLoggerBaseOutlets<
    * log.warn(f => `Could not find ${f.yellow('5')} users.`)
    * log.warn({
    *   msg: 'Could not find 5 users.',
-   *   code: 'USER_METRICS'
+   *   code: 'USER_METRICS', // Optional log code
+   *   data: { ... }, // Optional data
    * })
    */
   warn: (options: SimpleOutletOptions<TCode, TData>) => void
@@ -172,7 +179,8 @@ export type VerbaLoggerBaseOutlets<
    * ]
    * log.table(data)
    * log.table(data, {
-   *   code: 'TABLE_DATA_MSG' // Optional log code
+   *   code: 'TABLE_DATA_MSG', // Optional log code
+   *   data: { ... }, // Optional data
    * })
    */
   table: (data: any, options?: TableOptions<TCode, TData>) => void
@@ -189,6 +197,7 @@ export type VerbaLoggerBaseOutlets<
    *   {
    *     pretty: true, // Pretty-print (indentation)
    *     code: 'JSON_DATA_MSG', // Optional log code
+   *     data: { ... }, // Optional data
    *   }
    * )
    */
@@ -201,7 +210,8 @@ export type VerbaLoggerBaseOutlets<
    * log.spacer(5) // 5 empty lines
    * log.spacer({
    *   numLines: 5,
-   *   code: 'SPACER' // Optional log code
+   *   code: 'SPACER', // Optional log code
+   *   data: { ... }, // Optional data
    * })
    */
   spacer: (options?: SpacerOptions<TCode, TData>) => void
@@ -211,10 +221,23 @@ export type VerbaLoggerBaseOutlets<
    * @example
    * log.divider()
    * log.divider({
-   *   code: 'DIVIDER' // Optional log code
+   *   code: 'DIVIDER', // Optional log code
+   *   data: { ... }, // Optional data
    * })
    */
   divider: (options?: DividerOptions<TCode, TData>) => void
+  /**
+   * Logs an updatable progress bar.
+   * 
+   * @example
+   * const progressBar = log.progressBar()
+   * progressBar.update(20) // 20%
+   * // Once done, either remove from console...
+   * progressBar.destroy()
+   * // ...Or print the latest progress bar state and move onto new console line
+   * progressbar.destroyAndPersist()
+   */
+  progressBar: (options?: ProgressBarOptions<TCode, TData>) => ProgressBar
 }
 
 /**

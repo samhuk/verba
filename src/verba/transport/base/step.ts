@@ -100,7 +100,7 @@ const createTtyConsoleOccupierFromStepSpinner = (
   }
 }
 
-export const createStepOutputLogger = (
+export const createStepLogger = (
   transportOptions: BaseTransportOptions | undefined,
   isTty: boolean,
   nestState: NestState,

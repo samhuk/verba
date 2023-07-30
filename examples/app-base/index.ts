@@ -6,12 +6,26 @@ import { healthcheckAPI } from './api'
 import log from './log'
 import { tearDownEnv } from './teardown'
 import { validateEnv } from './env'
+import { sleep } from './util'
 
 const createMockMetrics = (jobs: string[]) => jobs.map(jobName => ({
   'Job Name': jobName,
   'Time Taken (s)': (Math.random() * 5).toFixed(1),
   'People Encountered': Math.round(Math.random() * 5),
 }))
+
+const uploadJobsReport = async () => {
+  log.step('Uploading jobs report')
+  const progressBar = log.progressBar()
+
+  setTimeout(() => log.warn('Report overwrites \'report.txt\''), 1000)
+  for (let i = 0; i < 100; i += 20) {
+    await sleep(0.5)
+    progressBar.update(i)
+  }
+  progressBar.destroy()
+  log.success('Jobs report uploaded')
+}
 
 export const app = async (jobs: string[]) => {
   try {
@@ -24,6 +38,7 @@ export const app = async (jobs: string[]) => {
     await connectToDb()
     await healthcheckAPI()
     await doJobs(jobs)
+    await uploadJobsReport()
     await tearDownEnv()
 
     log.spacer()

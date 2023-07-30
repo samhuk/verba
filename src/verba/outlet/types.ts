@@ -1,6 +1,7 @@
 import { GlobalOptions as ColumifyOptions } from 'columnify'
 import { NormalizedStepOptions } from "../step/types"
 import { VerbaString } from "../verbaString/types"
+import { ProgressBarProps } from '../progressBar/types'
 
 export enum Outlet {
   LOG = 'log',
@@ -8,10 +9,11 @@ export enum Outlet {
   STEP = 'step',
   SUCCESS = 'success',
   WARN = 'warn',
-  TABLE = "table",
-  JSON = "json",
-  DIVIDER = "divider",
-  SPACER = "spacer",
+  TABLE = 'table',
+  JSON = 'json',
+  DIVIDER = 'divider',
+  SPACER = 'spacer',
+  PROGRESS_BAR = 'progressBar'
 }
 
 export type SimpleOutlet = 'info' | 'step' | 'success' | 'warn'
@@ -20,18 +22,10 @@ export type SimpleOutletPrefixesOptions = Partial<Record<SimpleOutlet, VerbaStri
 
 export type SimpleOutletPrefixes = Record<SimpleOutlet, string>
 
-export type SimpleOutletOptions<
+export type BaseOutletOptions<
   TCode extends string | number = string | number,
   TData extends any = any,
-> = VerbaString | {
-  /**
-   * The log message.
-   * 
-   * @example
-   * '5 users found'
-   * f => `${f.yellow('5')} users found`
-   */
-  msg: VerbaString
+> = {
   /**
    * Optional data to associate with the log message.
    */
@@ -48,14 +42,10 @@ export type SimpleOutletOptions<
   code?: TCode
 }
 
-export type NormalizedSimpleOutletOptions<
+export type BaseNormalizedOutletOptions<
   TCode extends string | number = string | number,
   TData extends any = any,
 > = {
-  /**
-   * The log message.
-   */
-  msg: VerbaString
   /**
    * Data associated with the log message.
    */
@@ -66,71 +56,61 @@ export type NormalizedSimpleOutletOptions<
   code: TCode | undefined
 }
 
+export type SimpleOutletOptions<
+  TCode extends string | number = string | number,
+  TData extends any = any,
+> = VerbaString | (BaseOutletOptions<TCode, TData> & {
+  /**
+   * The log message.
+   * 
+   * @example
+   * '5 users found'
+   * f => `${f.yellow('5')} users found`
+   */
+  msg: VerbaString
+})
+
+export type NormalizedSimpleOutletOptions<
+  TCode extends string | number = string | number,
+  TData extends any = any,
+> = BaseNormalizedOutletOptions<TCode, TData> & {
+  /**
+   * The log message.
+   */
+  msg: VerbaString
+}
+
 export type JsonOptions<
   TCode extends string | number = string | number,
   TData extends any = any,
-> = {
+> = BaseOutletOptions<TCode, TData> & {
   /**
    * If `true`, the output JSON will be indented as per `JSON.stringify({ ... }, null, 2)`.
    * 
    * @default false
    */
   pretty?: boolean
-  /**
-   * Optional data to associate with the log message.
-   */
-  data?: TData
-  /**
-   * Optional log code for the log message.
-   */
-  code?: TCode
 }
 
 export type NormalizedJsonOptions<
   TCode extends string | number = string | number,
   TData extends any = any,
-> = {
+> = BaseNormalizedOutletOptions<TCode, TData> & {
   /**
    * If `true`, the output JSON will be indented as per `JSON.stringify({ ... }, null, 2)`.
    */
   pretty: boolean
-  /**
-   * Data associated with the log message.
-   */
-  data: TData | undefined
-  /**
-   * Log code of the log message.
-   */
-  code: TCode | undefined
 }
 
 export type TableOptions<
   TCode extends string | number = string | number,
   TData extends any = any,
-> = ColumifyOptions & {
-  /**
-   * Optional log code for the log message.
-   */
-  code?: TCode
-  /**
-   * Optional data to associate with the log message.
-   */
-  data?: TData
-}
+> = ColumifyOptions & BaseOutletOptions<TCode, TData>
 
 export type NormalizedTableOptions<
   TCode extends string | number = string | number,
   TData extends any = any,
-> = ColumifyOptions & {
-  /**
-   * Log code of the log message.
-   */
-  code: TCode | undefined
-  /**
-   * Data associated with the log message.
-   */
-  data: TData | undefined
-}
+> = ColumifyOptions & BaseNormalizedOutletOptions<TCode, TData>
 /**
  * Options for `spacer` log calls. This can take either an integer value
  * to denote the number of lines, or an object to provide more information.
@@ -140,68 +120,44 @@ export type NormalizedTableOptions<
 export type SpacerOptions<
   TCode extends string | number = string | number,
   TData extends any = any,
-> = number | {
+> = number | (BaseOutletOptions<TCode, TData> & {
   /**
    * The number of lines.
    * 
    * @default 1
    */
   numLines?: number
-  /**
-   * Optional data to associate with the log message.
-   */
-  data?: TData
-  /**
-   * Optional log code for the log message.
-   */
-  code?: TCode
-}
+})
 
 export type NormalizedSpacerOptions<
   TCode extends string | number = string | number,
   TData extends any = any,
-> = {
+> = BaseNormalizedOutletOptions<TCode, TData> & {
   /**
    * The number of lines.
    */
   numLines: number
-  /**
-   * Log code of the log message.
-   */
-  code: TCode | undefined
-  /**
-   * Data associated with the log message.
-   */
-  data: TData | undefined
 }
 
 export type DividerOptions<
   TCode extends string | number = string | number,
   TData extends any = any,
-> = {
-  /**
-   * Optional log code for the log message.
-   */
-  code?: TCode
-  /**
-   * Optional data to associate with the log message.
-   */
-  data?: TData
-}
+> = BaseOutletOptions<TCode, TData>
 
 export type NormalizedDividerOptions<
   TCode extends string | number = string | number,
   TData extends any = any,
-> = {
-  /**
-   * Log code of the log message.
-   */
-  code: TCode | undefined
-  /**
-   * Data associated with the log message.
-   */
-  data: TData | undefined
-}
+> = BaseNormalizedOutletOptions<TCode, TData>
+
+export type ProgressBarOptions<
+  TCode extends string | number = string | number,
+  TData extends any = any,
+> = ProgressBarProps & BaseOutletOptions<TCode, TData>
+
+export type NormalizedProgressBarOptions<
+  TCode extends string | number = string | number,
+  TData extends any = any,
+> = Required<ProgressBarProps> & BaseNormalizedOutletOptions<TCode, TData>
 
 export type OutletToHandlerArgsObjs<
   TCode extends string | number = string | number,
@@ -218,4 +174,5 @@ export type OutletToHandlerArgsObjs<
   [Outlet.JSON]: { value: any, options: NormalizedJsonOptions<TCode, TData> },
   [Outlet.DIVIDER]: { options: NormalizedDividerOptions<TCode, TData> },
   [Outlet.SPACER]: { options: NormalizedSpacerOptions<TCode, TData> },
+  [Outlet.PROGRESS_BAR]: { options: NormalizedProgressBarOptions<TCode, TData> },
 }

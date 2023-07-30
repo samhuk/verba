@@ -8,6 +8,7 @@ import {
 import {
   NormalizedDividerOptions,
   NormalizedJsonOptions,
+  NormalizedProgressBarOptions,
   NormalizedSimpleOutletOptions,
   NormalizedSpacerOptions,
   NormalizedTableOptions,
@@ -23,6 +24,7 @@ import { createIndentationString } from './util/indentation'
 import { createListenerStore } from './util/listenerStore'
 import { isVerbaString } from './verbaString'
 import { Aliases } from './alias/types'
+import { ProgressBar } from './progressBar/types'
 
 /**
  * Determines if the given `outlet` is one of the simple outlets,
@@ -116,6 +118,7 @@ const _createVerbaLogger = <
       const excluded = options.outletFilters
         ?.some(outletFilter => outletFilter({ outlet: Outlet.STEP, options: normalizedOptions }) === false) ?? false
       if (normalizedOptions.spinner) {
+        // If excluded, return step spinner shim
         if (excluded) {
           const result: StepSpinner = {
             text: (...args) => undefined,
@@ -129,6 +132,7 @@ const _createVerbaLogger = <
           return result as any
         }
         listeners.call('onBeforeLog', { outlet: Outlet.STEP, options: normalizedOptions }, nestState)
+        // Run all transport `step` functions
         const results = nestedInstantiatedTransports.map(p => p.step(normalizedOptions)).filter(v => v != null) as unknown as StepSpinner[]
         const result: StepSpinner = {
           text: (...args) => results.forEach(r => r.text(...args)),
@@ -230,6 +234,39 @@ const _createVerbaLogger = <
       listeners.call('onBeforeLog', { outlet: Outlet.SPACER, options: normalizedOptions }, nestState)
       nestedInstantiatedTransports.forEach(p => p.spacer(normalizedOptions))
       listeners.call('onAfterLog', { outlet: Outlet.SPACER, options: normalizedOptions }, nestState)
+    },
+    progressBar: _options => {
+      const normalizedOptions: NormalizedProgressBarOptions<TCode, TData> = {
+        total: _options?.total ?? 100,
+        barLength: _options?.barLength ?? 30,
+        code: _options?.code ?? undefined,
+        data: _options?.data ?? undefined,
+      }
+      const excluded = options.outletFilters
+        ?.some(outletFilter => outletFilter({ outlet: Outlet.PROGRESS_BAR, options: normalizedOptions }) === false) ?? false
+      // If excluded, return progress bar shim
+      if (excluded) {
+        return {
+          value: 0,
+          valuePercentage: 0,
+          update: () => undefined,
+          clear: () => undefined,
+          destroy: () => undefined,
+          destroyAndPersist: () => undefined,
+          render: () => undefined,
+        }
+      }
+      listeners.call('onBeforeLog', { outlet: Outlet.PROGRESS_BAR, options: normalizedOptions }, nestState)
+      const results = nestedInstantiatedTransports.map(p => p.progressBar(normalizedOptions)).filter(v => v != null) as ProgressBar[]
+      const result: ProgressBar = {
+        update: (...args) => results.forEach(r => r.update(...args)),
+        clear: (...args) => results.forEach(r => r.clear(...args)),
+        destroy: (...args) => results.forEach(r => r.destroy(...args)),
+        destroyAndPersist: (...args) => results.forEach(r => r.destroyAndPersist(...args)),
+        render: (...args) => results.forEach(r => r.render(...args)),
+      }
+      listeners.call('onAfterLog', { outlet: Outlet.PROGRESS_BAR, options: normalizedOptions }, nestState)
+      return result
     },
   }
 

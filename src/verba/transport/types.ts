@@ -5,6 +5,7 @@ import {
 import {
   NormalizedDividerOptions,
   NormalizedJsonOptions,
+  NormalizedProgressBarOptions,
   NormalizedSimpleOutletOptions,
   NormalizedSpacerOptions,
   NormalizedTableOptions,
@@ -15,6 +16,7 @@ import { NormalizedStepOptions, StepResult } from "../step/types"
 
 import { ListenerStore } from "../util/listenerStore/types"
 import { TypeDependantBaseIntersection } from '../util/types'
+import { ProgressBar } from '../progressBar/types'
 
 export type OutletToTransportHandlerFn<
   TCode extends string | number = string | number,
@@ -27,10 +29,11 @@ export type OutletToTransportHandlerFn<
   [Outlet.SUCCESS]: (options: NormalizedSimpleOutletOptions<TCode, TData>) => void,
   [Outlet.WARN]: (options: NormalizedSimpleOutletOptions<TCode, TData>) => void,
   // -- Other outlets
-  [Outlet.TABLE]: (data: any, options: NormalizedTableOptions<TCode>) => void,
-  [Outlet.JSON]: (value: any, options: NormalizedJsonOptions<TCode>) => void,
-  [Outlet.DIVIDER]: (options: NormalizedDividerOptions<TCode>) => void,
-  [Outlet.SPACER]: (options: NormalizedSpacerOptions<TCode>) => void,
+  [Outlet.TABLE]: (data: any, options: NormalizedTableOptions<TCode, TData>) => void,
+  [Outlet.JSON]: (value: any, options: NormalizedJsonOptions<TCode, TData>) => void,
+  [Outlet.DIVIDER]: (options: NormalizedDividerOptions<TCode, TData>) => void,
+  [Outlet.SPACER]: (options: NormalizedSpacerOptions<TCode, TData>) => void,
+  [Outlet.PROGRESS_BAR]: (options: NormalizedProgressBarOptions<TCode, TData>) => ProgressBar | undefined,
 }
 
 type OutletHandlerFnOptions<
