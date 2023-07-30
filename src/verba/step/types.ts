@@ -3,10 +3,22 @@ import { Spinner, SpinnerOptions } from "../spinner/types"
 
 import { VerbaString } from "../verbaString/types"
 
+type StepOptionsSpinner = boolean
+  | ((Omit<SpinnerOptions, 'text'> & {
+    /**
+     * If `true`, this will cause the initial text defined for the step spinner
+     * to be persisted once upon it being interrupted by another different
+     * log call whilst it is active (spinning).
+     * 
+     * @default true
+     */
+    persistInitialTextAsStepLogUponOtherLog?: boolean
+}))
+
 export type StepOptions<
   TCode extends string | number = string | number,
   TData extends any = any,
-  TSpinner extends boolean | Omit<SpinnerOptions, 'text'> = boolean | Omit<SpinnerOptions, 'text'>
+  TSpinner extends StepOptionsSpinner = StepOptionsSpinner
 > = VerbaString | (SimpleOutletOptions<TCode, TData> & {
   /**
    * If set, the step will show a spinner on the left-hand-side and return
@@ -40,7 +52,7 @@ export type StepOptions<
 export type NormalizedStepOptions<
   TCode extends string | number = string | number,
   TData extends any = any,
-  TSpinner extends boolean | Omit<SpinnerOptions, 'text'> = boolean | Omit<SpinnerOptions, 'text'>
+  TSpinner extends StepOptionsSpinner = StepOptionsSpinner
 > = NormalizedSimpleOutletOptions<TCode, TData> & Pick<Exclude<StepOptions<TCode, TData, TSpinner>, VerbaString>, 'spinner'>
 
 export type StepSpinner = Omit<Spinner, 'text'> & {

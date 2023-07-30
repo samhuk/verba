@@ -1,5 +1,4 @@
 import { Outlet } from "../../outlet/types"
-import { Spinner } from "../../spinner/types"
 import { VerbaTransport } from "../types"
 import colorizeJson from 'json-colorizer'
 import columify from 'columnify'
@@ -8,7 +7,7 @@ import { createStepOutputLogger } from "./step"
 import { normalizeVerbaString } from "../../verbaString"
 import { repeatStr } from "../../util/string"
 import { useRef } from '../../util/misc'
-import { BaseTransportOptions } from './types'
+import { BaseTransportOptions, TtyConsoleOccupier } from './types'
 
 /**
  * Colors config object for the json-colorizer package for TTY consoles.
@@ -51,19 +50,18 @@ export const baseTransport = <
   /**
    * The spinners, no matter the "nestedness" of a VerbaLogger, all share one console,
    * therefore we globally track the current spinner that is occupying the console.
-   * This could be done better, i.e. abstracting to a generic console occupier
-   * interface. For now, however, this will suffice.
    */
-  const spinnerRef = useRef<Spinner | undefined>(undefined)
+  const ttyConsoleOccupierRef = useRef<TtyConsoleOccupier | undefined>(undefined)
 
-  // Before the log of any outlet apart from `step`, temporarily clear
-  // the spinner from the console line, allowing the non-`step` call to
-  // print to the console line before the spinner reprints it's frame.
+  // If a non-spinner log message is called while a spinner is active, temporarily
+  // clear the currently active spinner from the console line in order to allow
+  // the non-spinner log message to print to the console line. The spinner will
+  // asynchronously print again later on.
   listeners.add('onBeforeLog', _options => {
     if (_options.outlet !== Outlet.STEP || !_options.options.spinner)
-      spinnerRef.current?.temporarilyClear()
+      ttyConsoleOccupierRef.current?.onInterruptedByOtherLog()
     else
-      spinnerRef.current?.destroy()
+      ttyConsoleOccupierRef.current?.destroy()
   })
 
   return nestState => {
@@ -71,7 +69,8 @@ export const baseTransport = <
     // bake-in some things like indentation and such for better performance and
     // reduced code-dupe.
     const simpleOutletLoggers = createSimpleOutletLoggers(transportOptions as any, loggerOptions as any, nestState)
-    const stepLogger = createStepOutputLogger(transportOptions as any, transportOptions.isTty, nestState, simpleOutletLoggers.step, spinnerRef)
+    // eslint-disable-next-line max-len
+    const stepLogger = createStepOutputLogger(transportOptions as any, transportOptions.isTty, nestState, simpleOutletLoggers.step, ttyConsoleOccupierRef)
 
     const jsonColors = (transportOptions.isTty && !(transportOptions?.disableColors ?? false)) ? TTY_JSON_COLORS : DEFAULT_FOREGROUND_JSON_COLORS
 

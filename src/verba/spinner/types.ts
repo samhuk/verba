@@ -26,6 +26,7 @@ export type SpinnerOptions = {
    * @default false
    */
   disableAutoStart?: boolean
+  disableColors?: boolean
 }
 
 /**
