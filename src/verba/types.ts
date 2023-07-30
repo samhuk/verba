@@ -252,6 +252,19 @@ export type VerbaLogger<
    * in order to, for example:
    * * Replace the existing base outlets (such as `log`, `info`, etc.)
    * * Add on new custom outlets
+   * 
+   * @example
+   * import verba from 'verba'
+   * 
+   * // Add new custom `header` outlet
+   * const log = verba().setAliases({
+   *   header: logger => (s: string) => {
+   *     logger.log(f => f.bold(f.italic(`-- ${s} --`)))
+   *     logger.spacer()
+   *   },
+   * })
+   * 
+   * log.header('foo')
    */
   setAliases: <TNewAliases extends Aliases<TCode, TData>>(aliases: TNewAliases) => VerbaLogger<TCode, TData, TNewAliases>
 }

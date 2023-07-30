@@ -100,17 +100,21 @@ Disabling colors for `consoleTransport`:
 
 ```typescript
 import verba, { consoleTransport } from 'verba'
-const transport = consoleTransport({
+const colorlessTransport = consoleTransport({
   disableColors: true
 })
-const log = verba({ transports: [transport] })
+const log = verba({
+  transports: [colorlessTransport]
+})
 ```
 
 Using both console and file built-in transports:
 
 ```typescript
 import verba, { consoleTransport, fileTransport } from 'verba'
-const log = verba({ transports: [consoleTransport, fileTransport] })
+const log = verba({
+  transports: [consoleTransport(), fileTransport()]
+})
 ```
 
 For more usage information, see the next sections.
