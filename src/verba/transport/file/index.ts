@@ -3,6 +3,8 @@ import { VerbaTransport } from '../types'
 import { createFileTransportDispatchService } from './dispatchService'
 import { FileTransportOptions } from './types'
 
+const DEFAULT_OUTFILE = './log.txt'
+
 /**
  * A Verba Transport for outputting to a file.
  * 
@@ -18,7 +20,7 @@ export const fileTransport = <
 >(
   options?: FileTransportOptions<TCode, TData>,
 ): VerbaTransport<TCode, TData> => {
-  const dispatchService = createFileTransportDispatchService(options?.outFile ?? './log.txt', options?.batchOptions)
+  const dispatchService = createFileTransportDispatchService(options?.outFile ?? DEFAULT_OUTFILE, options?.batchOptions)
   return baseTransport({
     isTty: false,
     dispatch: dispatchService.dispatch,

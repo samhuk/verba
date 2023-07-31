@@ -20,7 +20,9 @@ const createStepSpinner = (
   ttyConsoleOccupierRef: MutableRef<TtyConsoleOccupier | undefined>,
 ): StepSpinner => {
   const code = options.code === null ? undefined : (options.code ?? nestState.code)
-  const codeStr = createCodeStr(code, transportOptions)
+  const codeStr = code != null
+    ? createCodeStr(code, transportOptions)
+    : ''
   const msg = normalizeVerbaString(options.msg, transportOptions)
 
   const spinner = createConsoleSpinner(
@@ -38,9 +40,9 @@ const createStepSpinner = (
       },
   )
 
-  const setText: StepSpinner['text'] = s => code != null
-    ? spinner.text(codeStr + normalizeVerbaString(s, transportOptions))
-    : spinner.text(s)
+  const setText: StepSpinner['text'] = codeStr != ''
+    ? (s => spinner.text(codeStr + normalizeVerbaString(s, transportOptions)))
+    : s => spinner.text(s)
 
   return {
     text: setText,

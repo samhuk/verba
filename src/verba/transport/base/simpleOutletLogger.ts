@@ -33,8 +33,9 @@ const createSimpleOutletLogger = (
   const createDefaultOutput = (outletOptions: NormalizedSimpleOutletOptions)=> {
     const _prefix = nestState.indentationString + outletPrefix
     const code = outletOptions.code ?? nestState.code
-    const codeStr = createCodeStr(code, transportOptions)
-    return _prefix + codeStr + normalizeVerbaString(outletOptions.msg, transportOptions)
+    return code != null
+      ? _prefix + createCodeStr(code, transportOptions) + normalizeVerbaString(outletOptions.msg, transportOptions)
+      : _prefix + normalizeVerbaString(outletOptions.msg, transportOptions)
   }
 
   const override = transportOptions?.simpleOutletOverrides?.[outlet]

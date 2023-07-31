@@ -1,9 +1,4 @@
-// import { TtyConsoleOccupier } from '../transport/base/types'
 import { ProgressBarProps, ProgressBar } from './types'
-
-// export const createTtyConsoleOccupierFromProgressBar = (progressBar: ): TtyConsoleOccupier => {
-
-// }
 
 export const createConsoleProgressBar = (props: ProgressBarProps): ProgressBar => {
   let instance: ProgressBar
@@ -19,8 +14,8 @@ export const createConsoleProgressBar = (props: ProgressBarProps): ProgressBar =
 
   const clear = () => {
     // @ts-ignore
-    process.stdout.clearLine()
-    process.stdout.cursorTo(0)
+    process.stdout?.clearLine()
+    process.stdout?.cursorTo(0)
   }
 
   const render = () => {

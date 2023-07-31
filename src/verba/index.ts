@@ -278,18 +278,20 @@ const _createVerbaLogger = <
   
   return {
     nest: _options => {
-      const indent = nestState.indent + (_options.indent ?? 0)
+      const indent = _options.indent ?? 0
+      const newNestState: NestState<TCode> = {
+        indent,
+        indentationString: createIndentationString(indent),
+        code: _options.code === null ? undefined : (nestState.code ?? _options.code),
+      }
+      console.log('New nest state:', newNestState)
       return _createVerbaLogger(
         options,
         aliases,
         instantiatedTransports,
-        instantiatedTransports.map(p => p(nestState)),
+        instantiatedTransports.map(p => p(newNestState)),
         listeners,
-        {
-          indent,
-          indentationString: createIndentationString(indent),
-          code: _options.code === null ? undefined : (nestState.code ?? _options.code),
-        },
+        newNestState,
       )
     },
     setAliases: newAliases => _createVerbaLogger(

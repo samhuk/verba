@@ -11,14 +11,14 @@
       "name": "Example",
       "type": "node",
       "request": "launch",
-      "program": "./build-examples/examples/app/index.js",
+      "program": "./build-examples/examples/app.js",
       "preLaunchTask": "exampleDebugPreLaunchTask"
     },
     {
       "name": "Example (Error)",
       "type": "node",
       "request": "launch",
-      "program": "./build-examples/examples/error-app/index.js",
+      "program": "./build-examples/examples/error-app.js",
       "preLaunchTask": "exampleDebugPreLaunchTask"
     },
   ]
