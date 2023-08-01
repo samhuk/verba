@@ -1,7 +1,7 @@
 import { NormalizedSimpleOutletOptions, SimpleOutlet, SimpleOutletPrefixes } from "../../outlet/types"
 import { normalizeVerbaString, renderStringWithFormats } from "../../verbaString"
 
-import { NestState, VerbaLoggerOptions } from "../../types"
+import { NestState } from "../../types"
 import { createCodeStr } from "./code"
 import { BaseTransportOptions } from './types'
 import { NormalizeVerbaStringOptions } from '../../verbaString/types'
@@ -17,11 +17,10 @@ const createDefaultSimpleOutletPrefixes = (options?: NormalizeVerbaStringOptions
 
 type SimpleOutletLogger = (
   options: NormalizedSimpleOutletOptions,
-) => void
+) => string
 
 const createSimpleOutletLogger = (
   transportOptions: BaseTransportOptions,
-  options: VerbaLoggerOptions | undefined,
   outlet: SimpleOutlet,
   nestState: NestState,
 ): SimpleOutletLogger => {
@@ -39,24 +38,20 @@ const createSimpleOutletLogger = (
   }
 
   const override = transportOptions?.simpleOutletOverrides?.[outlet]
-  if (override != null) {
-    return outletOptions => {
-      transportOptions.dispatch(override(outletOptions) || createDefaultOutput(outletOptions))
-    }
-  }
+  if (override != null)
+    return outletOptions => override(outletOptions) || createDefaultOutput(outletOptions)
   
   return outletOptions => {
-    transportOptions.dispatch(createDefaultOutput(outletOptions))
+    return createDefaultOutput(outletOptions)
   }
 }
 
 export const createSimpleOutletLoggers = (
   transportOptions: BaseTransportOptions,
-  loggerOptions: VerbaLoggerOptions | undefined,
   nestState: NestState,
 ): SimpleOutletLoggers => ({
-  info: createSimpleOutletLogger(transportOptions, loggerOptions, 'info', nestState),
-  step: createSimpleOutletLogger(transportOptions, loggerOptions, 'step', nestState),
-  success: createSimpleOutletLogger(transportOptions, loggerOptions, 'success', nestState),
-  warn: createSimpleOutletLogger(transportOptions, loggerOptions, 'warn', nestState),
+  info: createSimpleOutletLogger(transportOptions, 'info', nestState),
+  step: createSimpleOutletLogger(transportOptions, 'step', nestState),
+  success: createSimpleOutletLogger(transportOptions, 'success', nestState),
+  warn: createSimpleOutletLogger(transportOptions, 'warn', nestState),
 })

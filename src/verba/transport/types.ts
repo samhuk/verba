@@ -36,7 +36,7 @@ export type OutletToTransportHandlerFn<
   [Outlet.PROGRESS_BAR]: (options: NormalizedProgressBarOptions<TCode, TData>) => ProgressBar | undefined,
 }
 
-type OutletHandlerFnOptions<
+export type OutletHandlerFnOptions<
   TCode extends string | number = string | number,
   TData extends any = any,
   TOutlet extends Outlet = Outlet

@@ -8,7 +8,15 @@
       "preLaunchTask": "unitTestsDebugPreLaunchTask"
     },
     {
-      "name": "Example",
+      "name": "Example (TTY)",
+      "type": "node",
+      "request": "launch",
+      "program": "./build-examples/examples/app.js",
+      "preLaunchTask": "exampleDebugPreLaunchTask",
+      "console":"integratedTerminal"
+    },
+    {
+      "name": "Example (non-TTY",
       "type": "node",
       "request": "launch",
       "program": "./build-examples/examples/app.js",

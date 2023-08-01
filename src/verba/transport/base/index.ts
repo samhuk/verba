@@ -1,5 +1,5 @@
-import { Outlet } from "../../outlet/types"
-import { VerbaTransport } from "../types"
+import { NormalizedProgressBarOptions, Outlet } from "../../outlet/types"
+import { NestedInstantiatedVerbaTransport, OutletHandlerFnOptions, VerbaTransport } from "../types"
 import colorizeJson from 'json-colorizer'
 import columify from 'columnify'
 import { createSimpleOutletLoggers } from "./simpleOutletLogger"
@@ -9,6 +9,7 @@ import { repeatStr } from "../../util/string"
 import { useRef } from '../../util/misc'
 import { BaseTransportOptions, TtyConsoleOccupier } from './types'
 import { createConsoleProgressBar } from '../../progressBar'
+import { MutableRef } from '../../util/types'
 
 /**
  * Colors config object for the json-colorizer package for TTY consoles.
@@ -39,6 +40,37 @@ const DEFAULT_FOREGROUND_JSON_COLORS = {
   STRING_LITERAL: '1',
 }
 
+const createProgressBarLogger = (
+  ttyConsoleOccupierRef: MutableRef<TtyConsoleOccupier | undefined>,
+) => (_options: NormalizedProgressBarOptions)=> {
+  const progressBar = createConsoleProgressBar(_options)
+  let isInterrupted = false
+
+  ttyConsoleOccupierRef.current = {
+    destroy: progressBar.destroy,
+    interrupt: () => {
+      isInterrupted = true
+      progressBar.clear()
+    },
+    resume: () => {
+      if (isInterrupted) {
+        progressBar.render()
+        isInterrupted = false
+      }
+    },
+  }
+
+  return progressBar
+}
+
+const isTerminalOccupier = (options: OutletHandlerFnOptions) => (
+  options.outlet === Outlet.PROGRESS_BAR || (options.outlet === Outlet.STEP && options.options.spinner)
+)
+
+const determineJsonColors = (transportOptions: BaseTransportOptions) => (
+  (transportOptions.isTty && !(transportOptions?.disableColors ?? false)) ? TTY_JSON_COLORS : DEFAULT_FOREGROUND_JSON_COLORS
+)
+
 /**
  * A Verba Transport for typical console and file transports, supporting TTY and non-TTY terminals.
  */
@@ -48,39 +80,45 @@ export const baseTransport = <
 >(
   transportOptions: BaseTransportOptions<TCode, TData>,
 ): VerbaTransport<TCode, TData> => (loggerOptions, listeners) => {
+  const jsonColors = determineJsonColors(transportOptions as BaseTransportOptions)
   /**
    * The spinners, no matter the "nestedness" of a VerbaLogger, all share one console,
    * therefore we globally track the current spinner that is occupying the console.
    */
   const ttyConsoleOccupierRef = useRef<TtyConsoleOccupier | undefined>(undefined)
 
-  // If a non-spinner log message is called while a spinner is active, temporarily
-  // clear the currently active spinner from the console line in order to allow
-  // the non-spinner log message to print to the console line. The spinner will
-  // asynchronously print again later on.
-  listeners.add('onBeforeLog', _options => {
-    if (_options.outlet === Outlet.TABLE || (_options.outlet === Outlet.STEP && _options.options.spinner))
-      ttyConsoleOccupierRef.current?.destroy()
-    else
-      ttyConsoleOccupierRef.current?.onInterruptedByOtherLog()
-  })
+  if (transportOptions.isTty) {
+    // If a non-spinner log message is called while a spinner is active, temporarily
+    // clear the currently active spinner from the console line in order to allow
+    // the non-spinner log message to print to the console line. The spinner will
+    // asynchronously print again later on.
+    listeners.add('onBeforeLog', _options => {
+      if (isTerminalOccupier(_options))
+        ttyConsoleOccupierRef.current?.destroy()
+      else
+        ttyConsoleOccupierRef.current?.interrupt()
+    })
 
+    listeners.add('onAfterLog', () => {
+      ttyConsoleOccupierRef.current?.resume()
+    })
+  }
+  
   return nestState => {
     // For every logger and nested loggers thereof, pre-create simple outlet loggers that
     // bake-in some things like indentation and such for better performance and
     // reduced code-dupe.
-    const simpleOutletLoggers = createSimpleOutletLoggers(transportOptions as any, loggerOptions as any, nestState)
+    const simpleOutletLoggers = createSimpleOutletLoggers(transportOptions as any, nestState)
     // eslint-disable-next-line max-len
     const stepLogger = createStepLogger(transportOptions as any, transportOptions.isTty, nestState, simpleOutletLoggers.step, ttyConsoleOccupierRef)
+    const progressBarLogger = createProgressBarLogger(ttyConsoleOccupierRef)
 
-    const jsonColors = (transportOptions.isTty && !(transportOptions?.disableColors ?? false)) ? TTY_JSON_COLORS : DEFAULT_FOREGROUND_JSON_COLORS
-
-    return {
+    const transport: NestedInstantiatedVerbaTransport<TCode, TData> = {
       log: _options => transportOptions.dispatch(normalizeVerbaString(_options.msg, transportOptions)),
-      info: _options => simpleOutletLoggers.info(_options),
-      step: _options => stepLogger(_options) as any,
-      success: _options => simpleOutletLoggers.success(_options),
-      warn: _options => simpleOutletLoggers.warn(_options),
+      info: _options => transportOptions.dispatch(simpleOutletLoggers.info(_options)),
+      step: stepLogger as any,
+      success: _options => transportOptions.dispatch(simpleOutletLoggers.success(_options)),
+      warn: _options => transportOptions.dispatch(simpleOutletLoggers.warn(_options)),
       table: (data, _options) => transportOptions.dispatch(columify(data, _options)),
       json: (value, _options) => transportOptions.dispatch(colorizeJson(value, {
         pretty: _options.pretty,
@@ -88,17 +126,9 @@ export const baseTransport = <
       })),
       spacer: _options => transportOptions.dispatch(repeatStr('\n', _options.numLines - 1)),
       divider: () => transportOptions.dispatch(repeatStr('-', process.stdout.columns * 0.33)),
-      progressBar: _options => {
-        const progressBar = createConsoleProgressBar(_options)
-        ttyConsoleOccupierRef.current = {
-          destroy: progressBar.destroy,
-          onInterruptedByOtherLog: () => {
-            progressBar.clear()
-            setTimeout(() => progressBar.render(), 0)
-          },
-        }
-        return progressBar
-      },
+      progressBar: progressBarLogger,
     }
+
+    return transport
   }
 }

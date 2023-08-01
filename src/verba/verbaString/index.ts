@@ -83,6 +83,43 @@ export const renderStringWithFormats = (s: string, formats: StringFormat[], opti
 }
 
 /**
+ * Performant version of `createStringFormatter` that does some precalculation
+ * to improve performance when called with many strings.
+ */
+export const createStringFormatter = (formats: StringFormat[], options?: NormalizeVerbaStringOptions): ((s: string) => string) => {
+  if ((options?.disableColors ?? false) || formats.length === 0)
+    return s => s
+
+  const fns = formats.map(f => verbaColorizer[f])
+  switch (fns.length) {
+    case 1: {
+      const f1 = fns[0]
+      return s => f1(s)
+    }
+    case 2: {
+      const f1 = fns[0]
+      const f2 = fns[1]
+      return s => f2(f1(s))
+    }
+    case 3: {
+      const f1 = fns[0]
+      const f2 = fns[1]
+      const f3 = fns[2]
+      return s => f3(f2(f1(s)))
+    }
+    case 4: {
+      const f1 = fns[0]
+      const f2 = fns[1]
+      const f3 = fns[2]
+      const f4 = fns[3]
+      return s => f4(f3(f2(f1(s))))
+    }
+    default:
+      return s => formats.reduce((acc, format) => verbaColorizer[format](acc), s)
+  }
+}
+
+/**
  * Determines if the given `value` represents a `VerbaString`, i.e. a `string`,
  * `function`, or `(string | function)[]`.
  * 

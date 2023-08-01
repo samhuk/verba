@@ -1,4 +1,9 @@
 import { NormalizedSimpleOutletOptions, SimpleOutlet, SimpleOutletPrefixesOptions } from '../../outlet/types'
+import { StringFormat } from '../../verbaString/types'
+
+export type InterruptedTtyConsolerOccupier = {
+  resume: () => void
+}
 
 /**
  * A type that represents an entity that is occupying the current (TTY) console output.
@@ -6,8 +11,13 @@ import { NormalizedSimpleOutletOptions, SimpleOutlet, SimpleOutletPrefixesOption
  * This could be a progress bar, a spinner, etc.
  */
 export type TtyConsoleOccupier = {
-  onInterruptedByOtherLog: () => void
+  interrupt: () => void
+  resume: () => void
   destroy: () => void
+}
+
+export type DispatchDeltaTOptions = boolean | {
+  format: StringFormat[] | ((dt: number) => string)
 }
 
 /**
@@ -27,4 +37,5 @@ export type BaseTransportOptions<
   disableColors?: boolean
   simpleOutletOverrides?: Partial<{ [outlet in SimpleOutlet]: SimpleOutletOverride<TCode, TData> }>
   outletPrefixes?: SimpleOutletPrefixesOptions
+  dispatchDeltaT?: DispatchDeltaTOptions
 }
