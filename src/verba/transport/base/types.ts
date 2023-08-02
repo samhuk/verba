@@ -45,8 +45,55 @@ export type BaseTransportOptions<
 > = {
   dispatch: (s: string) => void
   isTty: boolean
+  /**
+   * Disables ANSI colors for all log messages if `true`.
+   *
+   * @default false
+   */
   disableColors: boolean
-  simpleOutletOverrides?: Partial<{ [outlet in SimpleOutlet]: SimpleOutletOverride<TCode, TData> }>
-  outletPrefixes?: SimpleOutletPrefixesOptions
-  dispatchDeltaT?: DispatchDeltaTOptions
+  /**
+   * Configures the appearance of the delta-t indicator for each log message.
+   * 
+   * This can take multiple types of values, allowing for a wide range of customization:
+   * 
+   * * `false` - Disables the indicator.
+   * * `true` - Enables the indicator with default behavior (default formatting and at the end).
+   * * `StringFormat[]` - Same as `true` but allows for custom string formats (e.g. `red`, `bold`, `dim`, etc.).
+   * * `(dt, formatter) => string` - Enables the indicator with totally custom formatting, at the end.
+   * * `{ format: ..., position: 'start' | 'end'}` - Enables the indicator, allowing for maximum customization.
+   * 
+   * @default false
+   * 
+   * @example
+   * false
+   * true
+   * ['yellow', 'italic']
+   * (dt, f) => f.yellow(f.italic(`[${dt} ms]`))
+   * {
+   *   format: (dt, f) => f.yellow(f.italic(`[${dt} ms]`)),
+   *   position: 'end'
+   * }
+   */
+  dispatchDeltaT: DispatchDeltaTOptions
+  /**
+   * Overrides the logging behavior of simple outlets (`info`, `step`, `success`, `warn`).
+   * 
+   * @example
+   * import verba, { consoleTransport, normalizeVerbaString } from 'verba'
+   * 
+   * const transport = consoleTransport({
+   *   simpleOutletOverrides: {
+   *     info: options => console.log('INFO', normalizeVerbaString(options.msg)),
+   *     step: ...,
+   *     ...
+   *   }
+   * })
+   * 
+   * const log = verba({ transports: [transport] })
+   */
+  simpleOutletOverrides: Partial<{ [outlet in SimpleOutlet]: SimpleOutletOverride<TCode, TData> }> | undefined
+  /**
+   * Configures the prefixes that appear for each outlet, i.e. `info`, `step`, `success`, etc.
+   */
+  outletPrefixes: SimpleOutletPrefixesOptions | undefined
 }

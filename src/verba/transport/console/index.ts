@@ -21,6 +21,7 @@ export const consoleTransport = <
   isTty: process.stdout.isTTY,
   dispatch: s => process.stdout.write(s + '\n'),
   disableColors: options?.disableColors ?? false,
+  dispatchDeltaT: options?.dispatchDeltaT ?? false,
   simpleOutletOverrides: options?.simpleOutletOverrides,
-  dispatchDeltaT: options?.dispatchDeltaT,
+  outletPrefixes: options?.outletPrefixes,
 })

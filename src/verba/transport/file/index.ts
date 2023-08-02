@@ -25,6 +25,8 @@ export const fileTransport = <
     isTty: false,
     dispatch: dispatchService.dispatch,
     disableColors: true,
+    dispatchDeltaT: options?.dispatchDeltaT ?? false,
     simpleOutletOverrides: options?.simpleOutletOverrides,
+    outletPrefixes: options?.outletPrefixes,
   })
 }

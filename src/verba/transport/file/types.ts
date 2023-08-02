@@ -1,6 +1,7 @@
-import { WriteStream } from 'fs'
+import { BaseTransportOptions, SimpleOutletOverride } from '../base/types'
 import { SimpleOutlet, SimpleOutletPrefixesOptions } from '../../outlet/types'
-import { SimpleOutletOverride } from '../base/types'
+
+import { WriteStream } from 'fs'
 
 export type FileTransportOutFile = string | WriteStream
 
@@ -21,7 +22,7 @@ export type FileTransportBatchOptions = {
 export type FileTransportOptions<
   TCode extends string | number = string | number,
   TData extends any = any
-> = {
+> = Partial<Pick<BaseTransportOptions<TCode, TData>, 'dispatchDeltaT' | 'outletPrefixes' | 'simpleOutletOverrides'>> & {
   /**
    * File to output log messages to. This may take the value of a path or an `fs.WriteStream`.
    * 
@@ -33,23 +34,6 @@ export type FileTransportOptions<
    */
   outFile?: FileTransportOutFile
   /**
-   * Overrides the logging behavior of simple outlets (`info`, `step`, `success`, `warn`).
-   * 
-   * @example
-   * import verba, { fileTransport, normalizeVerbaString } from 'verba'
-   * 
-   * const transport = fileTransport({
-   *   simpleOutletOverrides: {
-   *     info: options => console.log('INFO', normalizeVerbaString(options.msg, { disableColors: true })),
-   *     step: ...,
-   *     ...
-   *   }
-   * })
-   * 
-   * const log = verba({ transports: [transport] })
-   */
-  simpleOutletOverrides?: Partial<{ [outlet in SimpleOutlet]: SimpleOutletOverride<TCode, TData> }>
-  /**
    * The method used to batch writes to the log file.
    * 
    * May take the following values:
@@ -59,18 +43,4 @@ export type FileTransportOptions<
    * @default undefined
    */
   batchOptions?: FileTransportBatchOptions
-  /**
-   * Configures the prefixes that appear for each outlet,
-   * i.e. `info`, `step`, etc.
-   *
-   * @example
-   * import verba from 'verba'
-   * const log = verba({
-   *   outletPrefixes: {
-   *     info: 'info',
-   *     step: f => f.cyan(f.underline('step')),
-   *   }
-   * })
-   */
-  outletPrefixes?: SimpleOutletPrefixesOptions
 }

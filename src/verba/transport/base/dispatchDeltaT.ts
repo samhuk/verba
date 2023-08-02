@@ -61,7 +61,7 @@ export const useDispatchDeltaTRenderer = (
         : defaultColorlessEnd
       : renderDispatchDeltaTPos === 'start'
         ? () => colorizer.dim(padder(`+${Date.now() - previousDispatchEpochRef.current}ms `))
-        : () => colorizer.dim(`  [+${Date.now() - previousDispatchEpochRef.current} ms]`)
+        : () => '  ' + colorizer.dim(`[+${Date.now() - previousDispatchEpochRef.current} ms]`)
   }
 
   if (Array.isArray(formatProp)) {
@@ -74,7 +74,7 @@ export const useDispatchDeltaTRenderer = (
     const formatter = createStringFormatter(formatProp, transportOptions)
     return renderDispatchDeltaTPos === 'start'
       ? () => formatter(padder(`+${Date.now() - previousDispatchEpochRef.current} ms `))
-      : () => '  ' + formatter(`+${Date.now() - previousDispatchEpochRef.current} ms`)
+      : () => '  ' + formatter(`[+${Date.now() - previousDispatchEpochRef.current} ms]`)
   }
   
   return () => formatProp(Date.now() - previousDispatchEpochRef.current, colorizer)
