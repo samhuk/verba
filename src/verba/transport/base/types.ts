@@ -96,4 +96,25 @@ export type BaseTransportOptions<
    * Configures the prefixes that appear for each outlet, i.e. `info`, `step`, `success`, etc.
    */
   outletPrefixes: SimpleOutletPrefixesOptions | undefined
+  /**
+   * Configures the time that appears at the start of each log messages.
+   * 
+   * This can take several types of values:
+   * * `false` - Disables the indicator.
+   * * `true` - Enables the indicator with default formatting, e.g. 04:07:42 PM.
+   * * `string` - Enables the indicator with a specific date format. The available tokens are:
+   *   * `yyyy` - 4-digit year, e.g. 1970, 2023
+   *   * `mm` - 2-digit month of year, e.g. 01, 12
+   *   * `dd` - 2-digit day of month, e.g. 01, 31
+   *   * `hh` - 2-digit hour of day, e.g. 00, 24
+   *   * `ii` - 2-digit minute of hour, e.g. 00, 59
+   *   * `ss` - 2-digit second of minute, e.g. 00, 59
+   * @default false
+   * 
+   * @example
+   * false
+   * true
+   * 'yyyy-mm-dd|hh-ii-ss'
+   */
+  dispatchTimePrefix: boolean | string
 }

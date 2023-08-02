@@ -22,7 +22,7 @@ export type FileTransportBatchOptions = {
 export type FileTransportOptions<
   TCode extends string | number = string | number,
   TData extends any = any
-> = Partial<Pick<BaseTransportOptions<TCode, TData>, 'dispatchDeltaT' | 'outletPrefixes' | 'simpleOutletOverrides'>> & {
+> = Partial<Pick<BaseTransportOptions<TCode, TData>, 'dispatchDeltaT' | 'outletPrefixes' | 'simpleOutletOverrides' | 'dispatchTimePrefix'>> & {
   /**
    * File to output log messages to. This may take the value of a path or an `fs.WriteStream`.
    * 

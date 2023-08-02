@@ -8,6 +8,7 @@ import columify from 'columnify'
 import { createProgressBarLogger } from './progressBar'
 import { createSimpleOutletLoggers } from "./simpleOutletLogger"
 import { createStepLogger } from "./step"
+import { formatDate } from './dispatchTime'
 import { repeatStr } from "../../util/string"
 import { useDispatchDeltaTRenderer } from './dispatchDeltaT'
 import { useRef } from '../../util/misc'
@@ -47,6 +48,10 @@ const isTerminalOccupier = (options: OutletHandlerFnOptions) => (
 
 const determineJsonColors = (transportOptions: BaseTransportOptions) => (
   (transportOptions.isTty && !(transportOptions?.disableColors ?? false)) ? TTY_JSON_COLORS : DEFAULT_FOREGROUND_JSON_COLORS
+)
+
+const useLog = (transportOptions: BaseTransportOptions) => (_options: NormalizedSimpleOutletOptions) => (
+  transportOptions.dispatch(normalizeVerbaString(_options.msg, transportOptions))
 )
 
 /**
@@ -95,11 +100,11 @@ export const baseTransport = <
     ? useDispatchDeltaTRenderer(transportOptions as BaseTransportOptions, colorizer, transportOptions.dispatchDeltaT, previousDispatchEpochRef, listeners, renderDispatchDeltaTPos)
     : undefined
 
-  const log = (_options: NormalizedSimpleOutletOptions) => renderDispatchDeltaT != null
-      ? renderDispatchDeltaTPos === 'start'
-        ? transportOptions.dispatch(renderDispatchDeltaT() + normalizeVerbaString(_options.msg, transportOptions))
-        : transportOptions.dispatch(normalizeVerbaString(_options.msg, transportOptions) + renderDispatchDeltaT())
-      : transportOptions.dispatch(normalizeVerbaString(_options.msg, transportOptions))
+  const renderDispatchTime: (() => string) = transportOptions.dispatchTimePrefix !== false
+    ? transportOptions.dispatchTimePrefix === true
+      ? () => colorizer.dim(new Date().toLocaleTimeString() + '  ')
+      : () => colorizer.dim(formatDate(new Date(), transportOptions.dispatchTimePrefix as string) + '  ')
+    : () => ''
   
   return nestState => {
     // For every logger and nested loggers thereof, pre-create simple outlet loggers that
@@ -111,13 +116,13 @@ export const baseTransport = <
       simpleOutlet: SimpleOutlet,
     ): ((_options: NormalizedSimpleOutletOptions) => void) => renderDispatchDeltaT != null
       ? renderDispatchDeltaTPos === 'start'
-        ? _options => transportOptions.dispatch(renderDispatchDeltaT() + simpleOutletLoggers[simpleOutlet](_options))
-        : _options => transportOptions.dispatch(simpleOutletLoggers[simpleOutlet](_options) + renderDispatchDeltaT())
-      : _options => transportOptions.dispatch(simpleOutletLoggers[simpleOutlet](_options))
+        ? _options => transportOptions.dispatch(renderDispatchTime() + renderDispatchDeltaT() + simpleOutletLoggers[simpleOutlet](_options))
+        : _options => transportOptions.dispatch(renderDispatchTime() + simpleOutletLoggers[simpleOutlet](_options) + renderDispatchDeltaT())
+      : _options => transportOptions.dispatch(renderDispatchTime() + simpleOutletLoggers[simpleOutlet](_options))
 
     const transport: NestedInstantiatedVerbaTransport = {
       // -- Simple outlets
-      log,
+      log: useLog(transportOptions as BaseTransportOptions),
       info: createNonStepSimpleOutletLog('info'),
       // eslint-disable-next-line max-len
       step: createStepLogger(transportOptions as any, nestState, createNonStepSimpleOutletLog('step'), ttyConsoleOccupierRef) as any,
