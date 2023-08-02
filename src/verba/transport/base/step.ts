@@ -4,7 +4,6 @@ import { normalizeVerbaString } from "../../verbaString"
 
 import { MutableRef } from "../../util/types"
 import { NestState } from "../../types"
-import { SimpleOutletLoggers } from "./simpleOutletLogger"
 import { NormalizedSimpleOutletOptions, SimpleOutletOptions } from "../../outlet/types"
 import { VerbaString } from "../../verbaString/types"
 import { createCodeStr } from "./code"
