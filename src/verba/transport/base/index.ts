@@ -32,9 +32,10 @@ export const baseTransport = <
   const colorizer = getColorizer(transportOptions)
   const dispatchDeltaT = useDispatchDeltaT(transportOptions as BaseTransportOptions, colorizer, listeners)
   const renderDispatchTime = createDispatchTimeRenderer(transportOptions as BaseTransportOptions, colorizer)
-  
+
   return nestState => {
     const simpleOutletLoggers = useSimpleOutletLoggers(transportOptions as BaseTransportOptions, nestState, renderDispatchTime, dispatchDeltaT)
+    const progressBar = createProgressBarLogger(transportOptions as BaseTransportOptions, ttyConsoleOccupierRef, nestState, renderDispatchTime)
 
     const transport: NestedInstantiatedVerbaTransport = {
       // -- Simple outlets
@@ -52,7 +53,7 @@ export const baseTransport = <
       })),
       spacer: _options => transportOptions.dispatch(repeatStr('\n', _options.numLines - 1)),
       divider: () => transportOptions.dispatch(repeatStr('-', process.stdout.columns * 0.33)),
-      progressBar: createProgressBarLogger(ttyConsoleOccupierRef),
+      progressBar,
     }
 
     return transport

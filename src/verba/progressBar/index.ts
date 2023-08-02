@@ -1,6 +1,6 @@
-import { ProgressBarProps, ProgressBar } from './types'
+import { ProgressBarOptions, ProgressBar } from './types'
 
-export const createConsoleProgressBar = (props: ProgressBarProps): ProgressBar => {
+export const createConsoleProgressBar = (props: ProgressBarOptions): ProgressBar => {
   let instance: ProgressBar
   let value = 0
   const barLength = props.barLength ?? 30
@@ -8,8 +8,8 @@ export const createConsoleProgressBar = (props: ProgressBarProps): ProgressBar =
 
   const frame = () => {
     const percentage: number = (value / total) * 100
-    const progressChars: number = Math.floor((percentage / 100) * barLength)
-    return `[${"#".repeat(progressChars)}${" ".repeat(barLength - progressChars)}] ${percentage.toFixed(2)}%`
+    const numBarChars: number = Math.floor((percentage / 100) * barLength)
+    return `${props.renderPrefix?.() ?? ''}[${"#".repeat(numBarChars)}${" ".repeat(barLength - numBarChars)}] ${percentage.toFixed(2)}%`
   }
 
   const clear = () => {
@@ -24,16 +24,14 @@ export const createConsoleProgressBar = (props: ProgressBarProps): ProgressBar =
   }
   
   return instance = {
-    update: progress => {
-      value = progress
+    update: newValue => {
+      value = newValue
       render()
     },
+    updateValue: newValue => value = newValue,
     clear,
     render,
-    destroy: () => {
-      clear()
-    },
-    destroyAndPersist: () => {
+    persist: () => {
       clear()
       process.stdout.write(frame() + '\n')
     },

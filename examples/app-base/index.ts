@@ -23,7 +23,7 @@ const uploadJobsReport = async () => {
     await sleep(0.5)
     progressBar.update(i)
   }
-  progressBar.destroy()
+  progressBar.clear()
   log.success('Jobs report uploaded')
 }
 

@@ -1,7 +1,7 @@
 import { GlobalOptions as ColumifyOptions } from 'columnify'
 import { NormalizedStepOptions } from "../step/types"
 import { VerbaString } from "../verbaString/types"
-import { ProgressBarProps } from '../progressBar/types'
+import { ProgressBarOptions as BaseProgressBarOptions } from '../progressBar/types'
 
 export enum Outlet {
   LOG = 'log',
@@ -37,7 +37,6 @@ export type BaseOutletOptions<
    * 'INIT'
    * 'CONNECT_DB'
    * 'USER_AUTHENTICATE'
-   * ...
    */
   code?: TCode
 }
@@ -152,12 +151,12 @@ export type NormalizedDividerOptions<
 export type ProgressBarOptions<
   TCode extends string | number = string | number,
   TData extends any = any,
-> = ProgressBarProps & BaseOutletOptions<TCode, TData>
+> = Pick<BaseProgressBarOptions, 'total' | 'barLength'> & BaseOutletOptions<TCode, TData>
 
 export type NormalizedProgressBarOptions<
   TCode extends string | number = string | number,
   TData extends any = any,
-> = Required<ProgressBarProps> & BaseNormalizedOutletOptions<TCode, TData>
+> = Required<Pick<BaseProgressBarOptions, 'total' | 'barLength'>> & BaseNormalizedOutletOptions<TCode, TData>
 
 export type OutletToHandlerArgsObjs<
   TCode extends string | number = string | number,

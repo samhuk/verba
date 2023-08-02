@@ -237,7 +237,7 @@ export type VerbaLoggerBaseOutlets<
    * // ...Or print the latest progress bar state and move onto new console line
    * progressbar.destroyAndPersist()
    */
-  progressBar: (options?: ProgressBarOptions<TCode, TData>) => ProgressBar
+  progressBar: (options?: Pick<ProgressBarOptions<TCode, TData>, 'barLength' | 'total' | 'code' | 'data'>) => ProgressBar
 }
 
 /**

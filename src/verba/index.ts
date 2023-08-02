@@ -173,7 +173,7 @@ const _createVerbaLogger = <
       listeners.call('onAfterLog', { outlet: Outlet.WARN, options: normalizedOptions }, nestState)
     },
     table: (data, _options) => {
-      const normalizedOptions: NormalizedTableOptions<TCode> = {
+      const normalizedOptions: NormalizedTableOptions<TCode, TData> = {
         ...(_options ?? {}),
         code: _options?.code ?? undefined,
         data: _options?.data,
@@ -188,7 +188,7 @@ const _createVerbaLogger = <
       listeners.call('onAfterLog', { outlet: Outlet.TABLE, options: normalizedOptions, data }, nestState)
     },
     json: (value, _options) => {
-      const normalizedOptions: NormalizedJsonOptions<TCode> = {
+      const normalizedOptions: NormalizedJsonOptions<TCode, TData> = {
         pretty: _options?.pretty ?? false,
         code: _options?.code ?? undefined,
         data: _options?.data ?? undefined,
@@ -203,7 +203,7 @@ const _createVerbaLogger = <
       listeners.call('onAfterLog', { outlet: Outlet.JSON, options: normalizedOptions, value }, nestState)
     },
     divider: _options => {
-      const normalizedOptions: NormalizedDividerOptions<TCode> = {
+      const normalizedOptions: NormalizedDividerOptions<TCode, TData> = {
         code: _options?.code ?? undefined,
         data: _options?.data ?? undefined,
       }
@@ -217,7 +217,7 @@ const _createVerbaLogger = <
       listeners.call('onAfterLog', { outlet: Outlet.DIVIDER, options: normalizedOptions }, nestState)
     },
     spacer: _options => {
-      const normalizedOptions: NormalizedSpacerOptions<TCode> = typeof _options === 'object'
+      const normalizedOptions: NormalizedSpacerOptions<TCode, TData> = typeof _options === 'object'
         ? {
           numLines: _options?.numLines ?? 1,
           code: _options?.code ?? undefined,
@@ -245,13 +245,11 @@ const _createVerbaLogger = <
       // If excluded, return progress bar shim
       if (excluded) {
         return {
-          value: 0,
-          valuePercentage: 0,
-          update: () => undefined,
-          clear: () => undefined,
-          destroy: () => undefined,
-          destroyAndPersist: () => undefined,
-          render: () => undefined,
+          update: (...args) => undefined,
+          clear: (...args) => undefined,
+          persist: (...args) => undefined,
+          updateValue: (...args) => undefined,
+          render: (...args) => undefined,
         }
       }
       listeners.call('onBeforeLog', { outlet: Outlet.PROGRESS_BAR, options: normalizedOptions }, nestState)
@@ -259,8 +257,8 @@ const _createVerbaLogger = <
       const result: ProgressBar = {
         update: (...args) => results.forEach(r => r.update(...args)),
         clear: (...args) => results.forEach(r => r.clear(...args)),
-        destroy: (...args) => results.forEach(r => r.destroy(...args)),
-        destroyAndPersist: (...args) => results.forEach(r => r.destroyAndPersist(...args)),
+        persist: (...args) => results.forEach(r => r.persist(...args)),
+        updateValue: (...args) => results.forEach(r => r.updateValue(...args)),
         render: (...args) => results.forEach(r => r.render(...args)),
       }
       listeners.call('onAfterLog', { outlet: Outlet.PROGRESS_BAR, options: normalizedOptions }, nestState)
