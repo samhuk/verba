@@ -1,7 +1,7 @@
-import { baseTransport } from '../base'
-import { VerbaTransport } from '../types'
-import { createFileTransportDispatchService } from './dispatchService'
 import { FileTransportOptions } from './types'
+import { VerbaTransport } from '../types'
+import { baseTransport } from '../base'
+import { createFileTransportDispatchService } from './dispatchService'
 
 const DEFAULT_OUTFILE = './log.txt'
 

@@ -47,15 +47,6 @@ export type Spinner = {
    */
   start: () => void;
   /**
-   * Temporarily clears the current frame of the spinner from the console.
-   * 
-   * A new frame will be rendered immediately after the synchronous code immediately
-   * after a call to `temporarilyClear` completes.
-   * 
-   * This is useful for logging text whilst the spinner is active.
-   */
-  temporarilyClear: () => void;
-  /**
    * Pauses the spinner.
    */
   pause: () => void;

@@ -5,7 +5,7 @@ import { normalizeVerbaString } from "../../verbaString"
 import { MutableRef } from "../../util/types"
 import { NestState } from "../../types"
 import { SimpleOutletLoggers } from "./simpleOutletLogger"
-import { SimpleOutletOptions } from "../../outlet/types"
+import { NormalizedSimpleOutletOptions, SimpleOutletOptions } from "../../outlet/types"
 import { VerbaString } from "../../verbaString/types"
 import { createCodeStr } from "./code"
 import { createConsoleSpinner } from "./spinner"
@@ -50,7 +50,6 @@ const createStepSpinner = (
       text: setText,
       color: spinner.color,
       start: spinner.start,
-      temporarilyClear: spinner.temporarilyClear,
       pause: spinner.pause,
       destroy: () => {
         spinner.destroy()
@@ -66,32 +65,29 @@ const createStepSpinner = (
 }
 
 const createNonTTYSpinnerShim = (
-  transportOptions: BaseTransportOptions,
-  stepSimpleOutletLoggers: SimpleOutletLoggers['step'],
+  stepSimpleOutletLogger: (options: NormalizedSimpleOutletOptions) => void,
   options: NormalizedStepOptions,
 ): StepSpinner => {
   // When stdout is not TTY, then spinner functionality is not possible.
   // Therefore we log the initial message, and then return a step spinner shim.
-  transportOptions.dispatch(stepSimpleOutletLoggers(options))
+  stepSimpleOutletLogger(options)
   return {
-    start: () => transportOptions.dispatch(stepSimpleOutletLoggers(options)),
+    start: () => stepSimpleOutletLogger(options),
     color: () => undefined,
-    temporarilyClear: () => undefined,
     destroy: () => undefined,
     pause: () => undefined,
     stopAndPersist: () => undefined,
     text: (s, onlyTty) => onlyTty
       ? undefined
-      : transportOptions.dispatch(stepSimpleOutletLoggers({ ...options, msg: s })),
+      : stepSimpleOutletLogger({ ...options, msg: s }),
   }
 }
 
 const createTtyConsoleOccupier = (
-  transportOptions: BaseTransportOptions,
   options: NormalizedStepOptions,
   stepSpinner: StepSpinner,
   clearStepSpinner: () => void,
-  stepSimpleOutletLogger: SimpleOutletLoggers['step'],
+  stepSimpleOutletLogger: (options: NormalizedSimpleOutletOptions) => void,
 ): TtyConsoleOccupier => {
   let hasBeenInterruptedByOtherLog = false
   let isInterrupted = false
@@ -104,7 +100,7 @@ const createTtyConsoleOccupier = (
 
         if (!hasBeenInterruptedByOtherLog) {
           hasBeenInterruptedByOtherLog = true
-          transportOptions.dispatch(stepSimpleOutletLogger(options))
+          stepSimpleOutletLogger(options)
         }
       }
       : () => {
@@ -122,22 +118,21 @@ const createTtyConsoleOccupier = (
 
 export const createStepLogger = (
   transportOptions: BaseTransportOptions,
-  isTty: boolean,
   nestState: NestState,
-  stepSimpleOutletLogger: SimpleOutletLoggers['step'],
+  stepSimpleOutletLogger: (options: NormalizedSimpleOutletOptions) => void,
   ttyConsoleOccupierRef: MutableRef<TtyConsoleOccupier | undefined>,
 ) => (options: NormalizedStepOptions): StepSpinner | void => {
   // If options does not have a truthy `spinner` prop, then do normal step log
   if (!options.spinner)
-    return transportOptions.dispatch(stepSimpleOutletLogger(options))
+    return stepSimpleOutletLogger(options)
     
   // Else if the current console is *not* TTY, then do fake spinner
-  else if (!isTty)
-    return createNonTTYSpinnerShim(transportOptions, stepSimpleOutletLogger, options)
+  else if (!transportOptions.isTty)
+    return createNonTTYSpinnerShim(stepSimpleOutletLogger, options)
 
   
   // Else (if the current console is TTY) then do real spinner
   const { stepSpinner, clear: clearStepSpinner } = createStepSpinner(transportOptions, options as any, nestState, ttyConsoleOccupierRef)
-  ttyConsoleOccupierRef.current = createTtyConsoleOccupier(transportOptions, options, stepSpinner, clearStepSpinner, stepSimpleOutletLogger)
+  ttyConsoleOccupierRef.current = createTtyConsoleOccupier(options, stepSpinner, clearStepSpinner, stepSimpleOutletLogger)
   return stepSpinner
 }

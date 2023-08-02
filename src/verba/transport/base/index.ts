@@ -1,15 +1,16 @@
-import { NormalizedProgressBarOptions, Outlet } from "../../outlet/types"
+import { BaseTransportOptions, TtyConsoleOccupier } from './types'
 import { NestedInstantiatedVerbaTransport, OutletHandlerFnOptions, VerbaTransport } from "../types"
+import { NormalizedSimpleOutletOptions, Outlet, SimpleOutlet } from "../../outlet/types"
+import { getColorizer, normalizeVerbaString } from "../../verbaString"
+
 import colorizeJson from 'json-colorizer'
 import columify from 'columnify'
+import { createProgressBarLogger } from './progressBar'
 import { createSimpleOutletLoggers } from "./simpleOutletLogger"
 import { createStepLogger } from "./step"
-import { normalizeVerbaString } from "../../verbaString"
 import { repeatStr } from "../../util/string"
+import { useDispatchDeltaTRenderer } from './dispatchDeltaT'
 import { useRef } from '../../util/misc'
-import { BaseTransportOptions, TtyConsoleOccupier } from './types'
-import { createConsoleProgressBar } from '../../progressBar'
-import { MutableRef } from '../../util/types'
 
 /**
  * Colors config object for the json-colorizer package for TTY consoles.
@@ -40,29 +41,6 @@ const DEFAULT_FOREGROUND_JSON_COLORS = {
   STRING_LITERAL: '1',
 }
 
-const createProgressBarLogger = (
-  ttyConsoleOccupierRef: MutableRef<TtyConsoleOccupier | undefined>,
-) => (_options: NormalizedProgressBarOptions)=> {
-  const progressBar = createConsoleProgressBar(_options)
-  let isInterrupted = false
-
-  ttyConsoleOccupierRef.current = {
-    destroy: progressBar.destroy,
-    interrupt: () => {
-      isInterrupted = true
-      progressBar.clear()
-    },
-    resume: () => {
-      if (isInterrupted) {
-        progressBar.render()
-        isInterrupted = false
-      }
-    },
-  }
-
-  return progressBar
-}
-
 const isTerminalOccupier = (options: OutletHandlerFnOptions) => (
   options.outlet === Outlet.PROGRESS_BAR || (options.outlet === Outlet.STEP && options.options.spinner)
 )
@@ -81,12 +59,12 @@ export const baseTransport = <
   transportOptions: BaseTransportOptions<TCode, TData>,
 ): VerbaTransport<TCode, TData> => (loggerOptions, listeners) => {
   const jsonColors = determineJsonColors(transportOptions as BaseTransportOptions)
+
   /**
    * The spinners, no matter the "nestedness" of a VerbaLogger, all share one console,
    * therefore we globally track the current spinner that is occupying the console.
    */
   const ttyConsoleOccupierRef = useRef<TtyConsoleOccupier | undefined>(undefined)
-
   if (transportOptions.isTty) {
     // If a non-spinner log message is called while a spinner is active, temporarily
     // clear the currently active spinner from the console line in order to allow
@@ -103,22 +81,49 @@ export const baseTransport = <
       ttyConsoleOccupierRef.current?.resume()
     })
   }
+
+  const previousDispatchEpochRef = useRef(Date.now())
+  const colorizer = getColorizer(transportOptions)
+
+  const renderDispatchDeltaTPos: 'start' | 'end' = (
+    typeof transportOptions.dispatchDeltaT === 'object' && !Array.isArray(transportOptions.dispatchDeltaT)
+      ? transportOptions.dispatchDeltaT.position ?? 'end'
+        : 'end'
+  )
+  const renderDispatchDeltaT: (() => string) | undefined = transportOptions.dispatchDeltaT !== false && transportOptions.dispatchDeltaT != null
+    // eslint-disable-next-line max-len
+    ? useDispatchDeltaTRenderer(transportOptions as BaseTransportOptions, colorizer, transportOptions.dispatchDeltaT, previousDispatchEpochRef, listeners, renderDispatchDeltaTPos)
+    : undefined
+
+  const log = (_options: NormalizedSimpleOutletOptions) => renderDispatchDeltaT != null
+      ? renderDispatchDeltaTPos === 'start'
+        ? transportOptions.dispatch(renderDispatchDeltaT() + normalizeVerbaString(_options.msg, transportOptions))
+        : transportOptions.dispatch(normalizeVerbaString(_options.msg, transportOptions) + renderDispatchDeltaT())
+      : transportOptions.dispatch(normalizeVerbaString(_options.msg, transportOptions))
   
   return nestState => {
     // For every logger and nested loggers thereof, pre-create simple outlet loggers that
     // bake-in some things like indentation and such for better performance and
     // reduced code-dupe.
     const simpleOutletLoggers = createSimpleOutletLoggers(transportOptions as any, nestState)
-    // eslint-disable-next-line max-len
-    const stepLogger = createStepLogger(transportOptions as any, transportOptions.isTty, nestState, simpleOutletLoggers.step, ttyConsoleOccupierRef)
-    const progressBarLogger = createProgressBarLogger(ttyConsoleOccupierRef)
 
-    const transport: NestedInstantiatedVerbaTransport<TCode, TData> = {
-      log: _options => transportOptions.dispatch(normalizeVerbaString(_options.msg, transportOptions)),
-      info: _options => transportOptions.dispatch(simpleOutletLoggers.info(_options)),
-      step: stepLogger as any,
-      success: _options => transportOptions.dispatch(simpleOutletLoggers.success(_options)),
-      warn: _options => transportOptions.dispatch(simpleOutletLoggers.warn(_options)),
+    const createNonStepSimpleOutletLog = (
+      simpleOutlet: SimpleOutlet,
+    ): ((_options: NormalizedSimpleOutletOptions) => void) => renderDispatchDeltaT != null
+      ? renderDispatchDeltaTPos === 'start'
+        ? _options => transportOptions.dispatch(renderDispatchDeltaT() + simpleOutletLoggers[simpleOutlet](_options))
+        : _options => transportOptions.dispatch(simpleOutletLoggers[simpleOutlet](_options) + renderDispatchDeltaT())
+      : _options => transportOptions.dispatch(simpleOutletLoggers[simpleOutlet](_options))
+
+    const transport: NestedInstantiatedVerbaTransport = {
+      // -- Simple outlets
+      log,
+      info: createNonStepSimpleOutletLog('info'),
+      // eslint-disable-next-line max-len
+      step: createStepLogger(transportOptions as any, nestState, createNonStepSimpleOutletLog('step'), ttyConsoleOccupierRef) as any,
+      success: createNonStepSimpleOutletLog('success'),
+      warn: createNonStepSimpleOutletLog('warn'),
+      // -- Other outlets
       table: (data, _options) => transportOptions.dispatch(columify(data, _options)),
       json: (value, _options) => transportOptions.dispatch(colorizeJson(value, {
         pretty: _options.pretty,
@@ -126,7 +131,7 @@ export const baseTransport = <
       })),
       spacer: _options => transportOptions.dispatch(repeatStr('\n', _options.numLines - 1)),
       divider: () => transportOptions.dispatch(repeatStr('-', process.stdout.columns * 0.33)),
-      progressBar: progressBarLogger,
+      progressBar: createProgressBarLogger(ttyConsoleOccupierRef),
     }
 
     return transport

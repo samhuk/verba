@@ -1,5 +1,5 @@
+import { DispatchDeltaTOptions, SimpleOutletOverride } from '../base/types'
 import { SimpleOutlet, SimpleOutletPrefixesOptions } from '../../outlet/types'
-import { SimpleOutletOverride } from '../base/types'
 
 export type ConsoleTransportOptions<
   TCode extends string | number = string | number,
@@ -42,4 +42,23 @@ export type ConsoleTransportOptions<
    * })
    */
   outletPrefixes?: SimpleOutletPrefixesOptions
+  /**
+   * Configures the appearance of the delta-t indicator at the end of each log message.
+   * 
+   * This can take multiple types of values, allowing for a wide range of customization:
+   * 
+   * * `false` - Disables the indicator.
+   * * `true` - Enables the indicator with default behavior.
+   * * `StringFormat[]` - Enables the indicator with the given string formats (e.g. `red`, `bold`, `dim`, etc.)
+   * * `(dt, formatter) => string` - Enables the indicator, allowing for the maximum degree of customization.
+   * 
+   * @default false
+   * 
+   * @example
+   * false
+   * true
+   * ['yellow', 'italic']
+   * (dt, f) => f.yellow(f.italic(`[${dt} ms]`))
+   */
+  dispatchDeltaT?: DispatchDeltaTOptions
 }

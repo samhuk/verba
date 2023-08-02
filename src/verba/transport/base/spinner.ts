@@ -37,7 +37,6 @@ export const createConsoleSpinner = (options?: SpinnerOptions): Spinner & { init
       spinner.stop()
       console.log(spinner.frame())
     },
-    temporarilyClear: () => spinner.clear(),
     destroy: () => spinner.stop(),
     stopAndPersist: () => {
       spinner.stop()

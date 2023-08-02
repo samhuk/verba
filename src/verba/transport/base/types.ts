@@ -1,5 +1,5 @@
+import { Colors, StringFormat } from '../../verbaString/types'
 import { NormalizedSimpleOutletOptions, SimpleOutlet, SimpleOutletPrefixesOptions } from '../../outlet/types'
-import { StringFormat } from '../../verbaString/types'
 
 export type InterruptedTtyConsolerOccupier = {
   resume: () => void
@@ -16,9 +16,20 @@ export type TtyConsoleOccupier = {
   destroy: () => void
 }
 
-export type DispatchDeltaTOptions = boolean | {
-  format: StringFormat[] | ((dt: number) => string)
-}
+type DispatchDeltaTFormat = true | StringFormat[] | ((dt: number, f: Colors) => string)
+
+export type DispatchDeltaTOptions = false
+  | DispatchDeltaTFormat
+  | {
+    /**
+     * The format, i.e. `StringFormat[]` or `(dt: number, f: Colors) => string`
+     */
+    format?: Exclude<DispatchDeltaTFormat, true>
+    /**
+     * The position of the indicator.
+     */
+    position?: 'start' | 'end'
+  }
 
 /**
  * Overrides the logging behavior of simple outlets
@@ -34,7 +45,7 @@ export type BaseTransportOptions<
 > = {
   dispatch: (s: string) => void
   isTty: boolean
-  disableColors?: boolean
+  disableColors: boolean
   simpleOutletOverrides?: Partial<{ [outlet in SimpleOutlet]: SimpleOutletOverride<TCode, TData> }>
   outletPrefixes?: SimpleOutletPrefixesOptions
   dispatchDeltaT?: DispatchDeltaTOptions

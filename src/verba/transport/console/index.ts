@@ -1,6 +1,6 @@
-import { baseTransport } from '../base'
-import { VerbaTransport } from '../types'
 import { ConsoleTransportOptions } from './types'
+import { VerbaTransport } from '../types'
+import { baseTransport } from '../base'
 
 /**
  * A Verba Transport for outputting to the Node.js `console.log`, supporting TTY and non-TTY terminals.
@@ -19,7 +19,8 @@ export const consoleTransport = <
   options?: ConsoleTransportOptions<TCode, TData>,
 ): VerbaTransport<TCode, TData> => baseTransport({
   isTty: process.stdout.isTTY,
-  dispatch: console.log,
-  disableColors: options?.disableColors,
+  dispatch: s => process.stdout.write(s + '\n'),
+  disableColors: options?.disableColors ?? false,
   simpleOutletOverrides: options?.simpleOutletOverrides,
+  dispatchDeltaT: options?.dispatchDeltaT,
 })

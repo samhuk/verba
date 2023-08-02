@@ -44,7 +44,7 @@ export const verbaDecolorizer: Colors = {
   stripColors: () => '',
 }
 
-const getColorizer = (options?: NormalizeVerbaStringOptions) => (
+export const getColorizer = (options?: NormalizeVerbaStringOptions) => (
   (options?.disableColors ?? false) ? verbaDecolorizer : verbaColorizer
 )
 
