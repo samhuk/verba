@@ -17,6 +17,7 @@ const createStepSpinner = (
   }),
   nestState: NestState,
   ttyConsoleOccupierRef: MutableRef<TtyConsoleOccupier | undefined>,
+  renderDispatchTime: () => string,
 ): { stepSpinner: StepSpinner, clear: () => void } => {
   // -- Prepare variables
   const code = options.code === null ? undefined : (options.code ?? nestState.code)
@@ -32,11 +33,13 @@ const createStepSpinner = (
         color: transportOptions?.disableColors ? undefined : 'cyan',
         indentation: nestState.indent,
         disableColors: transportOptions?.disableColors,
+        renderPrefix: renderDispatchTime,
       }
       : {
         ...options.spinner,
         indentation: options.spinner?.indentation ?? nestState.indent,
         disableColors: transportOptions?.disableColors,
+        renderPrefix: renderDispatchTime,
       },
   )
   // -- Prepare text setter function
@@ -120,6 +123,7 @@ export const createStepLogger = (
   nestState: NestState,
   stepSimpleOutletLogger: (options: NormalizedSimpleOutletOptions) => void,
   ttyConsoleOccupierRef: MutableRef<TtyConsoleOccupier | undefined>,
+  renderDispatchTime: () => string,
 ) => (options: NormalizedStepOptions): StepSpinner | void => {
   // If options does not have a truthy `spinner` prop, then do normal step log
   if (!options.spinner)
@@ -131,7 +135,8 @@ export const createStepLogger = (
 
   
   // Else (if the current console is TTY) then do real spinner
-  const { stepSpinner, clear: clearStepSpinner } = createStepSpinner(transportOptions, options as any, nestState, ttyConsoleOccupierRef)
+  // eslint-disable-next-line max-len
+  const { stepSpinner, clear: clearStepSpinner } = createStepSpinner(transportOptions, options as any, nestState, ttyConsoleOccupierRef, renderDispatchTime)
   ttyConsoleOccupierRef.current = createTtyConsoleOccupier(options, stepSpinner, clearStepSpinner, stepSimpleOutletLogger)
   return stepSpinner
 }

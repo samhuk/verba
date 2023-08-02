@@ -40,8 +40,8 @@ const createDispatchDeltaTRenderer = (
         ? defaultColorlessStart
         : defaultColorlessEnd
       : pos === 'start'
-        ? () => colorizer.dim(padder(`+${Date.now() - previousDispatchEpochRef.current}ms `))
-        : () => '  ' + colorizer.dim(`[+${Date.now() - previousDispatchEpochRef.current} ms]`)
+        ? () => colorizer.grey(padder(`+${Date.now() - previousDispatchEpochRef.current}ms `))
+        : () => '  ' + colorizer.grey(`[+${Date.now() - previousDispatchEpochRef.current} ms]`)
   }
 
   if (Array.isArray(dispatchDeltaTOptions)) {
@@ -67,8 +67,8 @@ const createDispatchDeltaTRenderer = (
         ? defaultColorlessStart
         : defaultColorlessEnd
       : pos === 'start'
-        ? () => colorizer.dim(padder(`+${Date.now() - previousDispatchEpochRef.current}ms `))
-        : () => '  ' + colorizer.dim(`[+${Date.now() - previousDispatchEpochRef.current} ms]`)
+        ? () => colorizer.grey(padder(`+${Date.now() - previousDispatchEpochRef.current}ms `))
+        : () => '  ' + colorizer.grey(`[+${Date.now() - previousDispatchEpochRef.current} ms]`)
   }
 
   if (Array.isArray(formatProp)) {

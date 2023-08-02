@@ -12,8 +12,8 @@ export const createDispatchTimeRenderer = (
   ? transportOptions.dispatchTimePrefix === true
     ? transportOptions.disableColors
       ? () => new Date().toLocaleTimeString() + '  '
-      : () => colorizer.dim(new Date().toLocaleTimeString() + '  ')
+      : () => colorizer.grey(new Date().toLocaleTimeString() + '  ')
     : transportOptions.disableColors
       ? () => formatDate(new Date(), transportOptions.dispatchTimePrefix as string) + '  '
-      : () => colorizer.dim(formatDate(new Date(), transportOptions.dispatchTimePrefix as string) + '  ')
+      : () => colorizer.grey(formatDate(new Date(), transportOptions.dispatchTimePrefix as string) + '  ')
   : () => ''

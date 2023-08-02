@@ -31,13 +31,14 @@ export const baseTransport = <
   return nestState => {
     const simpleOutletLoggers = useSimpleOutletLoggers(transportOptions as BaseTransportOptions, nestState, renderDispatchTime, dispatchDeltaT)
     const progressBar = createProgressBarLogger(transportOptions as BaseTransportOptions, ttyConsoleOccupierRef, nestState, renderDispatchTime)
+    const step = createStepLogger(transportOptions as any, nestState, simpleOutletLoggers.step, ttyConsoleOccupierRef, renderDispatchTime) as any
 
     const transport: NestedInstantiatedVerbaTransport = {
       // -- Simple outlets
       log: _options => transportOptions.dispatch(normalizeVerbaString(_options.msg, transportOptions)),
       info: simpleOutletLoggers.info,
       // eslint-disable-next-line max-len
-      step: createStepLogger(transportOptions as any, nestState, simpleOutletLoggers.step, ttyConsoleOccupierRef) as any,
+      step,
       success: simpleOutletLoggers.success,
       warn: simpleOutletLoggers.warn,
       // -- Other outlets

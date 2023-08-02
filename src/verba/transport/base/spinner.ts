@@ -15,10 +15,10 @@ import ora from 'ora-classic'
  * one to arbitrarily remove printed characters from the console, which is the
  * bedrock for all "terminal animation" behaviors such as loading spinners.
  */
-export const createConsoleSpinner = (options?: SpinnerOptions): Spinner => {
+export const createConsoleSpinner = (options?: SpinnerOptions & { renderPrefix: () => string }): Spinner => {
   const spinner = ora({
     // We must subtract one because ora's prefixText doesn't seem to behave well.
-    prefixText: options?.indentation != null ? createIndentationString(options.indentation - 1) : '',
+    prefixText: `${options?.renderPrefix?.() ?? ''}${options?.indentation != null ? createIndentationString(options.indentation - 1) : ''}`,
     text: normalizeVerbaString(options?.text ?? '', options),
     spinner: options?.spinner,
     color: options?.color,
