@@ -18,13 +18,13 @@ import {
 } from './outlet/types'
 import { NormalizedStepOptions, StepOptions, StepSpinner } from './step/types'
 
+import { Aliases } from './alias/types'
 import { ListenerStore } from './util/listenerStore/types'
+import { ProgressBar } from './progressBar/types'
 import { consoleTransport } from './transport/console'
 import { createIndentationString } from './util/indentation'
 import { createListenerStore } from './util/listenerStore'
 import { isVerbaString } from './verbaString'
-import { Aliases } from './alias/types'
-import { ProgressBar } from './progressBar/types'
 
 /**
  * Determines if the given `outlet` is one of the simple outlets,
@@ -284,7 +284,6 @@ const _createVerbaLogger = <
         indentationString: createIndentationString(indent),
         code: _options.code === null ? undefined : (nestState.code ?? _options.code),
       }
-      console.log('New nest state:', newNestState)
       return _createVerbaLogger(
         options,
         aliases,
