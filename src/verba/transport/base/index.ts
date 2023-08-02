@@ -2,7 +2,6 @@ import { NestedInstantiatedVerbaTransport, VerbaTransport } from "../types"
 import { getColorizer, normalizeVerbaString } from "../../verbaString"
 
 import { BaseTransportOptions } from './types'
-import { NormalizedSimpleOutletOptions } from "../../outlet/types"
 import colorizeJson from 'json-colorizer'
 import columify from 'columnify'
 import { createDispatchTimeRenderer } from './dispatchTime'
@@ -13,10 +12,6 @@ import { repeatStr } from "../../util/string"
 import { useDispatchDeltaT } from './dispatchDeltaT'
 import { useSimpleOutletLoggers } from "./simpleOutletLogger"
 import { useTtyConsoleOccupierRef } from './ttyConsoleOccupier'
-
-const useLog = (transportOptions: BaseTransportOptions) => (_options: NormalizedSimpleOutletOptions) => (
-  transportOptions.dispatch(normalizeVerbaString(_options.msg, transportOptions))
-)
 
 /**
  * A Verba Transport for typical console and file transports, supporting TTY and non-TTY terminals.
@@ -39,7 +34,7 @@ export const baseTransport = <
 
     const transport: NestedInstantiatedVerbaTransport = {
       // -- Simple outlets
-      log: useLog(transportOptions as BaseTransportOptions),
+      log: _options => transportOptions.dispatch(normalizeVerbaString(_options.msg, transportOptions)),
       info: simpleOutletLoggers.info,
       // eslint-disable-next-line max-len
       step: createStepLogger(transportOptions as any, nestState, simpleOutletLoggers.step, ttyConsoleOccupierRef) as any,
