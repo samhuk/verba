@@ -2,7 +2,9 @@ import { NormalizedSimpleOutletOptions, SimpleOutlet, SimpleOutletPrefixes } fro
 import { normalizeVerbaString, renderStringWithFormats } from "../../verbaString"
 
 import { BaseTransportOptions } from './types'
+import { DispatchDeltaT } from "./dispatchDeltaT"
 import { NestState } from "../../types"
+import { SIMPLE_OUTLETS } from "../../outlet"
 import { createCodeStr } from "./code"
 
 type SimpleOutletLogger = (
@@ -51,12 +53,22 @@ const createSimpleOutletLogger = (
     : outletOptions => createDefaultOutput(outletOptions)
 }
 
-export const createSimpleOutletLoggers = (
+export const useSimpleOutletLoggers = (
   transportOptions: BaseTransportOptions,
   nestState: NestState,
-): SimpleOutletLoggers => ({
-  info: createSimpleOutletLogger(transportOptions, 'info', nestState),
-  step: createSimpleOutletLogger(transportOptions, 'step', nestState),
-  success: createSimpleOutletLogger(transportOptions, 'success', nestState),
-  warn: createSimpleOutletLogger(transportOptions, 'warn', nestState),
-})
+  renderDispatchTime: () => void,
+  dispatchDeltaT: DispatchDeltaT | undefined,
+) => {
+  const createNonStepSimpleOutletLog = (simpleOutlet: SimpleOutlet): ((options: NormalizedSimpleOutletOptions) => void) => {
+    const baseLogger = createSimpleOutletLogger(transportOptions, simpleOutlet, nestState)
+    return dispatchDeltaT != null
+      ? dispatchDeltaT.position === 'start'
+        ? options => transportOptions.dispatch(renderDispatchTime() + dispatchDeltaT.render() + baseLogger(options))
+        : options => transportOptions.dispatch(renderDispatchTime() + baseLogger(options) + dispatchDeltaT.render())
+      : options => transportOptions.dispatch(renderDispatchTime() + baseLogger(options))
+  }
+
+  const result: { [k in SimpleOutlet]: ((options: NormalizedSimpleOutletOptions) => void) } = { } as any
+  SIMPLE_OUTLETS.forEach(outlet => result[outlet] = createNonStepSimpleOutletLog(outlet))
+  return result
+}
