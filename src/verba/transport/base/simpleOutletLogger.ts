@@ -1,49 +1,54 @@
 import { NormalizedSimpleOutletOptions, SimpleOutlet, SimpleOutletPrefixes } from "../../outlet/types"
 import { normalizeVerbaString, renderStringWithFormats } from "../../verbaString"
 
+import { BaseTransportOptions } from './types'
 import { NestState } from "../../types"
 import { createCodeStr } from "./code"
-import { BaseTransportOptions } from './types'
-import { NormalizeVerbaStringOptions } from '../../verbaString/types'
-
-export type SimpleOutletLoggers = Record<SimpleOutlet, SimpleOutletLogger>
-
-const createDefaultSimpleOutletPrefixes = (options?: NormalizeVerbaStringOptions): SimpleOutletPrefixes => ({
-  info: renderStringWithFormats('i', ['gray', 'bold'], options) + ' ',
-  step:  renderStringWithFormats('*', ['cyan', 'bold'], options) + ' ',
-  success: renderStringWithFormats('✔', ['green'], options) + ' ',
-  warn: renderStringWithFormats('WARN', ['bold', 'underline', 'yellow'], options) + ' ',
-})
 
 type SimpleOutletLogger = (
   options: NormalizedSimpleOutletOptions,
 ) => string
+
+export type SimpleOutletLoggers = Record<SimpleOutlet, SimpleOutletLogger>
+
+const createDefaultSimpleOutletPrefixes = (disableColors: boolean): SimpleOutletPrefixes => ({
+  info: renderStringWithFormats('i', ['gray', 'bold'], { disableColors }) + ' ',
+  step:  renderStringWithFormats('*', ['cyan', 'bold'], { disableColors }) + ' ',
+  success: renderStringWithFormats('✔', ['green'], { disableColors }) + ' ',
+  warn: renderStringWithFormats('WARN', ['bold', 'underline', 'yellow'], { disableColors }) + ' ',
+})
+
+const DEFAULT_COLORED_SIMPLE_OUTLET_PREFIXES = createDefaultSimpleOutletPrefixes(false)
+const DEFAULT_COLORLESS_SIMPLE_OUTLET_PREFIXES = createDefaultSimpleOutletPrefixes(true)
+
+const getDefaultSimpleOutletPrefixes = (disableColors: boolean) => disableColors
+  ? DEFAULT_COLORLESS_SIMPLE_OUTLET_PREFIXES
+  : DEFAULT_COLORED_SIMPLE_OUTLET_PREFIXES
+
+const determineSimpleOutletPrefix = (options: BaseTransportOptions, outlet: SimpleOutlet) => {
+  const outletPrefixFromOptions = options.outletPrefixes?.[outlet]
+  return outletPrefixFromOptions != null
+    ? normalizeVerbaString(outletPrefixFromOptions, options)
+    : getDefaultSimpleOutletPrefixes(options.disableColors)[outlet]
+}
 
 const createSimpleOutletLogger = (
   transportOptions: BaseTransportOptions,
   outlet: SimpleOutlet,
   nestState: NestState,
 ): SimpleOutletLogger => {
-  const outletPrefixFromOptions = transportOptions?.outletPrefixes?.[outlet]
-  const outletPrefix = outletPrefixFromOptions != null
-    ? normalizeVerbaString(outletPrefixFromOptions, transportOptions)
-    : createDefaultSimpleOutletPrefixes(transportOptions)[outlet]
-    
+  const prefix = nestState.indentationString + determineSimpleOutletPrefix(transportOptions, outlet)
   const createDefaultOutput = (outletOptions: NormalizedSimpleOutletOptions)=> {
-    const _prefix = nestState.indentationString + outletPrefix
     const code = outletOptions.code ?? nestState.code
     return code != null
-      ? _prefix + createCodeStr(code, transportOptions) + normalizeVerbaString(outletOptions.msg, transportOptions)
-      : _prefix + normalizeVerbaString(outletOptions.msg, transportOptions)
+      ? prefix + createCodeStr(code, transportOptions) + normalizeVerbaString(outletOptions.msg, transportOptions)
+      : prefix + normalizeVerbaString(outletOptions.msg, transportOptions)
   }
 
   const override = transportOptions?.simpleOutletOverrides?.[outlet]
-  if (override != null)
-    return outletOptions => override(outletOptions) || createDefaultOutput(outletOptions)
-  
-  return outletOptions => {
-    return createDefaultOutput(outletOptions)
-  }
+  return override != null
+    ? outletOptions => override(outletOptions) || createDefaultOutput(outletOptions)
+    : outletOptions => createDefaultOutput(outletOptions)
 }
 
 export const createSimpleOutletLoggers = (
