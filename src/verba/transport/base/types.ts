@@ -78,9 +78,11 @@ export type BaseTransportOptions<
    *   * `yyyy` - 4-digit year, e.g. 1970, 2023
    *   * `mm` - 2-digit month of year, e.g. 01, 12
    *   * `dd` - 2-digit day of month, e.g. 01, 31
-   *   * `hh` - 2-digit hour of day, e.g. 00, 24
+   *   * `HH` - 2-digit hour of day (24h format), e.g. 00, 23
+   *   * `hh` - 2-digit hour of day (12h format), e.g. 00, 11
    *   * `ii` - 2-digit minute of hour, e.g. 00, 59
    *   * `ss` - 2-digit second of minute, e.g. 00, 59
+   *   * `MMM` - 3-letter-abbreviated month of year, e.g. "Jan", "Dec"
    * @default false
    * 
    * @example

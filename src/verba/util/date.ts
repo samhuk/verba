@@ -1,19 +1,19 @@
-export const formatDate = (date: Date, format: string): string => {
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-  const hour = String(date.getHours()).padStart(2, '0')
-  const minute = String(date.getMinutes()).padStart(2, '0')
-  const second = String(date.getSeconds()).padStart(2, '0')
+const MONTHS: string[] = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
 
+export const formatDate = (date: Date, format: string): string => {
+  const hours = date.getHours()
+  const monthIndex = date.getMonth()
   const formatMap: { [key: string]: string } = {
-    yyyy: String(year),
-    mm: month,
-    dd: day,
-    hh: hour,
-    ii: minute,
-    ss: second,
+    yyyy: String(date.getFullYear()), // Year (4 digit)
+    mm: String(monthIndex + 1).padStart(2, '0'), // Month of year (1-12)
+    dd: String(date.getDate()).padStart(2, '0'), // Day of month (1-31)
+    HH: String(hours).padStart(2, '0'), // Hour of day (24h format)
+    hh: String((hours % 12) || 12).padStart(2, '0'), // Hour of day (12h format)
+    ii: String(date.getMinutes()).padStart(2, '0'), // Minute of hour
+    ss: String(date.getSeconds()).padStart(2, '0'), // Second on minute
+    a: hours >= 0 && hours < 12 ? 'AM' : 'PM', // Meridiem
+    MMM: MONTHS[monthIndex], // "Jan" to "Dec"
   }
 
-  return format.replace(/(yyyy|mm|dd|hh|ii|ss)/g, (match: string) => formatMap[match])
+  return format.replace(/(yyyy|mm|dd|HH|hh|ii|ss|a|MMM)/g, (match: string) => formatMap[match])
 }

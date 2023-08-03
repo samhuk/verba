@@ -6,7 +6,7 @@ import { MutableRef } from "../../util/types"
 import { NestState } from "../../types"
 import { NormalizedSimpleOutletOptions, SimpleOutletOptions } from "../../outlet/types"
 import { VerbaString } from "../../verbaString/types"
-import { createCodeStr } from "./code"
+import { renderCode } from "./code"
 import { createConsoleSpinner } from "./spinner"
 import { BaseTransportOptions } from './types'
 import { TtyConsoleOccupier } from "./ttyConsoleOccupier"
@@ -22,9 +22,7 @@ const createStepSpinner = (
 ): { stepSpinner: StepSpinner, clear: () => void } => {
   // -- Prepare variables
   const code = options.code === null ? undefined : (options.code ?? nestState.code)
-  const codeStr = code != null
-    ? createCodeStr(code, transportOptions)
-    : ''
+  const codeStr = code != null ? renderCode(code, transportOptions) : ''
   const msg = normalizeVerbaString(options.msg, transportOptions)
   // -- Create spinner
   const spinner = createConsoleSpinner(

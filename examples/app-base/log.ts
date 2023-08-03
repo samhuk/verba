@@ -18,7 +18,7 @@ const log = verba<Code, LogMessageData>({
     removeVerboseLogs,
   ],
   transports: [
-    consoleTransport({ dispatchDeltaT: true, dispatchTimePrefix: 'yyyy-mm-dd|hh:ii:ss' }),
+    consoleTransport({ dispatchDeltaT: true, dispatchTimePrefix: 'MMM dd|hh:ii:ss' }),
     fileTransport(),
   ],
 }).setAliases({

@@ -5,7 +5,7 @@ import { BaseTransportOptions } from './types'
 import { DispatchDeltaT } from "./dispatchDeltaT"
 import { NestState } from "../../types"
 import { SIMPLE_OUTLETS } from "../../outlet"
-import { createCodeStr } from "./code"
+import { renderCode } from "./code"
 
 type SimpleOutletLogger = (
   options: NormalizedSimpleOutletOptions,
@@ -43,7 +43,7 @@ const createBaseSimpleOutletLogger = (
   const createDefaultOutput = (outletOptions: NormalizedSimpleOutletOptions)=> {
     const code = outletOptions.code ?? nestState.code
     return code != null
-      ? prefix + createCodeStr(code, transportOptions) + normalizeVerbaString(outletOptions.msg, transportOptions)
+      ? prefix + renderCode(code, transportOptions) + normalizeVerbaString(outletOptions.msg, transportOptions)
       : prefix + normalizeVerbaString(outletOptions.msg, transportOptions)
   }
 
