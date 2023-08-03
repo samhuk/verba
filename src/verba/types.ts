@@ -1,10 +1,10 @@
 import { DividerOptions, JsonOptions, ProgressBarOptions, SimpleOutletOptions, SpacerOptions, TableOptions } from './outlet/types'
 import { StepOptions, StepResult } from './step/types'
 
-import { OutletFilter } from './outletFilter/types'
-import { VerbaTransport } from './transport/types'
 import { Aliases } from './alias/types'
+import { OutletFilter } from './outletFilter/types'
 import { ProgressBar } from './progressBar/types'
+import { VerbaTransport } from './transport/types'
 
 export type VerbaLoggerOptions<
   TCode extends string | number = string | number,
@@ -268,6 +268,15 @@ export type VerbaLogger<
    * childLog.log('This is a child task') // Will have the `code` "CHILD_TASK"
    */
   nest: (options: NestOptions<TCode>) => VerbaLogger<TCode, TData>
+  /**
+   * Signals to all Transports added to the instance that this function has been
+   * called, resolving only when all of the Transports that have registered a close
+   * handler to have asynchronously completed.
+   * 
+   * Use this when using the `fileTransport` or any other added Transport that needs
+   * to perform tear-down operations (asynchronous or not).
+   */
+  close: () => Promise<void[]>
   /**
    * Sets the aliases for the logger instance.
    * 

@@ -1,9 +1,10 @@
+import { BaseTransportOptions } from "./types"
 import { MutableRef } from "../../util/types"
-import { NormalizedProgressBarOptions } from "../../outlet/types"
-import { BaseTransportOptions, TtyConsoleOccupier } from "./types"
-import { createConsoleProgressBar } from "../../progressBar"
 import { NestState } from '../../types'
+import { NormalizedProgressBarOptions } from "../../outlet/types"
 import { ProgressBar } from '../../progressBar/types'
+import { TtyConsoleOccupier } from "./ttyConsoleOccupier"
+import { createConsoleProgressBar } from "../../progressBar"
 
 export const createProgressBarLogger = (
   transportOptions: BaseTransportOptions,

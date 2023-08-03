@@ -1,6 +1,4 @@
-import { BaseTransportOptions, SimpleOutletOverride } from '../base/types'
-import { SimpleOutlet, SimpleOutletPrefixesOptions } from '../../outlet/types'
-
+import { BaseTransportOptions } from '../base/types'
 import { WriteStream } from 'fs'
 
 export type FileTransportOutFile = string | WriteStream
@@ -19,6 +17,8 @@ export type FileTransportBatchOptions = {
   size?: number
 }
 
+export type CloseNotifier = { close: () => Promise<void[]>, register: (fn: () => Promise<void>) => void }
+
 export type FileTransportOptions<
   TCode extends string | number = string | number,
   TData extends any = any
@@ -34,13 +34,14 @@ export type FileTransportOptions<
    */
   outFile?: FileTransportOutFile
   /**
-   * The method used to batch writes to the log file.
+   * Optional configuration for the batching of log messages to the write stream.
    * 
    * May take the following values:
    * 
    * * `undefined` - No batching
+   * * `{ age: number, size: number }`
    * 
-   * @default undefined
+   * @default undefined // No batching
    */
   batchOptions?: FileTransportBatchOptions
 }

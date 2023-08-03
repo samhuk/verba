@@ -1,9 +1,24 @@
-import { BaseTransportOptions, TtyConsoleOccupier } from "./types"
 import { OutletHandlerFnOptions, VerbaTransportEventHandlers } from "../types"
 
+import { BaseTransportOptions } from "./types"
 import { ListenerStore } from "../../util/listenerStore/types"
 import { Outlet } from "../../outlet/types"
 import { useRef } from "../../util/misc"
+
+export type InterruptedTtyConsolerOccupier = {
+  resume: () => void
+}
+
+/**
+ * A type that represents an entity that is occupying the current (TTY) console output.
+ * 
+ * This could be a progress bar, a spinner, etc.
+ */
+export type TtyConsoleOccupier = {
+  interrupt: () => void
+  resume: () => void
+  destroy: () => void
+}
 
 const isTerminalOccupier = (options: OutletHandlerFnOptions) => (
   options.outlet === Outlet.PROGRESS_BAR || (options.outlet === Outlet.STEP && options.options.spinner)

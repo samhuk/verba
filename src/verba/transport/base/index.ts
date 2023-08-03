@@ -21,12 +21,15 @@ export const baseTransport = <
   TData extends any = any
 >(
   transportOptions: BaseTransportOptions<TCode, TData>,
-): VerbaTransport<TCode, TData> => (loggerOptions, listeners) => {
+): VerbaTransport<TCode, TData> => (loggerOptions, listeners, registerOnClose) => {
   const jsonColors = determineJsonColors(transportOptions as BaseTransportOptions)
   const ttyConsoleOccupierRef = useTtyConsoleOccupierRef(transportOptions as BaseTransportOptions, listeners)
   const colorizer = getColorizer(transportOptions)
   const dispatchDeltaT = useDispatchDeltaT(transportOptions as BaseTransportOptions, colorizer, listeners)
   const renderDispatchTime = createDispatchTimeRenderer(transportOptions as BaseTransportOptions, colorizer)
+
+  if (transportOptions.onClose != null)
+    registerOnClose(transportOptions.onClose)
 
   return nestState => {
     const simpleOutletLoggers = useSimpleOutletLoggers(transportOptions as BaseTransportOptions, nestState, renderDispatchTime, dispatchDeltaT)

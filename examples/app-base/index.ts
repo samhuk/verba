@@ -4,9 +4,9 @@ import { connectToDb } from './db'
 import { doJobs } from './jobs'
 import { healthcheckAPI } from './api'
 import log from './log'
+import { sleep } from './util'
 import { tearDownEnv } from './teardown'
 import { validateEnv } from './env'
-import { sleep } from './util'
 
 const createMockMetrics = (jobs: string[]) => jobs.map(jobName => ({
   'Job Name': jobName,
@@ -58,9 +58,11 @@ export const app = async (jobs: string[]) => {
         inner: _e,
       }).log()
     }
+    await log.close()
     process.exit(1)
   }
 
+  await log.close()
   process.exit(0)
 }
 

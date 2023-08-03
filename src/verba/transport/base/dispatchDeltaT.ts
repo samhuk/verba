@@ -1,12 +1,27 @@
-import { BaseTransportOptions, DispatchDeltaTOptions } from "./types"
+import { Colors, StringFormat } from "../../verbaString/types"
 
-import { Colors } from "../../verbaString/types"
+import { BaseTransportOptions } from "./types"
 import { ListenerStore } from "../../util/listenerStore/types"
 import { MutableRef } from "../../util/types"
 import { VerbaTransportEventHandlers } from "../types"
 import { createPadder } from "../../util/string"
 import { createStringFormatter } from "../../verbaString"
 import { useRef } from "../../util/misc"
+
+type DispatchDeltaTFormat = true | StringFormat[] | ((dt: number, f: Colors) => string)
+
+export type DispatchDeltaTOptions = false
+  | DispatchDeltaTFormat
+  | {
+    /**
+     * The format, i.e. `StringFormat[]` or `(dt: number, f: Colors) => string`
+     */
+    format?: Exclude<DispatchDeltaTFormat, true>
+    /**
+     * The position of the indicator.
+     */
+    position?: 'start' | 'end'
+  }
 
 export type DispatchDeltaT = {
   render: () => string

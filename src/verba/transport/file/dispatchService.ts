@@ -1,10 +1,14 @@
 import * as fs from 'fs'
 
-import { FileTransportBatchOptions, FileTransportOutFile } from './types'
+import { CloseNotifier, FileTransportBatchOptions, FileTransportOutFile } from './types'
 
 type FileTransportDispatchService = {
   dispatch: (s: string) => void
-  close: () => void
+  close: () => Promise<void>
+}
+
+const onImplicitExit = (fn: () => Promise<void> | void): void => {
+  process.once('beforeExit', fn)
 }
 
 const createLogMessageQueueTimer = (
@@ -12,9 +16,10 @@ const createLogMessageQueueTimer = (
 ) => {
   let shouldProcess = false
 
-  setInterval(() => {
+  const interval = setInterval(() => {
     shouldProcess = true
   }, batchAge)
+  onImplicitExit(() => clearInterval(interval))
 
   return {
     shouldProcess: () => {
@@ -30,38 +35,61 @@ const createLogMessageQueueTimer = (
 
 const createFileTransportDispatchServiceDispatch = (
   writeStream: fs.WriteStream,
-  batchOptions?: FileTransportBatchOptions,
-): FileTransportDispatchService['dispatch'] => {
-  if (batchOptions?.age == null && batchOptions?.size == null)
-    return s => writeStream.write(s + '\n')
+  batchOptions: FileTransportBatchOptions | undefined,
+): { dispatch: FileTransportDispatchService['dispatch'], close: () => Promise<void> } => {
+  if (batchOptions?.age == null && batchOptions?.size == null) {
+    return {
+      dispatch: s => writeStream.write(s + '\n'),
+      close: () => new Promise<void>(res => {
+        writeStream.close(() => res())
+      }),
+    }
+  }
 
   let logMessageQueue: string[]
 
+  const processQueue = () => new Promise<void>(res => {
+    writeStream.write(logMessageQueue.join('\n'), () => res())
+    logMessageQueue = []
+  })
+
   const processQueueWithAdditionalLastLogMessage = (s: string) => {
     writeStream.write(logMessageQueue.join('\n'))
-    writeStream.write(s)
     logMessageQueue = []
+    writeStream.write(s)
   }
+
+  const close = () => new Promise<void>(res => {
+    processQueue().then(() => {
+      writeStream.close(() => res())
+    })
+  })
 
   // If batch age is only defined, use a timer to decide when to process the queue
   if (batchOptions.age != null && batchOptions.size == null) {
     const timer = createLogMessageQueueTimer(batchOptions.age)
-    return s => {
-      if (timer.shouldProcess())
-        processQueueWithAdditionalLastLogMessage(s)
-      else
-        logMessageQueue.push(s)
+    return {
+      dispatch: s => {
+        if (timer.shouldProcess())
+          processQueueWithAdditionalLastLogMessage(s)
+        else
+          logMessageQueue.push(s)
+      },
+      close,
     }
   }
   
   // If batch size is only defined, use the queue length to decide when to process the queue
   if (batchOptions.age == null && batchOptions.size != null) {
     const maxQueueSize = batchOptions.size
-    return s => {
-      if (logMessageQueue.length < maxQueueSize)
-        logMessageQueue.push(s)
-      else
-        processQueueWithAdditionalLastLogMessage(s)
+    return {
+      dispatch: s => {
+        if (logMessageQueue.length < maxQueueSize)
+          logMessageQueue.push(s)
+        else
+          processQueueWithAdditionalLastLogMessage(s)
+      },
+      close,
     }
   }
 
@@ -69,11 +97,14 @@ const createFileTransportDispatchServiceDispatch = (
   // to decide when to process the queue
   const maxQueueSize = batchOptions.size as number
   const timer = createLogMessageQueueTimer(batchOptions.age as number)
-  return s => {
-    if (logMessageQueue.length < maxQueueSize && !timer.shouldProcess())
-      logMessageQueue.push(s)
-    else
-      processQueueWithAdditionalLastLogMessage(s)
+  return {
+    dispatch: s => {
+      if (logMessageQueue.length < maxQueueSize && !timer.shouldProcess())
+        logMessageQueue.push(s)
+      else
+        processQueueWithAdditionalLastLogMessage(s)
+    },
+    close,
   }
 }
 
@@ -85,8 +116,5 @@ export const createFileTransportDispatchService = (
     ? fs.createWriteStream(outputFilePath, {flags : 'w'})
     : outputFilePath
 
-  return {
-    dispatch: createFileTransportDispatchServiceDispatch(writeStream, batchOptions),
-    close: () => writeStream.close(),
-  }
+  return createFileTransportDispatchServiceDispatch(writeStream, batchOptions)
 }

@@ -34,7 +34,7 @@ const determineSimpleOutletPrefix = (options: BaseTransportOptions, outlet: Simp
     : getDefaultSimpleOutletPrefixes(options.disableColors)[outlet]
 }
 
-const createSimpleOutletLogger = (
+const createBaseSimpleOutletLogger = (
   transportOptions: BaseTransportOptions,
   outlet: SimpleOutlet,
   nestState: NestState,
@@ -58,9 +58,9 @@ export const useSimpleOutletLoggers = (
   nestState: NestState,
   renderDispatchTime: () => void,
   dispatchDeltaT: DispatchDeltaT | undefined,
-) => {
-  const createNonStepSimpleOutletLog = (simpleOutlet: SimpleOutlet): ((options: NormalizedSimpleOutletOptions) => void) => {
-    const baseLogger = createSimpleOutletLogger(transportOptions, simpleOutlet, nestState)
+): { [k in SimpleOutlet]: ((options: NormalizedSimpleOutletOptions) => void) } => {
+  const log = (simpleOutlet: SimpleOutlet): ((options: NormalizedSimpleOutletOptions) => void) => {
+    const baseLogger = createBaseSimpleOutletLogger(transportOptions, simpleOutlet, nestState)
     return dispatchDeltaT != null
       ? dispatchDeltaT.position === 'start'
         ? options => transportOptions.dispatch(renderDispatchTime() + dispatchDeltaT.render() + baseLogger(options))
@@ -69,6 +69,6 @@ export const useSimpleOutletLoggers = (
   }
 
   const result: { [k in SimpleOutlet]: ((options: NormalizedSimpleOutletOptions) => void) } = { } as any
-  SIMPLE_OUTLETS.forEach(outlet => result[outlet] = createNonStepSimpleOutletLog(outlet))
+  SIMPLE_OUTLETS.forEach(outlet => result[outlet] = log(outlet))
   return result
 }

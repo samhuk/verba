@@ -8,7 +8,8 @@ import { NormalizedSimpleOutletOptions, SimpleOutletOptions } from "../../outlet
 import { VerbaString } from "../../verbaString/types"
 import { createCodeStr } from "./code"
 import { createConsoleSpinner } from "./spinner"
-import { BaseTransportOptions, TtyConsoleOccupier } from './types'
+import { BaseTransportOptions } from './types'
+import { TtyConsoleOccupier } from "./ttyConsoleOccupier"
 
 const createStepSpinner = (
   transportOptions: BaseTransportOptions | undefined,

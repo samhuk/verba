@@ -3,7 +3,7 @@ import { VerbaTransport } from '../types'
 import { baseTransport } from '../base'
 
 /**
- * A Verba Transport for outputting to the Node.js `console.log`, supporting TTY and non-TTY terminals.
+ * A Verba Transport for outputting to `process.stdout`, supporting TTY and non-TTY terminals.
  *
  * This is the default Transport that Verba uses if none are explicitly defined.
  * 

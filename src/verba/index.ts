@@ -22,6 +22,7 @@ import { Aliases } from './alias/types'
 import { ListenerStore } from './util/listenerStore/types'
 import { ProgressBar } from './progressBar/types'
 import { consoleTransport } from './transport/console'
+import { createCloseNotifier } from './transport/file'
 import { createIndentationString } from './util/indentation'
 import { createListenerStore } from './util/listenerStore'
 import { isVerbaString } from './verbaString'
@@ -89,6 +90,7 @@ const _createVerbaLogger = <
   nestedInstantiatedTransports: NestedInstantiatedVerbaTransport<TCode, TData>[],
   listeners: ListenerStore<keyof VerbaTransportEventHandlers<TCode, TData>, VerbaTransportEventHandlers<TCode, TData>>,
   nestState: NestState<TCode>,
+  close: () => Promise<void[]>,
 ): VerbaLogger<TCode, TData, TAliases> => {
   const baseOutlets: VerbaLoggerBaseOutlets<TCode, TData> = {
     log: _options => {
@@ -287,6 +289,7 @@ const _createVerbaLogger = <
         instantiatedTransports.map(p => p(newNestState)),
         listeners,
         newNestState,
+        close,
       )
     },
     setAliases: newAliases => _createVerbaLogger(
@@ -296,9 +299,11 @@ const _createVerbaLogger = <
       nestedInstantiatedTransports,
       listeners,
       nestState,
+      close,
     ),
     ...baseOutlets,
     ...aliasOutlets,
+    close,
   }
 }
 
@@ -335,7 +340,8 @@ export const createVerbaLogger = <
   const listeners = createListenerStore<keyof VerbaTransportEventHandlers<TCode, TData>, VerbaTransportEventHandlers<TCode, TData>>()
   const transports: VerbaTransport<TCode, TData>[] = _options.transports
     ?? ([consoleTransport()] as VerbaTransport<TCode, TData>[])
-  const instantiatedTransports = transports.map(p => p(_options, listeners)) ?? []
+  const closeNotifier = createCloseNotifier()
+  const instantiatedTransports = transports.map(p => p(_options, listeners, closeNotifier.register)) ?? []
   const nestState: NestState<TCode> = {
     code: undefined,
     indent: 0,
@@ -348,5 +354,6 @@ export const createVerbaLogger = <
     instantiatedTransports.map(p => p(nestState)),
     listeners,
     nestState,
+    closeNotifier.close,
   )
 }

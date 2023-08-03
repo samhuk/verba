@@ -1,12 +1,24 @@
-import { FileTransportOptions } from './types'
+import { CloseNotifier, FileTransportOptions } from './types'
+
 import { VerbaTransport } from '../types'
 import { baseTransport } from '../base'
 import { createFileTransportDispatchService } from './dispatchService'
 
 const DEFAULT_OUTFILE = './log.txt'
 
+export const createCloseNotifier = (): CloseNotifier => {
+  const registeredFns: (() => Promise<void>)[] = []
+  return {
+    register: fn => registeredFns.push(fn),
+    close: () => Promise.all(registeredFns.map(fn => fn())),
+  }
+}
+
 /**
  * A Verba Transport for outputting to a file.
+ * 
+ * Note: If using this Transport, be sure to call `await log.close()` before your program exits
+ * to ensure that the stream finishes writing log messages to it.
  * 
  * @example
  * import verba, { fileTransport } from 'verba'
@@ -23,6 +35,7 @@ export const fileTransport = <
   const dispatchService = createFileTransportDispatchService(options?.outFile ?? DEFAULT_OUTFILE, options?.batchOptions)
   return baseTransport({
     isTty: false,
+    onClose: dispatchService.close,
     dispatch: dispatchService.dispatch,
     disableColors: true,
     dispatchDeltaT: options?.dispatchDeltaT ?? false,

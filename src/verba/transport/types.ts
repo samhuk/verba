@@ -15,8 +15,8 @@ import {
 import { NormalizedStepOptions, StepResult } from "../step/types"
 
 import { ListenerStore } from "../util/listenerStore/types"
-import { TypeDependantBaseIntersection } from '../util/types'
 import { ProgressBar } from '../progressBar/types'
+import { TypeDependantBaseIntersection } from '../util/types'
 
 export type OutletToTransportHandlerFn<
   TCode extends string | number = string | number,
@@ -112,4 +112,15 @@ export type VerbaTransport<
     keyof VerbaTransportEventHandlers<TCode, TData>,
     VerbaTransportEventHandlers<TCode, TData>
   >,
+  /**
+   * Registers the given asynchronous `handler` function to be ran when the
+   * top-level `close` function is called (on the `VerbaLogger` instance).
+   * 
+   * This is very useful for when a Transport needs to perform tear-down
+   * operations (such as waiting for an API request to finish, waiting for
+   * a write stream to finish draining, etc.).
+   * 
+   * Notably, this is used by `fileTransport`.
+   */
+  registerOnClose: (handler: () => Promise<void>) => void
 ) => InstantiatedVerbaTransport<TCode, TData>
