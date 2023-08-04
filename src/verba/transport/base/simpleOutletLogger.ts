@@ -1,7 +1,7 @@
 import { NormalizedSimpleOutletOptions, SimpleOutlet, SimpleOutletPrefixes } from "../../outlet/types"
 import { normalizeVerbaString, renderStringWithFormats } from "../../verbaString"
 
-import { BaseTransportOptions } from './types'
+import { BaseTransportOptions, BuiltInSimpleOutletPrefixNames } from './types'
 import { DispatchDeltaT } from "./dispatchDeltaT"
 import { NestState } from "../../types"
 import { SIMPLE_OUTLETS } from "../../outlet"
@@ -13,25 +13,39 @@ type SimpleOutletLogger = (
 
 export type SimpleOutletLoggers = Record<SimpleOutlet, SimpleOutletLogger>
 
-const createDefaultSimpleOutletPrefixes = (disableColors: boolean): SimpleOutletPrefixes => ({
-  info: renderStringWithFormats('i', ['gray', 'bold'], { disableColors }) + ' ',
-  step:  renderStringWithFormats('*', ['cyan', 'bold'], { disableColors }) + ' ',
-  success: renderStringWithFormats('✔', ['green'], { disableColors }) + ' ',
-  warn: renderStringWithFormats('WARN', ['bold', 'underline', 'yellow'], { disableColors }) + ' ',
-})
+type SimpleOutletPrefixesCreator = (disableColors: boolean) => SimpleOutletPrefixes
 
-const DEFAULT_COLORED_SIMPLE_OUTLET_PREFIXES = createDefaultSimpleOutletPrefixes(false)
-const DEFAULT_COLORLESS_SIMPLE_OUTLET_PREFIXES = createDefaultSimpleOutletPrefixes(true)
+const BUILT_IN_SIMPLE_OUTLET_PREFIX_CREATORS: Record<BuiltInSimpleOutletPrefixNames, SimpleOutletPrefixesCreator> = {
+  default: disableColors => ({
+    info: renderStringWithFormats('i', ['gray', 'bold'], { disableColors }) + ' ',
+    step:  renderStringWithFormats('*', ['cyan', 'bold'], { disableColors }) + ' ',
+    success: renderStringWithFormats('✔', ['green'], { disableColors }) + ' ',
+    warn: renderStringWithFormats('WARN', ['bold', 'underline', 'yellow'], { disableColors }) + ' ',
+  }),
+  textual: disableColors => ({
+    info: renderStringWithFormats('INFO', ['bgBlack', 'bold'], { disableColors }) + ' ',
+    step:  renderStringWithFormats('STEP', ['bgBlue', 'bold'], { disableColors }) + ' ',
+    success: renderStringWithFormats('SUCC', ['bgGreen', 'bold'], { disableColors }) + ' ',
+    warn: renderStringWithFormats('WARN', ['bgYellow', 'underline', 'bold'], { disableColors }) + ' ',
+  }),
+}
 
-const getDefaultSimpleOutletPrefixes = (disableColors: boolean) => disableColors
-  ? DEFAULT_COLORLESS_SIMPLE_OUTLET_PREFIXES
-  : DEFAULT_COLORED_SIMPLE_OUTLET_PREFIXES
+const BUILT_IN_SIMPLE_OUTLET_PREFIXES: Record<BuiltInSimpleOutletPrefixNames, Record<'true' | 'false', SimpleOutletPrefixes>> = {} as any
+Object.entries(BUILT_IN_SIMPLE_OUTLET_PREFIX_CREATORS)
+  .forEach(([name, creator]) => BUILT_IN_SIMPLE_OUTLET_PREFIXES[name as BuiltInSimpleOutletPrefixNames] = {
+    true: creator(true),
+    false: creator(false),
+  })
 
-const determineSimpleOutletPrefix = (options: BaseTransportOptions, outlet: SimpleOutlet) => {
-  const outletPrefixFromOptions = options.outletPrefixes?.[outlet]
-  return outletPrefixFromOptions != null
-    ? normalizeVerbaString(outletPrefixFromOptions, options)
-    : getDefaultSimpleOutletPrefixes(options.disableColors)[outlet]
+const determineSimpleOutletPrefix = (options: BaseTransportOptions, outlet: SimpleOutlet): string => {
+  const disableColors = String(options.disableColors) as 'true' | 'false'
+  if (typeof options.outletPrefixes === 'string')
+    return BUILT_IN_SIMPLE_OUTLET_PREFIXES[options.outletPrefixes][disableColors][outlet]
+
+  const userDefinedPrefix = options.outletPrefixes?.[outlet]
+  return userDefinedPrefix != null
+    ? normalizeVerbaString(userDefinedPrefix, options)
+    : BUILT_IN_SIMPLE_OUTLET_PREFIXES.default[disableColors][outlet]
 }
 
 const createBaseSimpleOutletLogger = (

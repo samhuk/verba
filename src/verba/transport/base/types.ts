@@ -10,6 +10,8 @@ export type SimpleOutletOverride<
   TData extends any = any
 > = (options: NormalizedSimpleOutletOptions<TCode, TData>) => string | false
 
+export type BuiltInSimpleOutletPrefixNames = 'default' | 'textual'
+
 export type BaseTransportOptions<
   TCode extends string | number = string | number,
   TData extends any = any
@@ -66,8 +68,13 @@ export type BaseTransportOptions<
   simpleOutletOverrides: Partial<{ [outlet in SimpleOutlet]: SimpleOutletOverride<TCode, TData> }> | undefined
   /**
    * Configures the prefixes that appear for each outlet, i.e. `info`, `step`, `success`, etc.
+   * 
+   * This may take multiple types of values:
+   * * `default` - Default set of outlet prefixes, using short symbols.
+   * * `textual` - Alternative set of outlet prefixes, using text, e.g. "INFO", "STEP", "WARN", etc.
+   * * `{ info: 'INFO: ', step: '* ', ... }` - Completely custom outlet prefixes.
    */
-  outletPrefixes: SimpleOutletPrefixesOptions | undefined
+  outletPrefixes: BuiltInSimpleOutletPrefixNames | SimpleOutletPrefixesOptions | undefined
   /**
    * Configures the time that appears at the start of each log messages.
    * 
@@ -83,12 +90,15 @@ export type BaseTransportOptions<
    *   * `ii` - 2-digit minute of hour, e.g. 00, 59
    *   * `ss` - 2-digit second of minute, e.g. 00, 59
    *   * `MMM` - 3-letter-abbreviated month of year, e.g. "Jan", "Dec"
+   *   * `a` - Meridiem, e.g. "AM", "PM"
+   *
    * @default false
    * 
    * @example
    * false
    * true
    * 'yyyy-mm-dd|hh-ii-ss'
+   * 'MMM dd|hh:ii:ss'
    */
   dispatchTimePrefix: boolean | string
 }
