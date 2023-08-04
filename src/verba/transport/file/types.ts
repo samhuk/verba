@@ -8,16 +8,14 @@ export type FileTransportOutFile = string | WriteStream
  */
 export type FileTransportBatchOptions = {
   /**
-   * The maximum age of batches (how long between each batch).
+   * How often to dispatch queued log message batches.
    */
-  age?: number
+  interval?: number
   /**
-   * The maximum size of batches (number of log messages within them).
+   * The size of a log message batch before it is dispatched.
    */
   size?: number
 }
-
-export type CloseNotifier = { close: () => Promise<void[]>, register: (fn: () => Promise<void>) => void }
 
 export type FileTransportOptions<
   TCode extends string | number = string | number,

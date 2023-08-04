@@ -1,18 +1,10 @@
-import { CloseNotifier, FileTransportOptions } from './types'
+import { FileTransportOptions } from './types'
 
 import { VerbaTransport } from '../types'
 import { baseTransport } from '../base'
 import { createFileTransportDispatchService } from './dispatchService'
 
 const DEFAULT_OUTFILE = './log.txt'
-
-export const createCloseNotifier = (): CloseNotifier => {
-  const registeredFns: (() => Promise<void>)[] = []
-  return {
-    register: fn => registeredFns.push(fn),
-    close: () => Promise.all(registeredFns.map(fn => fn())),
-  }
-}
 
 /**
  * A Verba Transport for outputting to a file.

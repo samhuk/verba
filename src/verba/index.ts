@@ -22,10 +22,19 @@ import { Aliases } from './alias/types'
 import { ListenerStore } from './util/listenerStore/types'
 import { ProgressBar } from './progressBar/types'
 import { consoleTransport } from './transport/console'
-import { createCloseNotifier } from './transport/file'
 import { createIndentationString } from './util/indentation'
 import { createListenerStore } from './util/listenerStore'
 import { isVerbaString } from './verbaString'
+
+type CloseNotifier = { close: () => Promise<void[]>, register: (fn: () => Promise<void>) => void }
+
+const createCloseNotifier = (): CloseNotifier => {
+  const registeredFns: (() => Promise<void>)[] = []
+  return {
+    register: fn => registeredFns.push(fn),
+    close: () => Promise.all(registeredFns.map(fn => fn())),
+  }
+}
 
 /**
  * Determines if the given `outlet` is one of the simple outlets,
