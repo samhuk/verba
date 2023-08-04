@@ -33,14 +33,14 @@ const createMessageQueue = (writeStream: fs.WriteStream) => {
 }
 
 export const createFileTransportDispatchService = (
-  outputFilePath: FileTransportOutFile,
+  outFile: FileTransportOutFile,
   batchOptions?: FileTransportBatchOptions,
 ): FileTransportDispatchService => {
-  const writeStream = typeof outputFilePath === 'string'
-    ? fs.createWriteStream(outputFilePath, {flags : 'w'})
-    : outputFilePath
+  const writeStream = typeof outFile === 'string'
+    ? fs.createWriteStream(outFile, {flags : 'w'})
+    : outFile
 
-  // If no batch age or size, then return simple instantaneous stream writer
+  // If no batch interval or size, then return simple instantaneous stream writer
   if (batchOptions?.interval == null && batchOptions?.size == null) {
     return {
       dispatch: s => writeStream.write(s + '\n'),
@@ -82,7 +82,7 @@ export const createFileTransportDispatchService = (
     }
   }
 
-  // Else (batch size and age are both defined), use the queue length and a timer
+  // Else (batch size and i are both defined), use the queue length and a timer
   // to decide when to process the queue
   const maxQueueSize = batchOptions.size as number
   const interval = setInterval(queue.drain, batchOptions.interval)
