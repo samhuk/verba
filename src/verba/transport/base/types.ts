@@ -52,23 +52,6 @@ export type BaseTransportOptions<
    */
   dispatchDeltaT: DispatchDeltaTOptions
   /**
-   * Overrides the logging behavior of simple outlets (`info`, `step`, `success`, `warn`).
-   * 
-   * @example
-   * import verba, { consoleTransport, normalizeVerbaString } from 'verba'
-   * 
-   * const transport = consoleTransport({
-   *   simpleOutletOverrides: {
-   *     info: options => console.log('INFO', normalizeVerbaString(options.msg)),
-   *     step: ...,
-   *     ...
-   *   }
-   * })
-   * 
-   * const log = verba({ transports: [transport] })
-   */
-  simpleOutletOverrides: Partial<{ [outlet in SimpleOutlet]: SimpleOutletOverride<TCode, TData> }> | undefined
-  /**
    * Configures the prefixes that appear for each outlet, i.e. `info`, `step`, `success`, etc.
    * 
    * This can take multiple types of values:

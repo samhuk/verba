@@ -22,7 +22,6 @@ export const consoleTransport = <
   dispatch: s => process.stdout.write(s + '\n'),
   disableColors: options?.disableColors ?? false,
   dispatchDeltaT: options?.dispatchDeltaT ?? false,
-  simpleOutletOverrides: options?.simpleOutletOverrides,
   outletPrefixes: options?.outletPrefixes,
   dispatchTimePrefix: options?.dispatchTimePrefix ?? false,
   codeRenderer: options?.codeRenderer ?? true,

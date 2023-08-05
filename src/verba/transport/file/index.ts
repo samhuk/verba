@@ -31,7 +31,6 @@ export const fileTransport = <
     dispatch: dispatchService.dispatch,
     disableColors: true,
     dispatchDeltaT: options?.dispatchDeltaT ?? false,
-    simpleOutletOverrides: options?.simpleOutletOverrides,
     outletPrefixes: options?.outletPrefixes,
     dispatchTimePrefix: options?.dispatchTimePrefix ?? false,
     codeRenderer: options?.codeRenderer ?? true,
