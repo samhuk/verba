@@ -6,10 +6,10 @@ import { MutableRef } from "../../util/types"
 import { NestState } from "../../types"
 import { NormalizedSimpleOutletOptions, SimpleOutletOptions } from "../../outlet/types"
 import { VerbaString } from "../../verbaString/types"
-import { renderCode } from "./code"
 import { createConsoleSpinner } from "./spinner"
 import { BaseTransportOptions } from './types'
 import { TtyConsoleOccupier } from "./ttyConsoleOccupier"
+import { CodeRenderer } from './code'
 
 const createStepSpinner = (
   transportOptions: BaseTransportOptions | undefined,
@@ -18,11 +18,13 @@ const createStepSpinner = (
   }),
   nestState: NestState,
   ttyConsoleOccupierRef: MutableRef<TtyConsoleOccupier | undefined>,
+  renderCode: CodeRenderer | undefined,
   renderDispatchTime: () => string,
 ): { stepSpinner: StepSpinner, clear: () => void } => {
   // -- Prepare variables
-  const code = options.code === null ? undefined : (options.code ?? nestState.code)
-  const codeStr = code != null ? renderCode(code, transportOptions) : ''
+  const codeStr = renderCode != null
+    ? normalizeVerbaString(renderCode(options.code, nestState.code), transportOptions)
+    : ''
   const msg = normalizeVerbaString(options.msg, transportOptions)
   // -- Create spinner
   const spinner = createConsoleSpinner(
@@ -117,11 +119,12 @@ const createTtyConsoleOccupier = (
   }
 }
 
-export const createStepLogger = (
+export const useStepLogger = (
   transportOptions: BaseTransportOptions,
   nestState: NestState,
   stepSimpleOutletLogger: (options: NormalizedSimpleOutletOptions) => void,
   ttyConsoleOccupierRef: MutableRef<TtyConsoleOccupier | undefined>,
+  renderCode: CodeRenderer | undefined,
   renderDispatchTime: () => string,
 ) => (options: NormalizedStepOptions): StepSpinner | void => {
   // If options does not have a truthy `spinner` prop, then do normal step log
@@ -135,7 +138,7 @@ export const createStepLogger = (
   
   // Else (if the current console is TTY) then do real spinner
   // eslint-disable-next-line max-len
-  const { stepSpinner, clear: clearStepSpinner } = createStepSpinner(transportOptions, options as any, nestState, ttyConsoleOccupierRef, renderDispatchTime)
+  const { stepSpinner, clear: clearStepSpinner } = createStepSpinner(transportOptions, options as any, nestState, ttyConsoleOccupierRef, renderCode, renderDispatchTime)
   ttyConsoleOccupierRef.current = createTtyConsoleOccupier(options, stepSpinner, clearStepSpinner, stepSimpleOutletLogger)
   return stepSpinner
 }

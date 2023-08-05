@@ -65,6 +65,24 @@ export const normalizeVerbaString = (s: VerbaString, options?: NormalizeVerbaStr
 }
 
 /**
+ * Creates a function that normalizes a `VerbaString`. This is essentially a performance-optimized
+ * `normalizeVerbaString` that bakes-in the colorizer.
+ */
+export const createVerbaStringNormalizer = (options?: NormalizeVerbaStringOptions) => {
+  const _colorizer = getColorizer(options)
+  return (s: VerbaString) => {
+    switch (typeof s) {
+      case 'function':
+        return s(_colorizer)
+      case 'string':
+        return s
+      default:
+        return s.map(_s => (typeof _s === 'string' ? _s : _s(_colorizer))).join('')
+    }
+  }
+}
+
+/**
  * Renders the given `FancyString` `s` to a `string`
  */
 export const renderFancyString = (s: FancyString, options?: NormalizeVerbaStringOptions): string => (

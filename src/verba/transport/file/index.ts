@@ -34,5 +34,6 @@ export const fileTransport = <
     simpleOutletOverrides: options?.simpleOutletOverrides,
     outletPrefixes: options?.outletPrefixes,
     dispatchTimePrefix: options?.dispatchTimePrefix ?? false,
+    codeRenderer: options?.codeRenderer ?? true,
   })
 }

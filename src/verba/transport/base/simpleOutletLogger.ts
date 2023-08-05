@@ -1,11 +1,11 @@
 import { NormalizedSimpleOutletOptions, SimpleOutlet, SimpleOutletPrefixes } from "../../outlet/types"
-import { normalizeVerbaString, renderStringWithFormats } from "../../verbaString"
+import { createVerbaStringNormalizer, normalizeVerbaString, renderStringWithFormats } from "../../verbaString"
 
 import { BaseTransportOptions, BuiltInSimpleOutletPrefixNames } from './types'
 import { DispatchDeltaT } from "./dispatchDeltaT"
 import { NestState } from "../../types"
 import { SIMPLE_OUTLETS } from "../../outlet"
-import { renderCode } from "./code"
+import { CodeRenderer, createCodeRenderer } from './code'
 
 type SimpleOutletLogger = (
   options: NormalizedSimpleOutletOptions,
@@ -48,41 +48,29 @@ const determineSimpleOutletPrefix = (options: BaseTransportOptions, outlet: Simp
     : BUILT_IN_SIMPLE_OUTLET_PREFIXES.default[disableColors][outlet]
 }
 
-const createBaseSimpleOutletLogger = (
-  transportOptions: BaseTransportOptions,
-  outlet: SimpleOutlet,
-  nestState: NestState,
-): SimpleOutletLogger => {
-  const prefix = nestState.indentationString + determineSimpleOutletPrefix(transportOptions, outlet)
-  const createDefaultOutput = (outletOptions: NormalizedSimpleOutletOptions)=> {
-    const code = outletOptions.code ?? nestState.code
-    return code != null
-      ? prefix + renderCode(code, transportOptions) + normalizeVerbaString(outletOptions.msg, transportOptions)
-      : prefix + normalizeVerbaString(outletOptions.msg, transportOptions)
-  }
-
-  const override = transportOptions?.simpleOutletOverrides?.[outlet]
-  return override != null
-    ? outletOptions => override(outletOptions) || createDefaultOutput(outletOptions)
-    : outletOptions => createDefaultOutput(outletOptions)
-}
-
 export const useSimpleOutletLoggers = (
   transportOptions: BaseTransportOptions,
   nestState: NestState,
-  renderDispatchTime: () => void,
+  renderCode: CodeRenderer | undefined,
+  renderDispatchTime: () => string,
   dispatchDeltaT: DispatchDeltaT | undefined,
 ): { [k in SimpleOutlet]: ((options: NormalizedSimpleOutletOptions) => void) } => {
-  const log = (simpleOutlet: SimpleOutlet): ((options: NormalizedSimpleOutletOptions) => void) => {
-    const baseLogger = createBaseSimpleOutletLogger(transportOptions, simpleOutlet, nestState)
+  const _normalizeVerbaString = createVerbaStringNormalizer(transportOptions)
+
+  const createLog = (outlet: SimpleOutlet): ((options: NormalizedSimpleOutletOptions) => void) => {
+    const prefix = nestState.indentationString + determineSimpleOutletPrefix(transportOptions, outlet)
+    const baseContentRenderer: ((options: NormalizedSimpleOutletOptions) => void) = renderCode != null
+      ? options => prefix + _normalizeVerbaString(renderCode(options.code, nestState.code)) + _normalizeVerbaString(options.msg)
+      : options => prefix + _normalizeVerbaString(options.msg)
+
     return dispatchDeltaT != null
       ? dispatchDeltaT.position === 'start'
-        ? options => transportOptions.dispatch(renderDispatchTime() + dispatchDeltaT.render() + baseLogger(options))
-        : options => transportOptions.dispatch(renderDispatchTime() + baseLogger(options) + dispatchDeltaT.render())
-      : options => transportOptions.dispatch(renderDispatchTime() + baseLogger(options))
+        ? options => transportOptions.dispatch(renderDispatchTime() + dispatchDeltaT.render() + baseContentRenderer(options))
+        : options => transportOptions.dispatch(renderDispatchTime() + baseContentRenderer(options) + dispatchDeltaT.render())
+      : options => transportOptions.dispatch(renderDispatchTime() + baseContentRenderer(options))
   }
 
   const result: { [k in SimpleOutlet]: ((options: NormalizedSimpleOutletOptions) => void) } = { } as any
-  SIMPLE_OUTLETS.forEach(outlet => result[outlet] = log(outlet))
+  SIMPLE_OUTLETS.forEach(outlet => result[outlet] = createLog(outlet))
   return result
 }

@@ -45,7 +45,7 @@ const createDispatchDeltaTRenderer = (
   pos: 'start' | 'end',
 ) => {
   const padder = createPadder(10)
-  const defaultColorlessEnd = () => padder(`+${Date.now() - previousDispatchEpochRef.current}ms `)
+  const defaultColorlessEnd = () => `  [+${Date.now() - previousDispatchEpochRef.current}ms]`
   const defaultColorlessStart = () => padder(`+${Date.now() - previousDispatchEpochRef.current}ms `)
 
   if (dispatchDeltaTOptions === true) {

@@ -25,4 +25,5 @@ export const consoleTransport = <
   simpleOutletOverrides: options?.simpleOutletOverrides,
   outletPrefixes: options?.outletPrefixes,
   dispatchTimePrefix: options?.dispatchTimePrefix ?? false,
+  codeRenderer: options?.codeRenderer ?? true,
 })

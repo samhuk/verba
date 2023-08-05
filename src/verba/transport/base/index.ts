@@ -5,13 +5,14 @@ import { BaseTransportOptions } from './types'
 import colorizeJson from 'json-colorizer'
 import columify from 'columnify'
 import { createDispatchTimeRenderer } from './dispatchTime'
-import { createProgressBarLogger } from './progressBar'
-import { createStepLogger } from "./step"
+import { useProgressBarLogger } from './progressBar'
+import { useStepLogger } from "./step"
 import { determineJsonColors } from './json'
 import { repeatStr } from "../../util/string"
 import { useDispatchDeltaT } from './dispatchDeltaT'
 import { useSimpleOutletLoggers } from "./simpleOutletLogger"
 import { useTtyConsoleOccupierRef } from './ttyConsoleOccupier'
+import { createCodeRenderer } from './code'
 
 /**
  * A Verba Transport for typical console and file transports, supporting TTY and non-TTY terminals.
@@ -22,19 +23,21 @@ export const baseTransport = <
 >(
   transportOptions: BaseTransportOptions<TCode, TData>,
 ): VerbaTransport<TCode, TData> => (loggerOptions, listeners, registerOnClose) => {
-  const jsonColors = determineJsonColors(transportOptions as BaseTransportOptions)
-  const ttyConsoleOccupierRef = useTtyConsoleOccupierRef(transportOptions as BaseTransportOptions, listeners)
+  const _transportOptions = transportOptions as BaseTransportOptions
+  const jsonColors = determineJsonColors(_transportOptions)
+  const ttyConsoleOccupierRef = useTtyConsoleOccupierRef(_transportOptions, listeners)
   const colorizer = getColorizer(transportOptions)
-  const dispatchDeltaT = useDispatchDeltaT(transportOptions as BaseTransportOptions, colorizer, listeners)
-  const renderDispatchTime = createDispatchTimeRenderer(transportOptions as BaseTransportOptions, colorizer)
+  const dispatchDeltaT = useDispatchDeltaT(_transportOptions, colorizer, listeners)
+  const renderDispatchTime = createDispatchTimeRenderer(_transportOptions, colorizer)
+  const renderCode = createCodeRenderer(_transportOptions)
 
   if (transportOptions.onClose != null)
     registerOnClose(transportOptions.onClose)
 
   return nestState => {
-    const simpleOutletLoggers = useSimpleOutletLoggers(transportOptions as BaseTransportOptions, nestState, renderDispatchTime, dispatchDeltaT)
-    const progressBar = createProgressBarLogger(transportOptions as BaseTransportOptions, ttyConsoleOccupierRef, nestState, renderDispatchTime)
-    const step = createStepLogger(transportOptions as any, nestState, simpleOutletLoggers.step, ttyConsoleOccupierRef, renderDispatchTime) as any
+    const simpleOutletLoggers = useSimpleOutletLoggers(_transportOptions, nestState, renderCode, renderDispatchTime, dispatchDeltaT)
+    const progressBar = useProgressBarLogger(_transportOptions, ttyConsoleOccupierRef, nestState, renderDispatchTime)
+    const step = useStepLogger(_transportOptions, nestState, simpleOutletLoggers.step, ttyConsoleOccupierRef, renderCode, renderDispatchTime) as any
 
     const transport: NestedInstantiatedVerbaTransport = {
       // -- Simple outlets

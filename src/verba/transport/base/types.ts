@@ -1,4 +1,6 @@
 import { NormalizedSimpleOutletOptions, SimpleOutlet, SimpleOutletPrefixesOptions } from '../../outlet/types'
+import { VerbaString } from '../../verbaString/types'
+import { CodeRenderer } from './code'
 
 import { DispatchDeltaTOptions } from './dispatchDeltaT'
 
@@ -69,7 +71,7 @@ export type BaseTransportOptions<
   /**
    * Configures the prefixes that appear for each outlet, i.e. `info`, `step`, `success`, etc.
    * 
-   * This may take multiple types of values:
+   * This can take multiple types of values:
    * * `default` - Default set of outlet prefixes, using short symbols.
    * * `textual` - Alternative set of outlet prefixes, using text, e.g. "INFO", "STEP", "WARN", etc.
    * * `{ info: 'INFO: ', step: '* ', ... }` - Completely custom outlet prefixes.
@@ -101,4 +103,22 @@ export type BaseTransportOptions<
    * 'MMM dd|hh:ii:ss'
    */
   dispatchTimePrefix: boolean | string
+  /**
+   * Configures how log message codes are rendered.
+   * 
+   * This can take several types of values:
+   * `false` - Disables code rendering.
+   * `true` - Enables default code rendering.
+   * `(code, parentCode) => `VerbaString` - Enables custom code rendering.
+   * 
+   * @default true // Defaulting rendering
+   * 
+   * @example
+   * false
+   * true
+   * code => `[${code}]`
+   * (code, parentCode) => `${parentCode}/${code}`
+   * (code, parentCode) => f => f.magenta(code)
+   */
+  codeRenderer: boolean | CodeRenderer
 }

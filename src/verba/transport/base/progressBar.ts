@@ -6,7 +6,7 @@ import { ProgressBar } from '../../progressBar/types'
 import { TtyConsoleOccupier } from "./ttyConsoleOccupier"
 import { createConsoleProgressBar } from "../../progressBar"
 
-export const createProgressBarLogger = (
+export const useProgressBarLogger = (
   transportOptions: BaseTransportOptions,
   ttyConsoleOccupierRef: MutableRef<TtyConsoleOccupier | undefined>,
   nestState: NestState,
