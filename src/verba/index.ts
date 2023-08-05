@@ -26,10 +26,10 @@ import { createIndentationString } from './util/indentation'
 import { createListenerStore } from './util/listenerStore'
 import { isVerbaString } from './verbaString'
 
-type CloseNotifier = { close: () => Promise<void[]>, register: (fn: () => Promise<void>) => void }
+type CloseNotifier = { close: () => Promise<void[]>, register: (fn: () => (Promise<void> | void)) => void }
 
 const createCloseNotifier = (): CloseNotifier => {
-  const registeredFns: (() => Promise<void>)[] = []
+  const registeredFns: (() => (Promise<void> | void))[] = []
   return {
     register: fn => registeredFns.push(fn),
     close: () => Promise.all(registeredFns.map(fn => fn())),

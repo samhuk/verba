@@ -19,7 +19,7 @@ export type BaseTransportOptions<
   TData extends any = any
 > = {
   dispatch: (s: string) => void
-  onClose?: () => Promise<void>
+  onClose?: () => Promise<void> | void
   isTty: boolean
   /**
    * Disables ANSI colors for all log messages if `true`.

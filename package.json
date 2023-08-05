@@ -1,6 +1,6 @@
 {
   "name": "verba",
-  "version": "2.4.11",
+  "version": "2.4.12",
   "description": "Node logging library",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",

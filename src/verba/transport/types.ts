@@ -122,5 +122,5 @@ export type VerbaTransport<
    * 
    * Notably, this is used by `fileTransport`.
    */
-  registerOnClose: (handler: () => Promise<void>) => void
+  registerOnClose: (handler: () => (Promise<void> | void)) => void
 ) => InstantiatedVerbaTransport<TCode, TData>

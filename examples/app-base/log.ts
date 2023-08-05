@@ -22,6 +22,10 @@ const log = verba<Code, LogMessageData>({
       outletPrefixes: 'textual',
       dispatchDeltaT: true,
       dispatchTimePrefix: 'MMM dd|hh:ii:ss',
+      batchOptions: {
+        size: 5,
+        interval: 1000,
+      },
     }),
     fileTransport(),
   ],

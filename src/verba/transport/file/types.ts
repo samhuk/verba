@@ -1,21 +1,8 @@
 import { BaseTransportOptions } from '../base/types'
 import { WriteStream } from 'fs'
+import { DispatchServiceBatchOptions } from '../util/dispatchService/base/types'
 
 export type FileTransportOutFile = string | WriteStream
-
-/**
- * Options to configure the batching behavior of the File Transport.
- */
-export type FileTransportBatchOptions = {
-  /**
-   * How often to dispatch queued log message batches.
-   */
-  interval?: number
-  /**
-   * The size of a log message batch before it is dispatched.
-   */
-  size?: number
-}
 
 export type FileTransportOptions<
   TCode extends string | number = string | number,
@@ -37,14 +24,14 @@ export type FileTransportOptions<
    */
   outFile?: FileTransportOutFile
   /**
-   * Optional configuration for the batching of log messages to the write stream.
+   * Optional configuration for the batching of log messages.
    * 
-   * May take the following values:
+   * This can take the following values:
    * 
    * * `undefined` - No batching
    * * `{ age: number, size: number }`
    * 
    * @default undefined // No batching
    */
-  batchOptions?: FileTransportBatchOptions
+  batchOptions?: DispatchServiceBatchOptions
 }

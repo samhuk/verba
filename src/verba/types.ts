@@ -23,7 +23,7 @@ export type VerbaLoggerOptions<
   /**
    * Verba Transports, defining how log messages are outputted. By default,
    * this is a console transport that outputs log messages to the Node.js `console`.
-   * 
+   *
    * @example
    * import verba, { VerbaTransport } from 'verba'
    * 
