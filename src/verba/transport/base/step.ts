@@ -135,7 +135,6 @@ export const useStepLogger = (
   else if (!transportOptions.isTty)
     return createNonTTYSpinnerShim(stepSimpleOutletLogger, options)
 
-  
   // Else (if the current console is TTY) then do real spinner
   // eslint-disable-next-line max-len
   const { stepSpinner, clear: clearStepSpinner } = createStepSpinner(transportOptions, options as any, nestState, ttyConsoleOccupierRef, renderCode, renderDispatchTime)

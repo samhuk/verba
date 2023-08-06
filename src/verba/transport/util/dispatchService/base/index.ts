@@ -1,5 +1,5 @@
+import { onUnexpectedExit } from '../../../../util/process'
 import { DispatchService, DispatchServiceOptions, DispatchServiceQueue } from './types'
-import { onUnexpectedExit } from '../../util'
 
 export const createStreamMessageQueue = (stream: { write: (s: string, onComplete: (err: any) => void) => void }): DispatchServiceQueue => {
   let isDraining = false

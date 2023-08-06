@@ -56,8 +56,6 @@ export type Spinner = {
   destroy: () => void;
   /**
    * Stops the spinner however keeps the latest frame on the console line.
-   * 
-   * Alias for `pause`.
    */
   stopAndPersist: () => void;
 }

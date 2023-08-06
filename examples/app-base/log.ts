@@ -22,12 +22,12 @@ const log = verba<Code, LogMessageData>({
       outletPrefixes: 'textual',
       dispatchDeltaT: true,
       dispatchTimePrefix: 'MMM dd|hh:ii:ss',
+    }),
+    fileTransport({
       batchOptions: {
-        size: 5,
-        interval: 1000,
+        interval: 2000,
       },
     }),
-    fileTransport(),
   ],
 }).setAliases({
   header: logger => (s: string) => {
