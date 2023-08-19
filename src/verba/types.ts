@@ -6,7 +6,7 @@ import { OutletFilter } from './outletFilter/types'
 import { ProgressBar } from './progressBar/types'
 import { VerbaTransport } from './transport/types'
 
-export type VerbaLoggerOptions<
+export type VerbaOptions<
   TCode extends string | number = string | number,
   TData extends any = any,
 > = {
@@ -81,7 +81,7 @@ export type NestState<TCode extends string | number = string | number> = {
   code: TCode | undefined
 }
 
-export type VerbaLoggerBaseOutlets<
+export type VerbaBaseOutlets<
   TCode extends string | number = string | number,
   TData extends any = any,
 > = {
@@ -248,7 +248,7 @@ export type VerbaLoggerBaseOutlets<
  * const log = verba()
  * log.info('Hello, world!')
  */
-export type VerbaLogger<
+export type Verba<
   TCode extends string | number = string | number,
   TData extends any = any,
   TAliases extends Aliases<TCode, TData> = {},
@@ -259,7 +259,7 @@ export type VerbaLogger<
    *
    * This is useful for providing a default `code` for logs to avoid duplication.
    *
-   * @returns `VerbaLogger`
+   * @returns `Verba`
    *
    * @example
    * import verba from 'verba'
@@ -267,7 +267,7 @@ export type VerbaLogger<
    * const childLog = log.nest({ code: 'CHILD_TASK' })
    * childLog.log('This is a child task') // Will have the `code` "CHILD_TASK"
    */
-  nest: (options: NestOptions<TCode>) => VerbaLogger<TCode, TData>
+  nest: (options: NestOptions<TCode>) => Verba<TCode, TData>
   /**
    * Signals to all Transports added to the instance that this function has been
    * called, resolving only when all of the Transports that have registered a close
@@ -298,10 +298,10 @@ export type VerbaLogger<
    * 
    * log.header('foo')
    */
-  setAliases: <TNewAliases extends Aliases<TCode, TData>>(aliases: TNewAliases) => VerbaLogger<TCode, TData, TNewAliases>
+  setAliases: <TNewAliases extends Aliases<TCode, TData>>(aliases: TNewAliases) => Verba<TCode, TData, TNewAliases>
 }
   // Add on the base outlets, excluding those that the aliases define.
-  & Omit<VerbaLoggerBaseOutlets<TCode, TData>, keyof TAliases>
+  & Omit<VerbaBaseOutlets<TCode, TData>, keyof TAliases>
   // Add on the aliases
   & { [TAliasName in keyof TAliases]: ReturnType<TAliases[TAliasName]> }
 

@@ -1,6 +1,6 @@
 import {
   NestState,
-  VerbaLoggerOptions,
+  VerbaOptions,
 } from "../types"
 import {
   NormalizedDividerOptions,
@@ -47,6 +47,8 @@ export type OutletHandlerFnOptions<
   'outlet'
 >
 
+export type VerbaTransportEventName = 'onBeforeLog' | 'onAfterLog'
+
 export type VerbaTransportEventHandlers<
   TCode extends string | number = string | number,
   TData extends any = any
@@ -54,6 +56,8 @@ export type VerbaTransportEventHandlers<
   onBeforeLog: (options: OutletHandlerFnOptions<TCode, TData>, nestState: NestState<TCode>) => void
   onAfterLog: (options: OutletHandlerFnOptions<TCode, TData>, nestState: NestState<TCode>) => void
 }
+
+export type VerbaTransportListenerStore = ListenerStore<VerbaTransportEventName, VerbaTransportEventHandlers>
 
 export type NestedInstantiatedVerbaTransport<
   TCode extends string | number = string | number,
@@ -103,7 +107,7 @@ export type VerbaTransport<
   /**
    * The top-level verba-logger options that was received.
    */
-  options: VerbaLoggerOptions<TCode, TData>,
+  options: VerbaOptions<TCode, TData>,
   /**
    * A listener store that can be used to add listeners to various events of
    * the verba logger.
@@ -114,13 +118,18 @@ export type VerbaTransport<
   >,
   /**
    * Registers the given asynchronous `handler` function to be ran when the
-   * top-level `close` function is called (on the `VerbaLogger` instance).
+   * top-level `close` function is called (on the `Verba` instance).
    * 
-   * This is very useful for when a Transport needs to perform tear-down
-   * operations (such as waiting for an API request to finish, waiting for
-   * a write stream to finish draining, etc.).
+   * This is useful for when a Transport needs to perform tear-down operations
+   * (such as waiting for an API request to finish, waiting for a write stream
+   * to finish draining, and so on).
    * 
-   * Notably, this is used by `fileTransport`.
+   * Notably, this is used by default in the current contexts:
+   * * By `fileTransport` to ensure that logs finish getting written to file
+   * before the node program fully exits.
+   * * By `fileTransport` and `consoleTransport` when batching is enabled, to
+   * ensure that batched log messages are processed before the node program
+   * fully exits.
    */
   registerOnClose: (handler: () => (Promise<void> | void)) => void
 ) => InstantiatedVerbaTransport<TCode, TData>

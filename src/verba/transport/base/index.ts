@@ -40,10 +40,9 @@ export const baseTransport = <
     const step = useStepLogger(_transportOptions, nestState, simpleOutletLoggers.step, ttyConsoleOccupierRef, renderCode, renderDispatchTime) as any
 
     const transport: NestedInstantiatedVerbaTransport = {
-      // -- Simple outlets
       log: _options => transportOptions.dispatch(normalizeVerbaString(_options.msg, transportOptions)),
+      // -- Simple outlets
       info: simpleOutletLoggers.info,
-      // eslint-disable-next-line max-len
       step,
       success: simpleOutletLoggers.success,
       warn: simpleOutletLoggers.warn,
