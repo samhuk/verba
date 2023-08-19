@@ -1,8 +1,8 @@
-import { createVerba } from '.'
+import { verba } from '.'
 
 describe('verba', () => {
-  describe('createVerba', () => {
-    const fn = createVerba
+  describe('verba', () => {
+    const fn = verba
 
     test('basic test', () => {
       const instance = fn()
