@@ -6,11 +6,14 @@ import { createStreamMessageQueue } from './base/streamMessageQueue'
 
 const DEFAULT_OUTFILE = './log.txt'
 
-const closeStream = (stream: fs.WriteStream) => new Promise<void>(res => {
-  stream.close(() => res())
+const closeStream = (stream: fs.WriteStream) => new Promise<void>((res, rej) => {
+  stream.close(err => {
+    if (err == null)
+      res()
+    else
+      rej(err)
+  })
 })
-
-
 
 export const createFileDispatchService = (options: {
   outFile?: FileTransportOutFile,
