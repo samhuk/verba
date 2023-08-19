@@ -1,5 +1,6 @@
 import { DispatchServiceBatchOptions } from './base/types'
-import { createDispatchService, createStreamMessageQueue } from './base'
+import { createDispatchService } from './base'
+import { createStreamMessageQueue } from './base/streamMessageQueue'
 
 export const createConsoleDispatchService = (options: {
   batchOptions: DispatchServiceBatchOptions | undefined,

@@ -1,7 +1,8 @@
 import * as fs from 'fs'
 import { FileTransportOutFile } from '../../file/types'
 import { DispatchServiceBatchOptions } from './base/types'
-import { createDispatchService, createStreamMessageQueue } from './base'
+import { createDispatchService } from './base'
+import { createStreamMessageQueue } from './base/streamMessageQueue'
 
 const DEFAULT_OUTFILE = './log.txt'
 

@@ -15,5 +15,5 @@ export const formatDate = (date: Date, format: string): string => {
     MMM: MONTHS[monthIndex], // "Jan" to "Dec"
   }
 
-  return format.replace(/(yyyy|mm|dd|HH|hh|ii|ss|a|MMM)/g, (match: string) => formatMap[match])
+  return format.replace(/(yyyy|mm|dd|HH|hh|ii|ss|a|MMM)/g, match => formatMap[match])
 }
