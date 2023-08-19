@@ -1,13 +1,8 @@
-import { OutletHandlerFnOptions, VerbaTransportEventHandlers } from "../types"
+import { OutletHandlerFnOptions, VerbaTransportListenerStore } from "../types"
 
 import { BaseTransportOptions } from "./types"
-import { ListenerStore } from "../../util/listenerStore/types"
 import { Outlet } from "../../outlet/types"
 import { useRef } from "../../util/misc"
-
-export type InterruptedTtyConsolerOccupier = {
-  resume: () => void
-}
 
 /**
  * A type that represents an entity that is occupying the current (TTY) console output.
@@ -20,35 +15,45 @@ export type TtyConsoleOccupier = {
   destroy: () => void
 }
 
-const isTerminalOccupier = (options: OutletHandlerFnOptions) => (
+const determineIfLogMessageIsConsoleOccupying = (options: OutletHandlerFnOptions) => (
   options.outlet === Outlet.PROGRESS_BAR || (options.outlet === Outlet.STEP && options.options.spinner)
 )
 
 export const useTtyConsoleOccupierRef = (
   transportOptions: BaseTransportOptions,
-  listeners:  ListenerStore<keyof VerbaTransportEventHandlers, VerbaTransportEventHandlers>,
+  listeners: VerbaTransportListenerStore,
 ) => {
   /**
-   * The spinners, no matter the "nestedness" of a VerbaLogger, all share one console,
-   * therefore we globally track the current spinner that is occupying the console.
+   * Anything that occupies the terminal console (i.e. spinners and loading bars)
+   * all share one console regardless of the "nestedness" of the Verba instance
+   * they are in.
+   * 
+   * Therefore, we will track the current occupier that is occupying the console
+   * regardless of nestedness
    */
   const ttyConsoleOccupierRef = useRef<TtyConsoleOccupier | undefined>(undefined)
-  if (transportOptions.isTty) {
-    // If a non-spinner log message is called while a spinner is active, temporarily
-    // clear the currently active spinner from the console line in order to allow
-    // the non-spinner log message to print to the console line. The spinner will
-    // asynchronously print again later on.
-    listeners.add('onBeforeLog', _options => {
-      if (isTerminalOccupier(_options))
-        ttyConsoleOccupierRef.current?.destroy()
-      else
-        ttyConsoleOccupierRef.current?.interrupt()
-    })
 
-    listeners.add('onAfterLog', () => {
-      ttyConsoleOccupierRef.current?.resume()
-    })
-  }
+  // If the transport isn't TTY, then there is no support for animation behavior
+  if (!transportOptions.isTty)
+    return ttyConsoleOccupierRef
+
+  // If a non-console-occupying log message is called while a console occupier
+  // is active, then interrupt the current console occupier and resume after
+  // the log.
+  // Alternatively, if a console-occupying log message is called while a
+  // console occupier is already active, then firstly this should not happen,
+  // however if it indeed does, then the current one is destroyed and replaced
+  // with the new occupier.
+  listeners.add('onBeforeLog', logMessageOptions => {
+    if (determineIfLogMessageIsConsoleOccupying(logMessageOptions))
+      ttyConsoleOccupierRef.current?.destroy()
+    else
+      ttyConsoleOccupierRef.current?.interrupt()
+  })
+
+  listeners.add('onAfterLog', () => {
+    ttyConsoleOccupierRef.current?.resume()
+  })
 
   return ttyConsoleOccupierRef
 }

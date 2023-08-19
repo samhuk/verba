@@ -1,8 +1,8 @@
-import { createVerbaLogger } from '.'
+import { createVerba } from '.'
 
 describe('verba', () => {
-  describe('createVerbaLogger', () => {
-    const fn = createVerbaLogger
+  describe('createVerba', () => {
+    const fn = createVerba
 
     test('basic test', () => {
       const instance = fn()

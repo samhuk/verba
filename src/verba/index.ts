@@ -1,9 +1,17 @@
-import { InstantiatedVerbaTransport, NestedInstantiatedVerbaTransport, VerbaTransport, VerbaTransportEventHandlers } from './transport/types'
+import {
+  InstantiatedVerbaTransport,
+  NestedInstantiatedVerbaTransport,
+  OutletHandlerFnOptions,
+  VerbaTransport,
+  VerbaTransportEventHandlers,
+  VerbaTransportEventName,
+  VerbaTransportListenerStore,
+} from './transport/types'
 import {
   NestState,
-  VerbaLogger,
-  VerbaLoggerBaseOutlets,
-  VerbaLoggerOptions,
+  Verba,
+  VerbaBaseOutlets,
+  VerbaOptions,
 } from './types'
 import {
   NormalizedDividerOptions,
@@ -25,16 +33,7 @@ import { consoleTransport } from './transport/console'
 import { createIndentationString } from './util/indentation'
 import { createListenerStore } from './util/listenerStore'
 import { isVerbaString } from './verbaString'
-
-type CloseNotifier = { close: () => Promise<void[]>, register: (fn: () => (Promise<void> | void)) => void }
-
-const createCloseNotifier = (): CloseNotifier => {
-  const registeredFns: (() => (Promise<void> | void))[] = []
-  return {
-    register: fn => registeredFns.push(fn),
-    close: () => Promise.all(registeredFns.map(fn => fn())),
-  }
-}
+import { createObservable } from './util/reactive'
 
 /**
  * Determines if the given `outlet` is one of the simple outlets,
@@ -88,20 +87,49 @@ const normalizeStepOptions = <
     }
 )
 
-const _createVerbaLogger = <
+const createExecutor = (
+  nestedInstantiatedTransports: NestedInstantiatedVerbaTransport<any, any>[],
+  listeners: VerbaTransportListenerStore,
+  nestState: NestState,
+) => (
+  options: OutletHandlerFnOptions,
+  executor: (t: NestedInstantiatedVerbaTransport) => void,
+) => {
+  listeners.call('onBeforeLog', options, nestState)
+  nestedInstantiatedTransports.forEach(executor)
+  listeners.call('onAfterLog', options, nestState)
+}
+
+const mergeObjectsOfFunctions = <T extends Record<string, Function>>(objs: T[], keys: (keyof T)[]): T => {
+  const outputObj: T = {} as T
+
+  // Ensure that all keys lead to a function
+  keys.forEach(k => outputObj[k] = (() => undefined) as any)
+
+  keys.forEach(k => {
+    const fns = objs.map(o => o[k])
+    outputObj[k] = ((...args: any[]) => fns.forEach(fn => fn(...args))) as any
+  })
+
+  return outputObj
+}
+
+const _verba = <
   TCode extends string | number = string | number,
   TData extends any = any,
   TAliases extends Aliases<TCode, TData> = Aliases<TCode, TData>,
 >(
-  options: VerbaLoggerOptions<TCode, TData>,
+  options: VerbaOptions<TCode, TData>,
   aliases: TAliases,
   instantiatedTransports: InstantiatedVerbaTransport<TCode, TData>[],
   nestedInstantiatedTransports: NestedInstantiatedVerbaTransport<TCode, TData>[],
-  listeners: ListenerStore<keyof VerbaTransportEventHandlers<TCode, TData>, VerbaTransportEventHandlers<TCode, TData>>,
+  listeners: ListenerStore<VerbaTransportEventName, VerbaTransportEventHandlers<TCode, TData>>,
   nestState: NestState<TCode>,
   close: () => Promise<void[]>,
-): VerbaLogger<TCode, TData, TAliases> => {
-  const baseOutlets: VerbaLoggerBaseOutlets<TCode, TData> = {
+): Verba<TCode, TData, TAliases> => {
+  const execute = createExecutor(nestedInstantiatedTransports, listeners, nestState)
+
+  const baseOutlets: VerbaBaseOutlets<TCode, TData> = {
     log: _options => {
       const normalizedOptions = normalizeSimpleOutletOptions(_options)
       const excluded = options.outletFilters
@@ -109,9 +137,7 @@ const _createVerbaLogger = <
       if (excluded)
         return
 
-      listeners.call('onBeforeLog', { outlet: Outlet.LOG, options: normalizedOptions }, nestState)
-      nestedInstantiatedTransports.forEach(p => p.log(normalizedOptions))
-      listeners.call('onAfterLog', { outlet: Outlet.LOG, options: normalizedOptions }, nestState)
+      execute({ outlet: Outlet.LOG, options: normalizedOptions }, t => t.log(normalizedOptions))
     },
     info: _options => {
       const normalizedOptions = normalizeSimpleOutletOptions(_options)
@@ -120,9 +146,7 @@ const _createVerbaLogger = <
       if (excluded)
         return
 
-      listeners.call('onBeforeLog', { outlet: Outlet.INFO, options: normalizedOptions }, nestState)
-      nestedInstantiatedTransports.forEach(p => p.info(normalizedOptions))
-      listeners.call('onAfterLog', { outlet: Outlet.INFO, options: normalizedOptions }, nestState)
+      execute({ outlet: Outlet.INFO, options: normalizedOptions }, t => t.info(normalizedOptions))
     },
     step: _options => {
       const normalizedOptions = normalizeStepOptions<TCode, TData>(_options)
@@ -144,22 +168,13 @@ const _createVerbaLogger = <
         listeners.call('onBeforeLog', { outlet: Outlet.STEP, options: normalizedOptions }, nestState)
         // Run all transport `step` functions
         const results = nestedInstantiatedTransports.map(p => p.step(normalizedOptions)).filter(v => v != null) as unknown as StepSpinner[]
-        const result: StepSpinner = {
-          text: (...args) => results.forEach(r => r.text(...args)),
-          color: (...args) => results.forEach(r => r.color(...args)),
-          start: (...args) => results.forEach(r => r.start(...args)),
-          pause: (...args) => results.forEach(r => r.pause(...args)),
-          destroy: (...args) => results.forEach(r => r.destroy(...args)),
-          stopAndPersist: (...args) => results.forEach(r => r.stopAndPersist(...args)),
-        }
+        const result = mergeObjectsOfFunctions(results, ['color', 'destroy', 'pause', 'start', 'stopAndPersist', 'text'])
         listeners.call('onAfterLog', { outlet: Outlet.STEP, options: normalizedOptions }, nestState)
         return result as any
       }
-      else if (!excluded) {
-        listeners.call('onBeforeLog', { outlet: Outlet.STEP, options: normalizedOptions }, nestState)
-        nestedInstantiatedTransports.forEach(p => p.step(normalizedOptions))
-        listeners.call('onAfterLog', { outlet: Outlet.STEP, options: normalizedOptions }, nestState)
-      }
+
+      if (!excluded)
+        execute({ outlet: Outlet.STEP, options: normalizedOptions }, t => t.step(normalizedOptions))
     },
     success: _options => {
       const normalizedOptions = normalizeSimpleOutletOptions(_options)
@@ -168,9 +183,7 @@ const _createVerbaLogger = <
       if (excluded)
         return
 
-      listeners.call('onBeforeLog', { outlet: Outlet.SUCCESS, options: normalizedOptions }, nestState)
-      nestedInstantiatedTransports.forEach(p => p.success(normalizedOptions))
-      listeners.call('onAfterLog', { outlet: Outlet.SUCCESS, options: normalizedOptions }, nestState)
+      execute({ outlet: Outlet.SUCCESS, options: normalizedOptions }, t => t.success(normalizedOptions))
     },
     warn: _options => {
       const normalizedOptions = normalizeSimpleOutletOptions(_options)
@@ -179,9 +192,7 @@ const _createVerbaLogger = <
       if (excluded)
         return
 
-      listeners.call('onBeforeLog', { outlet: Outlet.WARN, options: normalizedOptions }, nestState)
-      nestedInstantiatedTransports.forEach(p => p.warn(normalizedOptions))
-      listeners.call('onAfterLog', { outlet: Outlet.WARN, options: normalizedOptions }, nestState)
+      execute({ outlet: Outlet.WARN, options: normalizedOptions }, t => t.warn(normalizedOptions))
     },
     table: (data, _options) => {
       const normalizedOptions: NormalizedTableOptions<TCode, TData> = {
@@ -194,9 +205,7 @@ const _createVerbaLogger = <
       if (excluded)
         return
 
-      listeners.call('onBeforeLog', { outlet: Outlet.TABLE, options: normalizedOptions, data }, nestState)
-      nestedInstantiatedTransports.forEach(p => p.table(data, normalizedOptions))
-      listeners.call('onAfterLog', { outlet: Outlet.TABLE, options: normalizedOptions, data }, nestState)
+      execute({ outlet: Outlet.TABLE, options: normalizedOptions, data }, t => t.table(data, normalizedOptions))
     },
     json: (value, _options) => {
       const normalizedOptions: NormalizedJsonOptions<TCode, TData> = {
@@ -209,9 +218,7 @@ const _createVerbaLogger = <
       if (excluded)
         return
 
-      listeners.call('onBeforeLog', { outlet: Outlet.JSON, options: normalizedOptions, value }, nestState)
-      nestedInstantiatedTransports.forEach(p => p.json(value, normalizedOptions))
-      listeners.call('onAfterLog', { outlet: Outlet.JSON, options: normalizedOptions, value }, nestState)
+      execute({ outlet: Outlet.JSON, options: normalizedOptions, value }, t => t.json(value, normalizedOptions))
     },
     divider: _options => {
       const normalizedOptions: NormalizedDividerOptions<TCode, TData> = {
@@ -223,9 +230,7 @@ const _createVerbaLogger = <
       if (excluded)
         return
 
-      listeners.call('onBeforeLog', { outlet: Outlet.DIVIDER, options: normalizedOptions }, nestState)
-      nestedInstantiatedTransports.forEach(p => p.divider(normalizedOptions))
-      listeners.call('onAfterLog', { outlet: Outlet.DIVIDER, options: normalizedOptions }, nestState)
+      execute({ outlet: Outlet.DIVIDER, options: normalizedOptions }, t => t.divider(normalizedOptions))
     },
     spacer: _options => {
       const normalizedOptions: NormalizedSpacerOptions<TCode, TData> = typeof _options === 'object'
@@ -240,9 +245,7 @@ const _createVerbaLogger = <
       if (excluded)
         return
 
-      listeners.call('onBeforeLog', { outlet: Outlet.SPACER, options: normalizedOptions }, nestState)
-      nestedInstantiatedTransports.forEach(p => p.spacer(normalizedOptions))
-      listeners.call('onAfterLog', { outlet: Outlet.SPACER, options: normalizedOptions }, nestState)
+      execute({ outlet: Outlet.SPACER, options: normalizedOptions }, t => t.spacer(normalizedOptions))
     },
     progressBar: _options => {
       const normalizedOptions: NormalizedProgressBarOptions<TCode, TData> = {
@@ -253,6 +256,7 @@ const _createVerbaLogger = <
       }
       const excluded = options.outletFilters
         ?.some(outletFilter => outletFilter({ outlet: Outlet.PROGRESS_BAR, options: normalizedOptions }) === false) ?? false
+
       // If excluded, return progress bar shim
       if (excluded) {
         return {
@@ -265,13 +269,7 @@ const _createVerbaLogger = <
       }
       listeners.call('onBeforeLog', { outlet: Outlet.PROGRESS_BAR, options: normalizedOptions }, nestState)
       const results = nestedInstantiatedTransports.map(p => p.progressBar(normalizedOptions)).filter(v => v != null) as ProgressBar[]
-      const result: ProgressBar = {
-        update: (...args) => results.forEach(r => r.update(...args)),
-        clear: (...args) => results.forEach(r => r.clear(...args)),
-        persist: (...args) => results.forEach(r => r.persist(...args)),
-        updateValue: (...args) => results.forEach(r => r.updateValue(...args)),
-        render: (...args) => results.forEach(r => r.render(...args)),
-      }
+      const result = mergeObjectsOfFunctions(results, ['update', 'clear', 'persist', 'updateValue', 'render'])
       listeners.call('onAfterLog', { outlet: Outlet.PROGRESS_BAR, options: normalizedOptions }, nestState)
       return result
     },
@@ -291,7 +289,7 @@ const _createVerbaLogger = <
         indentationString: createIndentationString(indent),
         code: _options.code === null ? undefined : (nestState.code ?? _options.code),
       }
-      return _createVerbaLogger(
+      return _verba(
         options,
         aliases,
         instantiatedTransports,
@@ -301,7 +299,7 @@ const _createVerbaLogger = <
         close,
       )
     },
-    setAliases: newAliases => _createVerbaLogger(
+    setAliases: newAliases => _verba(
       options,
       newAliases,
       instantiatedTransports,
@@ -317,7 +315,7 @@ const _createVerbaLogger = <
 }
 
 /**
- * Creates a `VerbaLogger` instance.
+ * Creates a `Verba` instance.
  * 
  * @example
  * import verba from 'verba'
@@ -341,28 +339,28 @@ const _createVerbaLogger = <
  * log.table([{...},{...],...])
  * log.json({ foo: 'bar' })
  */
-export const createVerbaLogger = <
+export const verba = <
   TCode extends string | number = string | number,
   TData extends any = any,
->(options?: VerbaLoggerOptions<TCode, TData>): VerbaLogger<TCode, TData, {}> => {
+>(options?: VerbaOptions<TCode, TData>): Verba<TCode, TData, {}> => {
   const _options = options ?? { }
   const listeners = createListenerStore<keyof VerbaTransportEventHandlers<TCode, TData>, VerbaTransportEventHandlers<TCode, TData>>()
   const transports: VerbaTransport<TCode, TData>[] = _options.transports
     ?? ([consoleTransport()] as VerbaTransport<TCode, TData>[])
-  const closeNotifier = createCloseNotifier()
-  const instantiatedTransports = transports.map(p => p(_options, listeners, closeNotifier.register)) ?? []
+  const closeObservable = createObservable()
+  const instantiatedTransports = transports.map(transport => transport(_options, listeners, closeObservable.subscribe)) ?? []
   const nestState: NestState<TCode> = {
     code: undefined,
     indent: 0,
     indentationString: '',
   }
-  return _createVerbaLogger(
+  return _verba(
     _options,
     {},
     instantiatedTransports,
     instantiatedTransports.map(p => p(nestState)),
     listeners,
     nestState,
-    closeNotifier.close,
+    closeObservable.broadcast,
   )
 }

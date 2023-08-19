@@ -5,7 +5,7 @@
  * E.g. `import { createPackageName, PackageNameOptions } from 'npm-package-name`
  */
 // -- Imports (for exporting later)
-import { createVerbaLogger } from './verba'
+import { verba } from './verba'
 
 // -- Exports
 // Util
@@ -24,6 +24,6 @@ export {
 } from './verba/verbaString/index'
 export { Outlet } from './verba/outlet/types'
 // Default
-export default createVerbaLogger
+export default verba
 // Types
 export * from './types'
