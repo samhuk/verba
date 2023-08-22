@@ -5,4 +5,5 @@ export const SIMPLE_OUTLETS: SimpleOutlet[] = [
     'step',
     'success',
     'warn',
+    'error',
 ]

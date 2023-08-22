@@ -1,14 +1,17 @@
+import { ProgressBarOptions as BaseProgressBarOptions } from '../progressBar/types'
 import { GlobalOptions as ColumifyOptions } from 'columnify'
 import { NormalizedStepOptions } from "../step/types"
 import { VerbaString } from "../verbaString/types"
-import { ProgressBarOptions as BaseProgressBarOptions } from '../progressBar/types'
 
 export enum Outlet {
   LOG = 'log',
+  // Simple outlets
   INFO = 'info',
   STEP = 'step',
   SUCCESS = 'success',
   WARN = 'warn',
+  ERROR = 'error',
+  // Other outlets
   TABLE = 'table',
   JSON = 'json',
   DIVIDER = 'divider',
@@ -16,7 +19,7 @@ export enum Outlet {
   PROGRESS_BAR = 'progressBar'
 }
 
-export type SimpleOutlet = 'info' | 'step' | 'success' | 'warn'
+export type SimpleOutlet = 'info' | 'step' | 'success' | 'warn' | 'error'
 
 export type SimpleOutletPrefixesOptions = Partial<Record<SimpleOutlet, VerbaString>>
 
@@ -168,6 +171,7 @@ export type OutletToHandlerArgsObjs<
   [Outlet.STEP]: { options: NormalizedStepOptions<TCode, TData> },
   [Outlet.SUCCESS]: { options: NormalizedSimpleOutletOptions<TCode, TData> },
   [Outlet.WARN]: { options: NormalizedSimpleOutletOptions<TCode, TData> },
+  [Outlet.ERROR]: { options: NormalizedSimpleOutletOptions<TCode, TData> },
   // -- Other outlets
   [Outlet.TABLE]: { data: any, options: NormalizedTableOptions<TCode, TData> },
   [Outlet.JSON]: { value: any, options: NormalizedJsonOptions<TCode, TData> },

@@ -1,7 +1,6 @@
-import { NormalizedSimpleOutletOptions, SimpleOutlet, SimpleOutletPrefixesOptions } from '../../outlet/types'
-import { VerbaString } from '../../verbaString/types'
-import { CodeRenderer } from './code'
+import { NormalizedSimpleOutletOptions, SimpleOutletPrefixesOptions } from '../../outlet/types'
 
+import { CodeRenderer } from './code'
 import { DispatchDeltaTOptions } from './dispatchDeltaT'
 
 /**

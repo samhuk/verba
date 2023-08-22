@@ -1,11 +1,11 @@
+import { BaseTransportOptions, BuiltInSimpleOutletPrefixNames } from './types'
 import { NormalizedSimpleOutletOptions, SimpleOutlet, SimpleOutletPrefixes } from "../../outlet/types"
 import { createVerbaStringNormalizer, normalizeVerbaString, renderStringWithFormats } from "../../verbaString"
 
-import { BaseTransportOptions, BuiltInSimpleOutletPrefixNames } from './types'
+import { CodeRenderer } from './code'
 import { DispatchDeltaT } from "./dispatchDeltaT"
 import { NestState } from "../../types"
 import { SIMPLE_OUTLETS } from "../../outlet"
-import { CodeRenderer, createCodeRenderer } from './code'
 
 type SimpleOutletLogger = (
   options: NormalizedSimpleOutletOptions,
@@ -21,12 +21,14 @@ const BUILT_IN_SIMPLE_OUTLET_PREFIX_CREATORS: Record<BuiltInSimpleOutletPrefixNa
     step:  renderStringWithFormats('*', ['cyan', 'bold'], { disableColors }) + ' ',
     success: renderStringWithFormats('✔', ['green'], { disableColors }) + ' ',
     warn: renderStringWithFormats('WARN', ['bold', 'underline', 'yellow'], { disableColors }) + ' ',
+    error: renderStringWithFormats('ERR!', ['bgRed', 'bold'], { disableColors }) + ' ',
   }),
   textual: disableColors => ({
     info: renderStringWithFormats('INFO', ['bgBlack', 'bold'], { disableColors }) + ' ',
     step:  renderStringWithFormats('STEP', ['bgBlue', 'bold'], { disableColors }) + ' ',
     success: renderStringWithFormats('SUCC', ['bgGreen', 'bold'], { disableColors }) + ' ',
     warn: renderStringWithFormats('WARN', ['bgYellow', 'underline', 'bold'], { disableColors }) + ' ',
+    error: renderStringWithFormats('ERR!', ['bgRed', 'bold'], { disableColors }) + ' ',
   }),
 }
 

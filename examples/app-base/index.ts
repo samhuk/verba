@@ -44,6 +44,7 @@ export const app = async (jobs: string[]) => {
     log.spacer()
     log.table(createMockMetrics(jobs))
     log.spacer()
+    log.error('Test error message. Nothing bad actually happened.')
     log.success(c => c.green(c.bold('Done!')))
   }
   catch (e) {

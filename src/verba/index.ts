@@ -32,8 +32,8 @@ import { ProgressBar } from './progressBar/types'
 import { consoleTransport } from './transport/console'
 import { createIndentationString } from './util/indentation'
 import { createListenerStore } from './util/listenerStore'
-import { isVerbaString } from './verbaString'
 import { createObservable } from './util/reactive'
+import { isVerbaString } from './verbaString'
 
 /**
  * Determines if the given `outlet` is one of the simple outlets,
@@ -193,6 +193,15 @@ const _verba = <
         return
 
       execute({ outlet: Outlet.WARN, options: normalizedOptions }, t => t.warn(normalizedOptions))
+    },
+    error: _options => {
+      const normalizedOptions = normalizeSimpleOutletOptions(_options)
+      const excluded = options.outletFilters
+        ?.some(outletFilter => outletFilter({ outlet: Outlet.WARN, options: normalizedOptions }) === false) ?? false
+      if (excluded)
+        return
+
+      execute({ outlet: Outlet.ERROR, options: normalizedOptions }, t => t.error(normalizedOptions))
     },
     table: (data, _options) => {
       const normalizedOptions: NormalizedTableOptions<TCode, TData> = {

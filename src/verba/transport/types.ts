@@ -28,6 +28,7 @@ export type OutletToTransportHandlerFn<
   [Outlet.STEP]: <TOptions extends NormalizedStepOptions<TCode, TData>>(options: TOptions) => StepResult<TOptions>,
   [Outlet.SUCCESS]: (options: NormalizedSimpleOutletOptions<TCode, TData>) => void,
   [Outlet.WARN]: (options: NormalizedSimpleOutletOptions<TCode, TData>) => void,
+  [Outlet.ERROR]: (options: NormalizedSimpleOutletOptions<TCode, TData>) => void,
   // -- Other outlets
   [Outlet.TABLE]: (data: any, options: NormalizedTableOptions<TCode, TData>) => void,
   [Outlet.JSON]: (value: any, options: NormalizedJsonOptions<TCode, TData>) => void,

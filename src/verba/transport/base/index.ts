@@ -4,15 +4,15 @@ import { getColorizer, normalizeVerbaString } from "../../verbaString"
 import { BaseTransportOptions } from './types'
 import colorizeJson from 'json-colorizer'
 import columify from 'columnify'
+import { createCodeRenderer } from './code'
 import { createDispatchTimeRenderer } from './dispatchTime'
-import { useProgressBarLogger } from './progressBar'
-import { useStepLogger } from "./step"
 import { determineJsonColors } from './json'
 import { repeatStr } from "../../util/string"
 import { useDispatchDeltaT } from './dispatchDeltaT'
+import { useProgressBarLogger } from './progressBar'
 import { useSimpleOutletLoggers } from "./simpleOutletLogger"
+import { useStepLogger } from "./step"
 import { useTtyConsoleOccupierRef } from './ttyConsoleOccupier'
-import { createCodeRenderer } from './code'
 
 /**
  * A Verba Transport for typical console and file transports, supporting TTY and non-TTY terminals.
@@ -46,6 +46,7 @@ export const baseTransport = <
       step,
       success: simpleOutletLoggers.success,
       warn: simpleOutletLoggers.warn,
+      error: simpleOutletLoggers.error,
       // -- Other outlets
       table: (data, _options) => transportOptions.dispatch(columify(data, _options)),
       json: (value, _options) => transportOptions.dispatch(colorizeJson(value, {

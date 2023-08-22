@@ -167,6 +167,19 @@ export type VerbaBaseOutlets<
    */
   warn: (options: SimpleOutletOptions<TCode, TData>) => void
   /**
+   * Logs an error message.
+   * 
+   * @example
+   * log.error('Could not find 5 users.')
+   * log.error(f => `Could not find ${f.yellow('5')} users.`)
+   * log.error({
+   *   msg: 'Could not find 5 users.',
+   *   code: 'USER_METRICS', // Optional log code
+   *   data: { ... }, // Optional data
+   * })
+   */
+  error: (options: SimpleOutletOptions<TCode, TData>) => void
+  /**
    * Prints the given data as a table using [columnify](https://github.com/timoxley/columnify).
    *
    * @param data Data to print
