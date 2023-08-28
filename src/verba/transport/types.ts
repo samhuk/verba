@@ -23,8 +23,8 @@ export type OutletToTransportHandlerFn<
   TCode extends string | number = string | number,
   TData extends any = any
 > = {
-  // -- Simple outlets
   [Outlet.LOG]: (options: NormalizedSimpleOutletOptions<TCode, TData>) => void,
+  // -- Simple outlets
   [Outlet.INFO]: (options: NormalizedSimpleOutletOptions<TCode, TData>) => void,
   [Outlet.STEP]: (options: NormalizedSimpleOutletOptions<TCode, TData>) => void,
   [Outlet.SUCCESS]: (options: NormalizedSimpleOutletOptions<TCode, TData>) => void,

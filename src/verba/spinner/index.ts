@@ -3,21 +3,29 @@ import { createIndentationString } from '../util/indentation'
 import { normalizeVerbaString } from '../verbaString'
 import { Spinner, SpinnerOptions } from './types'
 
+const removeTrailingWhitespace = (str: string): string => {
+  if (str.length === 0)
+    return str
+
+  const lastIndex = str.length - 1
+  if (str[lastIndex] === ' ')
+    return str.substring(0, lastIndex)
+
+  return str.substring(0, str.length)
+}
+
 /**
- * Implementation of `Spinner` for the console. This supports TTY and non-TTY
- * consoles [0].
- * 
- * For non-TTY consoles, this will behave more like a simple step outlet
- * logger, returning a shim of a `Spinner`.
- * 
- * [0] Which is non-trivial since TTY consoles, by definition, allow
- * one to arbitrarily remove printed characters from the console, which is the
- * bedrock for all "terminal animation" behaviors such as loading spinners.
+ * Spinner implementation for a TTY console.
  */
 export const createConsoleSpinner = (options?: SpinnerOptions & { renderPrefix: () => string }): Spinner => {
+  const renderPrefixResult = options?.renderPrefix?.() ?? ''
+  const prefixText = removeTrailingWhitespace(
+    options?.indentation == null || options.indentation === 0
+      ? renderPrefixResult
+      : `${renderPrefixResult}${createIndentationString(options.indentation)}`,
+  )
   const spinner = ora({
-    // We must subtract one because ora's prefixText doesn't seem to behave well.
-    prefixText: `${options?.renderPrefix?.() ?? ''}${options?.indentation != null ? createIndentationString(options.indentation - 1) : ''}`,
+    prefixText,
     text: normalizeVerbaString(options?.text ?? '', options),
     spinner: options?.spinner,
     color: options?.color,

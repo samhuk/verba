@@ -15,7 +15,7 @@ import { useSpinnerLogger } from "./spinner"
 import { useTtyConsoleOccupierRef } from './ttyConsoleOccupier'
 
 /**
- * A Verba Transport for typical console and file transports, supporting TTY and non-TTY terminals.
+ * A Verba Transport for typical console and file transports, supporting TTY and non-TTY environments.
  */
 export const baseTransport = <
   TCode extends string | number = string | number,

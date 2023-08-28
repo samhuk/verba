@@ -134,11 +134,11 @@ export const useSpinnerLogger = (
   renderCode: CodeRenderer | undefined,
   renderDispatchTime: () => string,
 ) => (options: NormalizedSpinnerOptions): OutletSpinner => {
-  // If the current console is *not* TTY then do fake spinner
+  // If the current console is not TTY then return spinner shim
   if (!transportOptions.isTty)
     return createNonTTYSpinnerShim(stepSimpleOutletLogger, options)
 
-  // Else (if the current console is TTY) then do real spinner
+  // Else return real spinner
   const { spinner, clear } = createSpinner(transportOptions, ttyConsoleOccupierRef, nestState, renderCode, renderDispatchTime, options as any)
   ttyConsoleOccupierRef.current = createTtyConsoleOccupier(spinner, clear, stepSimpleOutletLogger, options)
   return spinner
