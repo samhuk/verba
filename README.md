@@ -104,16 +104,16 @@ const colorlessTransport = consoleTransport({
   disableColors: true
 })
 const log = verba({
-  transports: [colorlessTransport]
+  Transports: [colorlessTransport]
 })
 ```
 
-Using both console and file built-in transports:
+Using both console and file built-in Transports:
 
 ```typescript
 import verba, { consoleTransport, fileTransport } from 'verba'
 const log = verba({
-  transports: [consoleTransport(), fileTransport()]
+  Transports: [consoleTransport(), fileTransport()]
 })
 ```
 
@@ -123,9 +123,9 @@ For more usage information, see the next sections.
 
 Where and how Verba logs are outputted can be defined by **Transports**.
 
-Verba has two built-in transports: `consoleTransport` and `fileTransport` (defined [here](src/verba/transport)). By default, `consoleTransport` is used.
+Verba has two built-in Transports: `consoleTransport` and `fileTransport` (defined [here](src/verba/Transport)). By default, `consoleTransport` is used.
 
-Custom transports can be a way to define completely different ways to output log messages. For example:
+Custom Transports can be a way to define completely different ways to output log messages. For example:
 
 ```typescript
 import verba, { VerbaTransport } from 'verba'
@@ -140,17 +140,13 @@ const transport: VerbaTransport = (
   // Called every time a verba logger instance is nested.
   return nestState => {
     /* ...Setup (ran for every nested logger)... */
-    // Return an object that instructs how the transport outputs log messages.
+    // Return an object that instructs how the Transport outputs log messages.
     return {
       log: msg => { /* ... */ },
       info: options => { /* ... */ },
       step: options => { /* ... */ },
       success: options => { /* ... */ },
-      warn: options => { /* ... */ },
-      table: (data, options) => { /* ... */ },
-      json: (value, options) => { /* ... */ },
-      divider: options => { /* ... */ },
-      spacer: options => { /* ... */ },
+      /* ...Rest of outlets... */
     }
   }
 }
