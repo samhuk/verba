@@ -105,13 +105,12 @@ const createReturnfulOutlet = <TOutlet extends ReturnfulOutlet>(
     ?.some(outletFilter => outletFilter(optionsObj as any) === false) ?? false
   if (excluded) {
     const fakeObj = {} as ReturnType<VerbaBaseOutlets[TOutlet]>
-    returnObjFunctionNames.map(fnName => fakeObj[fnName] = (() => undefined) as any)
+    returnObjFunctionNames.forEach(fnName => fakeObj[fnName] = ((...args: any[]) => undefined) as any)
     return fakeObj
   }
 
   // -- Execute outlet
   listeners.call('onBeforeLog', optionsObj as any, nestState)
-  nestedInstantiatedTransports.map(t => executor(t, optionsObj))
   const results = nestedInstantiatedTransports
     .map(t => executor(t, optionsObj))
     .filter(v => v != null) as ReturnType<VerbaBaseOutlets[TOutlet]>[]
@@ -164,10 +163,10 @@ const _verba = <
     progressBar: createReturnfulOutlet(Outlet.PROGRESS_BAR, progressBarArgsNormalizer, (t, _options) => t.progressBar(_options.options), options?.outletFilters, nestedInstantiatedTransports, listeners, nestState, ['update', 'clear', 'persist', 'updateValue', 'render']),
   }
 
+  // -- Create aliases object
   const aliasOutlets: any = {}
-
-  Object.entries(aliases ?? {}).forEach(([aliasName, aliasFactory]) => {
-    aliasOutlets[aliasName] = aliasFactory(baseOutlets)
+  Object.entries(aliases ?? {}).forEach(([aliasName, createAliasOutlet]) => {
+    aliasOutlets[aliasName] = createAliasOutlet(baseOutlets)
   })
   
   return {
@@ -197,6 +196,7 @@ const _verba = <
       nestState,
       close,
     ),
+    // Merge base outlets with alias outlets
     ...baseOutlets,
     ...aliasOutlets,
     close,
