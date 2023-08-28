@@ -159,7 +159,7 @@ const log = verba({ transports: [transport] })
 New custom outlets can be added and built-in outlets can be modified (such as `log`, `info`, `step`, etc.) with **Aliases**.
 
 Aliases are useful when you need to:
-* Integrate Verba into a legacy codebase, as aliases allow you to replace the built-in outlets with shims that have arguments compatible with your codebase.
+* Integrate Verba into a legacy codebase, as Aliases allow you to replace the built-in outlets with shims that have arguments compatible with your codebase.
 * Add new custom outlets that do conveninent things that would otherwise need multiple log calls.
 
 **Note:** Aliases that define *new* outlets will not interact with any defined Transports of the logger instance.
