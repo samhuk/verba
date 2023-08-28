@@ -132,8 +132,8 @@ const _verba = <
   nestState: NestState<TCode>,
   close: () => Promise<void[]>,
 ): Verba<TCode, TData, TAliases> => {
-  /* eslint-disable max-len */
   // TODO: Use currying
+  // eslint-disable-next-line max-len
   const unchangingOptions: [(OutletFilter<TCode, TData>[] | undefined), NestedInstantiatedVerbaTransport<TCode, TData>[], ListenerStore<VerbaTransportEventName, VerbaTransportEventHandlers<TCode, TData>>, NestState<TCode>] = (
     [options?.outletFilters, nestedInstantiatedTransports, listeners, nestState] 
   )
@@ -152,10 +152,11 @@ const _verba = <
     json: createReturnlessOutlet(Outlet.JSON, jsonArgsNormalizer, (t, _options) => t.json(_options.value, _options.options), ...unchangingOptions),
     divider: createReturnlessOutlet(Outlet.DIVIDER, dividerArgsNormalizer, (t, _options) => t.divider(_options.options), ...unchangingOptions),
     spacer: createReturnlessOutlet(Outlet.SPACER, spacerArgsNormalizer, (t, _options) => t.spacer(_options.options), ...unchangingOptions),
+    // eslint-disable-next-line max-len
     spinner: createReturnfulOutlet(Outlet.SPINNER, spinnerArgsNormalizer, (t, _options) => t.spinner(_options.options), ['clear', 'color', 'pause', 'persist', 'start', 'text'], ...unchangingOptions),
+    // eslint-disable-next-line max-len
     progressBar: createReturnfulOutlet(Outlet.PROGRESS_BAR, progressBarArgsNormalizer, (t, _options) => t.progressBar(_options.options), ['update', 'clear', 'persist', 'updateValue', 'render'], ...unchangingOptions),
   }
-  /* eslint-enable max-len */
 
   // -- Create aliases object
   const aliasOutlets: any = {}
