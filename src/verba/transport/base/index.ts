@@ -11,11 +11,11 @@ import { repeatStr } from "../../util/string"
 import { useDispatchDeltaT } from './dispatchDeltaT'
 import { useProgressBarLogger } from './progressBar'
 import { useSimpleOutletLoggers } from "./simpleOutletLogger"
-import { useStepLogger } from "./step"
+import { useSpinnerLogger } from "./spinner"
 import { useTtyConsoleOccupierRef } from './ttyConsoleOccupier'
 
 /**
- * A Verba Transport for typical console and file transports, supporting TTY and non-TTY terminals.
+ * A Verba Transport for typical console and file transports, supporting TTY and non-TTY environments.
  */
 export const baseTransport = <
   TCode extends string | number = string | number,
@@ -37,13 +37,14 @@ export const baseTransport = <
   return nestState => {
     const simpleOutletLoggers = useSimpleOutletLoggers(_transportOptions, nestState, renderCode, renderDispatchTime, dispatchDeltaT)
     const progressBar = useProgressBarLogger(_transportOptions, ttyConsoleOccupierRef, nestState, renderDispatchTime)
-    const step = useStepLogger(_transportOptions, nestState, simpleOutletLoggers.step, ttyConsoleOccupierRef, renderCode, renderDispatchTime) as any
+    // eslint-disable-next-line max-len
+    const spinner = useSpinnerLogger(_transportOptions, ttyConsoleOccupierRef, nestState, simpleOutletLoggers.step, renderCode, renderDispatchTime)
 
     const transport: NestedInstantiatedVerbaTransport = {
       log: _options => transportOptions.dispatch(normalizeVerbaString(_options.msg, transportOptions)),
       // -- Simple outlets
       info: simpleOutletLoggers.info,
-      step,
+      step: simpleOutletLoggers.step,
       success: simpleOutletLoggers.success,
       warn: simpleOutletLoggers.warn,
       error: simpleOutletLoggers.error,
@@ -55,6 +56,7 @@ export const baseTransport = <
       })),
       spacer: _options => transportOptions.dispatch(repeatStr('\n', _options.numLines - 1)),
       divider: () => transportOptions.dispatch(repeatStr('-', process.stdout.columns * 0.33)),
+      spinner,
       progressBar,
     }
 

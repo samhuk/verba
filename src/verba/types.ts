@@ -1,10 +1,26 @@
-import { DividerOptions, JsonOptions, ProgressBarOptions, SimpleOutletOptions, SpacerOptions, TableOptions } from './outlet/types'
-import { StepOptions, StepResult } from './step/types'
+import { DividerOptions, JsonOptions, ProgressBarOptions, SimpleOutletOptions, SpacerOptions, SpinnerOptions, TableOptions } from './outlet/types'
 
 import { Aliases } from './alias/types'
 import { OutletFilter } from './outletFilter/types'
 import { ProgressBar } from './progressBar/types'
 import { VerbaTransport } from './transport/types'
+import { Spinner } from './spinner/types'
+import { VerbaString } from '../types'
+
+export type OutletSpinner = Omit<Spinner, 'text'> & {
+  /**
+   * Updates the text of the spinner.
+   * 
+   * @param onlyTty Determines whether this will only appear for TTY terminals,
+   * (therefore hidden for non-TTY terminals).
+   * 
+   * Non-TTY terminals do not support terminal animations such as spinners,
+   * therefore calls to `text` cause new lines to appear which may result in
+   * in a lot of undesirable terminal output. In this case, `onlyTty` can be
+   * set to `true` for some or all of the `text` calls, to avoid this.
+   */
+  text: (newText: VerbaString, onlyTty?: boolean) => void
+}
 
 export type VerbaOptions<
   TCode extends string | number = string | number,
@@ -113,14 +129,8 @@ export type VerbaBaseOutlets<
   info: (options: SimpleOutletOptions<TCode, TData>) => void
   /**
    * Logs a step/action message.
-   * 
-   * @returns
-   * Dependant on the provided value of the `spinner` option:
-   * * Not provided / `false`: `void`
-   * * `true` / `object`: A `Spinner` object
    *
    * @example
-   * // -- Without spinner --
    * log.step('Finding up to 5 users.')
    * log.step(f => `Finding up to ${f.yellow('5')} users.`)
    * log.step({
@@ -128,18 +138,8 @@ export type VerbaBaseOutlets<
    *   code: 'USER_METRICS', // Optional log code
    *   data: { ... }, // Optional data
    * })
-   *
-   * // -- With spinner --
-   * const spinner = log.step({
-   *   msg: 'Finding up to 5 users.',
-   *   code: 'USER_METRICS', // Optional log code
-   *   data: { ... }, // Optional data
-   *   spinner: true,
-   * })
-   * const users = await findUsers()
-   * spinner.stop()
    */
-  step: <TStepOptions extends StepOptions<TCode, TData>>(options: TStepOptions) => StepResult<TStepOptions>
+  step: (options: SimpleOutletOptions<TCode, TData>) => void
   /**
    * Logs a success message.
    *
@@ -240,7 +240,25 @@ export type VerbaBaseOutlets<
    */
   divider: (options?: DividerOptions<TCode, TData>) => void
   /**
+   * Logs an updatable spinner.
+   * 
+   * **Note:** This will only work in TTY transports.
+   * 
+   * @example
+   * const spinner = log.spinner({
+   *   msg: 'Finding up to 5 users.',
+   *   code: 'USER_METRICS', // Optional log code
+   *   data: { ... }, // Optional data
+   *   spinner: true,
+   * })
+   * const users = await findUsers()
+   * spinner.stop()
+   */
+  spinner: (options?: SpinnerOptions<TCode, TData>) => OutletSpinner
+  /**
    * Logs an updatable progress bar.
+   * 
+   * **Note:** This will only work in TTY transports.
    * 
    * @example
    * const progressBar = log.progressBar()
@@ -250,7 +268,7 @@ export type VerbaBaseOutlets<
    * // ...Or print the latest progress bar state and move onto new console line
    * progressbar.destroyAndPersist()
    */
-  progressBar: (options?: Pick<ProgressBarOptions<TCode, TData>, 'barLength' | 'total' | 'code' | 'data'>) => ProgressBar
+  progressBar: (options?: ProgressBarOptions<TCode, TData>) => ProgressBar
 }
 
 /**

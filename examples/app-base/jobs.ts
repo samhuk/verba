@@ -9,7 +9,6 @@ export const doJobs = async (
     const jobNamesLogStr = jobNames.length.toString()
     log.step({
       msg: c => `Doing ${c.yellow(jobNamesLogStr)} jobs.`,
-      header: true,
       code: 'JOBS',
     })
 

@@ -1,9 +1,9 @@
-import { SimpleOutlet } from './types'
+import { Outlet, SimpleOutlet } from './types'
 
 export const SIMPLE_OUTLETS: SimpleOutlet[] = [
-    'info',
-    'step',
-    'success',
-    'warn',
-    'error',
+    Outlet.INFO,
+    Outlet.STEP,
+    Outlet.SUCCESS,
+    Outlet.WARN,
+    Outlet.ERROR,
 ]

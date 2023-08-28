@@ -1,7 +1,8 @@
 import { ProgressBarOptions as BaseProgressBarOptions } from '../progressBar/types'
+import { SpinnerOptions as BaseSpinnerOptions } from '../spinner/types'
 import { GlobalOptions as ColumifyOptions } from 'columnify'
-import { NormalizedStepOptions } from "../step/types"
 import { VerbaString } from "../verbaString/types"
+import { OutletToTransportHandlerFn } from '../transport/types'
 
 export enum Outlet {
   LOG = 'log',
@@ -16,10 +17,19 @@ export enum Outlet {
   JSON = 'json',
   DIVIDER = 'divider',
   SPACER = 'spacer',
+  SPINNER = 'spinner',
   PROGRESS_BAR = 'progressBar'
 }
 
-export type SimpleOutlet = 'info' | 'step' | 'success' | 'warn' | 'error'
+export type SimpleOutlet = Outlet.INFO | Outlet.STEP | Outlet.SUCCESS | Outlet.WARN | Outlet.ERROR
+
+export type ReturnlessOutlet = keyof { [TOutlet in Outlet as ReturnType<OutletToTransportHandlerFn[TOutlet]> extends void
+  ? TOutlet
+  : never]: 1 }
+
+export type ReturnfulOutlet = keyof { [TOutlet in Outlet as ReturnType<OutletToTransportHandlerFn[TOutlet]> extends void
+  ? never
+  : TOutlet]: 1 }
 
 export type SimpleOutletPrefixesOptions = Partial<Record<SimpleOutlet, VerbaString>>
 
@@ -151,6 +161,36 @@ export type NormalizedDividerOptions<
   TData extends any = any,
 > = BaseNormalizedOutletOptions<TCode, TData>
 
+export type SpinnerOptions<
+  TCode extends string | number = string | number,
+  TData extends any = any,
+> = (
+  Pick<BaseSpinnerOptions, 'text' | 'color' | 'spinner' | 'disableAutoStart'> & {
+    /**
+     * If `true`, this will cause the initial text defined for the spinner
+     * to be persisted once upon it being interrupted by another different
+     * log call whilst it is active (spinning).
+     * 
+     * @default true
+     */
+    persistInitialTextAsStepLogUponOtherLog?: boolean
+  } & BaseOutletOptions<TCode, TData>
+) | VerbaString
+
+export type NormalizedSpinnerOptions<
+  TCode extends string | number = string | number,
+  TData extends any = any,
+> = Required<Pick<BaseSpinnerOptions, 'text' | 'color' | 'spinner' | 'disableAutoStart'>> & {
+  /**
+   * If `true`, this will cause the initial text defined for the spinner
+   * to be persisted once upon it being interrupted by another different
+   * log call whilst it is active (spinning).
+   * 
+   * @default true
+   */
+  persistInitialTextAsStepLogUponOtherLog?: boolean
+} & BaseNormalizedOutletOptions<TCode, TData>
+
 export type ProgressBarOptions<
   TCode extends string | number = string | number,
   TData extends any = any,
@@ -161,14 +201,14 @@ export type NormalizedProgressBarOptions<
   TData extends any = any,
 > = Required<Pick<BaseProgressBarOptions, 'total' | 'barLength'>> & BaseNormalizedOutletOptions<TCode, TData>
 
-export type OutletToHandlerArgsObjs<
+export type OutletToNormalizedArgsObj<
   TCode extends string | number = string | number,
   TData extends any = any
 > = {
-  // -- Simple outlets
   [Outlet.LOG]: { options: NormalizedSimpleOutletOptions<TCode, TData> },
+  // -- Simple outlets
   [Outlet.INFO]: { options: NormalizedSimpleOutletOptions<TCode, TData> },
-  [Outlet.STEP]: { options: NormalizedStepOptions<TCode, TData> },
+  [Outlet.STEP]: { options: NormalizedSimpleOutletOptions<TCode, TData> },
   [Outlet.SUCCESS]: { options: NormalizedSimpleOutletOptions<TCode, TData> },
   [Outlet.WARN]: { options: NormalizedSimpleOutletOptions<TCode, TData> },
   [Outlet.ERROR]: { options: NormalizedSimpleOutletOptions<TCode, TData> },
@@ -178,4 +218,5 @@ export type OutletToHandlerArgsObjs<
   [Outlet.DIVIDER]: { options: NormalizedDividerOptions<TCode, TData> },
   [Outlet.SPACER]: { options: NormalizedSpacerOptions<TCode, TData> },
   [Outlet.PROGRESS_BAR]: { options: NormalizedProgressBarOptions<TCode, TData> },
+  [Outlet.SPINNER]: { options: NormalizedSpinnerOptions<TCode, TData> },
 }

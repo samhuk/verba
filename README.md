@@ -21,7 +21,7 @@
 
 ## Overview
 
-End-game Javascript logging library.
+Node logging library.
 
 ## Usage Overview
 
@@ -49,6 +49,10 @@ log.table([
 ])
 log.spacer()
 log.divider()
+const spinner = log.spinner('...')
+spinner.text = '...'
+const bar = log.progressBar({ /* ... */ })
+bar.update(20) // 20%
 ```
 
 ### Advanced Usage
@@ -82,18 +86,14 @@ childTaskLog.step('...')
 Loading spinners (only for TTY consoles):
 
 ```typescript
-const spinner = log.step({
-  msg: 'Doing job',
-  spinner: true
-})
+const spinner = log.spinner('Doing job')
 // Update spinner text when progress updates occur
 spinner.text('Doing job | 100%')
 // Either clear the spinner and text line...
-spinner.destroy()
+spinner.clear()
 // ...Or stop the spinning and leave in console
-spinner.stopAndPersist()
+spinner.persist()
 log.success('Finished job')
-...
 ```
 
 Disabling colors for `consoleTransport`:
@@ -104,16 +104,16 @@ const colorlessTransport = consoleTransport({
   disableColors: true
 })
 const log = verba({
-  transports: [colorlessTransport]
+  Transports: [colorlessTransport]
 })
 ```
 
-Using both console and file built-in transports:
+Using both console and file built-in Transports:
 
 ```typescript
 import verba, { consoleTransport, fileTransport } from 'verba'
 const log = verba({
-  transports: [consoleTransport(), fileTransport()]
+  Transports: [consoleTransport(), fileTransport()]
 })
 ```
 
@@ -123,9 +123,9 @@ For more usage information, see the next sections.
 
 Where and how Verba logs are outputted can be defined by **Transports**.
 
-Verba has two built-in transports: `consoleTransport` and `fileTransport` (defined [here](src/verba/transport)). By default, `consoleTransport` is used.
+Verba has two built-in Transports: `consoleTransport` and `fileTransport` (defined [here](src/verba/Transport)). By default, `consoleTransport` is used.
 
-Custom transports can be a way to define completely different ways to output log messages. For example:
+Custom Transports can be a way to define completely different ways to output log messages. For example:
 
 ```typescript
 import verba, { VerbaTransport } from 'verba'
@@ -136,21 +136,17 @@ const transport: VerbaTransport = (
   // A listener store providing the ability to listen to various events of the verba instance.
   listeners
 ) => {
-  ...
+  /* ...Setup (ran once)... */
   // Called every time a verba logger instance is nested.
   return nestState => {
-    ...
-    // Return an object that instructs how the transport outputs log messages.
+    /* ...Setup (ran for every nested logger)... */
+    // Return an object that instructs how the Transport outputs log messages.
     return {
-      log: msg => ...,
-      info: options => ...,
-      step: options => ...,
-      success: options => ...,
-      warn: options => ...,
-      table: (data, options) => ...,
-      json: (data, options) => ...,
-      divider: options => ...,
-      spacer: options => ...,
+      log: msg => { /* ... */ },
+      info: options => { /* ... */ },
+      step: options => { /* ... */ },
+      success: options => { /* ... */ },
+      /* ...Rest of outlets... */
     }
   }
 }
@@ -163,7 +159,7 @@ const log = verba({ transports: [transport] })
 New custom outlets can be added and built-in outlets can be modified (such as `log`, `info`, `step`, etc.) with **Aliases**.
 
 Aliases are useful when you need to:
-* Integrate Verba into a legacy codebase, as aliases allow you to replace the built-in outlets with shims that have arguments compatible with your codebase.
+* Integrate Verba into a legacy codebase, as Aliases allow you to replace the built-in outlets with shims that have arguments compatible with your codebase.
 * Add new custom outlets that do conveninent things that would otherwise need multiple log calls.
 
 **Note:** Aliases that define *new* outlets will not interact with any defined Transports of the logger instance.

@@ -1,4 +1,4 @@
-import { Outlet, OutletToHandlerArgsObjs } from "../outlet/types"
+import { Outlet, OutletToNormalizedArgsObj } from "../outlet/types"
 
 import { TypeDependantBaseIntersection } from "../util/types"
 
@@ -8,7 +8,7 @@ export type OutletFilterOptions<
   TOutlet extends Outlet = Outlet,
 > = TypeDependantBaseIntersection<
   Outlet,
-  OutletToHandlerArgsObjs<TCode, TData>,
+  OutletToNormalizedArgsObj<TCode, TData>,
   TOutlet,
   'outlet'
 >

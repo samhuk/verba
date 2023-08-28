@@ -1,15 +1,7 @@
-import { NormalizedSimpleOutletOptions, SimpleOutletPrefixesOptions } from '../../outlet/types'
+import { SimpleOutletPrefixesOptions } from '../../outlet/types'
 
 import { CodeRenderer } from './code'
 import { DispatchDeltaTOptions } from './dispatchDeltaT'
-
-/**
- * Overrides the logging behavior of simple outlets
- */
-export type SimpleOutletOverride<
-  TCode extends string | number = string | number,
-  TData extends any = any
-> = (options: NormalizedSimpleOutletOptions<TCode, TData>) => string | false
 
 export type BuiltInSimpleOutletPrefixNames = 'default' | 'textual'
 

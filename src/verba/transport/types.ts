@@ -1,5 +1,6 @@
 import {
   NestState,
+  OutletSpinner,
   VerbaOptions,
 } from "../types"
 import {
@@ -8,11 +9,11 @@ import {
   NormalizedProgressBarOptions,
   NormalizedSimpleOutletOptions,
   NormalizedSpacerOptions,
+  NormalizedSpinnerOptions,
   NormalizedTableOptions,
   Outlet,
-  OutletToHandlerArgsObjs,
+  OutletToNormalizedArgsObj,
 } from "../outlet/types"
-import { NormalizedStepOptions, StepResult } from "../step/types"
 
 import { ListenerStore } from "../util/listenerStore/types"
 import { ProgressBar } from '../progressBar/types'
@@ -22,10 +23,10 @@ export type OutletToTransportHandlerFn<
   TCode extends string | number = string | number,
   TData extends any = any
 > = {
-  // -- Simple outlets
   [Outlet.LOG]: (options: NormalizedSimpleOutletOptions<TCode, TData>) => void,
+  // -- Simple outlets
   [Outlet.INFO]: (options: NormalizedSimpleOutletOptions<TCode, TData>) => void,
-  [Outlet.STEP]: <TOptions extends NormalizedStepOptions<TCode, TData>>(options: TOptions) => StepResult<TOptions>,
+  [Outlet.STEP]: (options: NormalizedSimpleOutletOptions<TCode, TData>) => void,
   [Outlet.SUCCESS]: (options: NormalizedSimpleOutletOptions<TCode, TData>) => void,
   [Outlet.WARN]: (options: NormalizedSimpleOutletOptions<TCode, TData>) => void,
   [Outlet.ERROR]: (options: NormalizedSimpleOutletOptions<TCode, TData>) => void,
@@ -34,6 +35,7 @@ export type OutletToTransportHandlerFn<
   [Outlet.JSON]: (value: any, options: NormalizedJsonOptions<TCode, TData>) => void,
   [Outlet.DIVIDER]: (options: NormalizedDividerOptions<TCode, TData>) => void,
   [Outlet.SPACER]: (options: NormalizedSpacerOptions<TCode, TData>) => void,
+  [Outlet.SPINNER]: (options: NormalizedSpinnerOptions<TCode, TData>) => OutletSpinner | undefined,
   [Outlet.PROGRESS_BAR]: (options: NormalizedProgressBarOptions<TCode, TData>) => ProgressBar | undefined,
 }
 
@@ -43,7 +45,7 @@ export type OutletHandlerFnOptions<
   TOutlet extends Outlet = Outlet
 > = TypeDependantBaseIntersection<
   Outlet,
-  OutletToHandlerArgsObjs<TCode, TData>,
+  OutletToNormalizedArgsObj<TCode, TData>,
   TOutlet,
   'outlet'
 >

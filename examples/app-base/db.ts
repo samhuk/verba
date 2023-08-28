@@ -11,9 +11,8 @@ const MOCK_DB_INTRA_LOADING_MESSAGES: VerbaString[] = [
 const log = logger.nest({ code: 'CONNECT_DB' })
 
 export const connectToDb = async () => {
-  const spinner = log.step({
-    msg: 'Connecting to DB.',
-    spinner: true,
+  const spinner = log.spinner({
+    text: 'Connecting to DB.',
   })
 
   // This tests logging whilst a spinner is active.
@@ -29,6 +28,6 @@ export const connectToDb = async () => {
 
   await sleep(2)
 
-  spinner.destroy()
+  spinner.clear()
   log.success(c => `Connected to DB at ${c.cyan(c.underline('127.0.0.1:5432'))}.`)
 }
