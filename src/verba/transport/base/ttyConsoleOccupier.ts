@@ -16,7 +16,7 @@ export type TtyConsoleOccupier = {
 }
 
 const determineIfLogMessageIsConsoleOccupying = (options: OutletHandlerFnOptions) => (
-  options.outlet === Outlet.PROGRESS_BAR || (options.outlet === Outlet.STEP && options.options.spinner)
+  options.outlet === Outlet.PROGRESS_BAR || options.outlet === Outlet.SPINNER
 )
 
 export const useTtyConsoleOccupierRef = (

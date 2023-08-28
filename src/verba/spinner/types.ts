@@ -53,9 +53,9 @@ export type Spinner = {
   /**
    * Stops the spinner and clears the console line(s) it was occupying.
    */
-  destroy: () => void;
+  clear: () => void;
   /**
    * Stops the spinner however keeps the latest frame on the console line.
    */
-  stopAndPersist: () => void;
+  persist: () => void;
 }

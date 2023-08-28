@@ -2,6 +2,7 @@ import {
   InstantiatedVerbaTransport,
   NestedInstantiatedVerbaTransport,
   OutletHandlerFnOptions,
+  OutletToTransportHandlerFn,
   VerbaTransport,
   VerbaTransportEventHandlers,
   VerbaTransportEventName,
@@ -9,22 +10,19 @@ import {
 } from './transport/types'
 import {
   NestState,
+  OutletSpinner,
   Verba,
   VerbaBaseOutlets,
   VerbaOptions,
 } from './types'
 import {
-  NormalizedDividerOptions,
-  NormalizedJsonOptions,
   NormalizedProgressBarOptions,
-  NormalizedSimpleOutletOptions,
-  NormalizedSpacerOptions,
-  NormalizedTableOptions,
+  NormalizedSpinnerOptions,
   Outlet,
-  SimpleOutlet,
-  SimpleOutletOptions,
+  OutletToNormalizedArgsObj,
+  ReturnfulOutlet,
+  ReturnlessOutlet,
 } from './outlet/types'
-import { NormalizedStepOptions, StepOptions, StepSpinner } from './step/types'
 
 import { Aliases } from './alias/types'
 import { ListenerStore } from './util/listenerStore/types'
@@ -33,72 +31,17 @@ import { consoleTransport } from './transport/console'
 import { createIndentationString } from './util/indentation'
 import { createListenerStore } from './util/listenerStore'
 import { createObservable } from './util/reactive'
-import { isVerbaString } from './verbaString'
-
-/**
- * Determines if the given `outlet` is one of the simple outlets,
- * i.e. `log`, `info`, `step`, `success`, or `warn`.
- */
-export const isSimpleOutlet = (outlet: unknown): outlet is SimpleOutlet => (
-  outlet === Outlet.LOG
-  || outlet === Outlet.INFO
-  || outlet === Outlet.WARN
-  || outlet === Outlet.STEP
-  || outlet === Outlet.SUCCESS
-)
-
-const normalizeSimpleOutletOptions = <
-  TCode extends string | number = string | number,
-  TData extends any = any,
->(
-  options: SimpleOutletOptions<TCode, TData>,
-): NormalizedSimpleOutletOptions<TCode, TData> => (
-  isVerbaString(options)
-    ? {
-      msg: options,
-      code: undefined,
-      data: undefined,
-    }
-    : {
-      msg: options.msg,
-      code: options.code ?? undefined,
-      data: options.data ?? undefined,
-    }
-)
-
-const normalizeStepOptions = <
-  TCode extends string | number = string | number,
-  TData extends any = any,
->(
-  options: StepOptions<TCode, TData>,
-): NormalizedStepOptions<TCode, TData> => (
-  isVerbaString(options)
-    ? {
-      msg: options,
-      code: undefined,
-      data: undefined,
-      spinner: undefined,
-    }
-    : {
-      msg: options.msg,
-      code: options.code ?? undefined,
-      data: options.data ?? undefined,
-      spinner: options.spinner,
-    }
-)
-
-const createExecutor = (
-  nestedInstantiatedTransports: NestedInstantiatedVerbaTransport<any, any>[],
-  listeners: VerbaTransportListenerStore,
-  nestState: NestState,
-) => (
-  options: OutletHandlerFnOptions,
-  executor: (t: NestedInstantiatedVerbaTransport) => void,
-) => {
-  listeners.call('onBeforeLog', options, nestState)
-  nestedInstantiatedTransports.forEach(executor)
-  listeners.call('onAfterLog', options, nestState)
-}
+import { OutletFilter } from '../types'
+import {
+  ArgsNormalizer,
+  dividerArgsNormalizer,
+  jsonArgsNormalizer,
+  progressBarArgsNormalizer,
+  simpleOutletArgsNormalizer,
+  spacerArgsNormalizer,
+  spinnerArgsNormalizer,
+  tableArgsNormalizer,
+} from './argsNormalizers'
 
 const mergeObjectsOfFunctions = <T extends Record<string, Function>>(objs: T[], keys: (keyof T)[]): T => {
   const outputObj: T = {} as T
@@ -114,6 +57,69 @@ const mergeObjectsOfFunctions = <T extends Record<string, Function>>(objs: T[], 
   return outputObj
 }
 
+const createReturnlessOutlet = <TOutlet extends ReturnlessOutlet>(
+  outlet: TOutlet,
+  argsNormalizer: ArgsNormalizer<TOutlet>,
+  executor: (t: NestedInstantiatedVerbaTransport, options: OutletToNormalizedArgsObj[TOutlet]) => void,
+  outletFilters: OutletFilter<any, any>[] | undefined,
+  nestedInstantiatedTransports: NestedInstantiatedVerbaTransport<any, any>[],
+  listeners: VerbaTransportListenerStore,
+  nestState: NestState,
+) => (
+  ...outletTransportArgs: Parameters<VerbaBaseOutlets[TOutlet]>
+) => {
+  // -- Parse options
+  const normalizedArgsObj = argsNormalizer(...outletTransportArgs)
+  const optionsObj = { outlet, ...normalizedArgsObj }
+
+  // -- Guard by outlet filters
+  const excluded = outletFilters
+    ?.some(outletFilter => outletFilter(optionsObj as any) === false) ?? false
+  if (excluded)
+    return
+
+  // -- Execute outlet
+  listeners.call('onBeforeLog', optionsObj as any, nestState)
+  nestedInstantiatedTransports.forEach(t => executor(t, optionsObj))
+  listeners.call('onAfterLog', optionsObj as any, nestState)
+}
+
+const createReturnfulOutlet = <TOutlet extends ReturnfulOutlet>(
+  outlet: TOutlet,
+  argsNormalizer: ArgsNormalizer<TOutlet>,
+  executor: (t: NestedInstantiatedVerbaTransport, options: OutletToNormalizedArgsObj[TOutlet]) => ReturnType<VerbaBaseOutlets[TOutlet]> | undefined,
+  outletFilters: OutletFilter<any, any>[] | undefined,
+  nestedInstantiatedTransports: NestedInstantiatedVerbaTransport<any, any>[],
+  listeners: VerbaTransportListenerStore,
+  nestState: NestState,
+  returnObjFunctionNames: (keyof ReturnType<VerbaBaseOutlets[TOutlet]>)[],
+) => (
+  ...outletTransportArgs: Parameters<VerbaBaseOutlets[TOutlet]>
+): ReturnType<VerbaBaseOutlets[TOutlet]> => {
+  // -- Parse options
+  const normalizedArgsObj = argsNormalizer(...outletTransportArgs)
+  const optionsObj = { outlet, ...normalizedArgsObj }
+
+  // -- Guard by outlet filters
+  const excluded = outletFilters
+    ?.some(outletFilter => outletFilter(optionsObj as any) === false) ?? false
+  if (excluded) {
+    const fakeObj = {} as ReturnType<VerbaBaseOutlets[TOutlet]>
+    returnObjFunctionNames.map(fnName => fakeObj[fnName] = (() => undefined) as any)
+    return fakeObj
+  }
+
+  // -- Execute outlet
+  listeners.call('onBeforeLog', optionsObj as any, nestState)
+  nestedInstantiatedTransports.map(t => executor(t, optionsObj))
+  const results = nestedInstantiatedTransports
+    .map(t => executor(t, optionsObj))
+    .filter(v => v != null) as ReturnType<VerbaBaseOutlets[TOutlet]>[]
+  const result = mergeObjectsOfFunctions(results, returnObjFunctionNames)
+  listeners.call('onAfterLog', optionsObj as any, nestState)
+  return result
+}
+
 const _verba = <
   TCode extends string | number = string | number,
   TData extends any = any,
@@ -127,161 +133,35 @@ const _verba = <
   nestState: NestState<TCode>,
   close: () => Promise<void[]>,
 ): Verba<TCode, TData, TAliases> => {
-  const execute = createExecutor(nestedInstantiatedTransports, listeners, nestState)
-
   const baseOutlets: VerbaBaseOutlets<TCode, TData> = {
-    log: _options => {
-      const normalizedOptions = normalizeSimpleOutletOptions(_options)
-      const excluded = options.outletFilters
-        ?.some(outletFilter => outletFilter({ outlet: Outlet.LOG, options: normalizedOptions }) === false) ?? false
-      if (excluded)
-        return
+    // eslint-disable-next-line max-len
+    log: createReturnlessOutlet(Outlet.LOG, simpleOutletArgsNormalizer, (t, _options) => t.log(_options.options), options?.outletFilters, nestedInstantiatedTransports, listeners, nestState),
+    
+    // -- Simple outlets
+    // eslint-disable-next-line max-len
+    info: createReturnlessOutlet(Outlet.INFO, simpleOutletArgsNormalizer, (t, _options) => t.info(_options.options), options?.outletFilters, nestedInstantiatedTransports, listeners, nestState),
+    // eslint-disable-next-line max-len
+    step: createReturnlessOutlet(Outlet.STEP, simpleOutletArgsNormalizer, (t, _options) => t.step(_options.options), options?.outletFilters, nestedInstantiatedTransports, listeners, nestState),
+    // eslint-disable-next-line max-len
+    success: createReturnlessOutlet(Outlet.SUCCESS, simpleOutletArgsNormalizer, (t, _options) => t.success(_options.options), options?.outletFilters, nestedInstantiatedTransports, listeners, nestState),
+    // eslint-disable-next-line max-len
+    warn: createReturnlessOutlet(Outlet.WARN,  simpleOutletArgsNormalizer, (t, _options) => t.warn(_options.options), options?.outletFilters, nestedInstantiatedTransports, listeners, nestState),
+    // eslint-disable-next-line max-len
+    error: createReturnlessOutlet(Outlet.ERROR, simpleOutletArgsNormalizer, (t, _options) => t.error(_options.options), options?.outletFilters, nestedInstantiatedTransports, listeners, nestState),
 
-      execute({ outlet: Outlet.LOG, options: normalizedOptions }, t => t.log(normalizedOptions))
-    },
-    info: _options => {
-      const normalizedOptions = normalizeSimpleOutletOptions(_options)
-      const excluded = options.outletFilters
-        ?.some(outletFilter => outletFilter({ outlet: Outlet.INFO, options: normalizedOptions }) === false) ?? false
-      if (excluded)
-        return
-
-      execute({ outlet: Outlet.INFO, options: normalizedOptions }, t => t.info(normalizedOptions))
-    },
-    step: _options => {
-      const normalizedOptions = normalizeStepOptions<TCode, TData>(_options)
-      const excluded = options.outletFilters
-        ?.some(outletFilter => outletFilter({ outlet: Outlet.STEP, options: normalizedOptions }) === false) ?? false
-      if (normalizedOptions.spinner) {
-        // If excluded, return step spinner shim
-        if (excluded) {
-          const result: StepSpinner = {
-            text: (...args) => undefined,
-            color: (...args) => undefined,
-            start: (...args) => undefined,
-            pause: (...args) => undefined,
-            destroy: (...args) => undefined,
-            stopAndPersist: (...args) => undefined,
-          }
-          return result as any
-        }
-        listeners.call('onBeforeLog', { outlet: Outlet.STEP, options: normalizedOptions }, nestState)
-        // Run all transport `step` functions
-        const results = nestedInstantiatedTransports.map(p => p.step(normalizedOptions)).filter(v => v != null) as unknown as StepSpinner[]
-        const result = mergeObjectsOfFunctions(results, ['color', 'destroy', 'pause', 'start', 'stopAndPersist', 'text'])
-        listeners.call('onAfterLog', { outlet: Outlet.STEP, options: normalizedOptions }, nestState)
-        return result as any
-      }
-
-      if (!excluded)
-        execute({ outlet: Outlet.STEP, options: normalizedOptions }, t => t.step(normalizedOptions))
-    },
-    success: _options => {
-      const normalizedOptions = normalizeSimpleOutletOptions(_options)
-      const excluded = options.outletFilters
-        ?.some(outletFilter => outletFilter({ outlet: Outlet.SUCCESS, options: normalizedOptions }) === false) ?? false
-      if (excluded)
-        return
-
-      execute({ outlet: Outlet.SUCCESS, options: normalizedOptions }, t => t.success(normalizedOptions))
-    },
-    warn: _options => {
-      const normalizedOptions = normalizeSimpleOutletOptions(_options)
-      const excluded = options.outletFilters
-        ?.some(outletFilter => outletFilter({ outlet: Outlet.WARN, options: normalizedOptions }) === false) ?? false
-      if (excluded)
-        return
-
-      execute({ outlet: Outlet.WARN, options: normalizedOptions }, t => t.warn(normalizedOptions))
-    },
-    error: _options => {
-      const normalizedOptions = normalizeSimpleOutletOptions(_options)
-      const excluded = options.outletFilters
-        ?.some(outletFilter => outletFilter({ outlet: Outlet.WARN, options: normalizedOptions }) === false) ?? false
-      if (excluded)
-        return
-
-      execute({ outlet: Outlet.ERROR, options: normalizedOptions }, t => t.error(normalizedOptions))
-    },
-    table: (data, _options) => {
-      const normalizedOptions: NormalizedTableOptions<TCode, TData> = {
-        ...(_options ?? {}),
-        code: _options?.code ?? undefined,
-        data: _options?.data,
-      }
-      const excluded = options.outletFilters
-        ?.some(outletFilter => outletFilter({ outlet: Outlet.TABLE, data, options: normalizedOptions }) === false) ?? false
-      if (excluded)
-        return
-
-      execute({ outlet: Outlet.TABLE, options: normalizedOptions, data }, t => t.table(data, normalizedOptions))
-    },
-    json: (value, _options) => {
-      const normalizedOptions: NormalizedJsonOptions<TCode, TData> = {
-        pretty: _options?.pretty ?? false,
-        code: _options?.code ?? undefined,
-        data: _options?.data ?? undefined,
-      }
-      const excluded = options.outletFilters
-        ?.some(outletFilter => outletFilter({ outlet: Outlet.JSON, value, options: normalizedOptions }) === false) ?? false
-      if (excluded)
-        return
-
-      execute({ outlet: Outlet.JSON, options: normalizedOptions, value }, t => t.json(value, normalizedOptions))
-    },
-    divider: _options => {
-      const normalizedOptions: NormalizedDividerOptions<TCode, TData> = {
-        code: _options?.code ?? undefined,
-        data: _options?.data ?? undefined,
-      }
-      const excluded = options.outletFilters
-        ?.some(outletFilter => outletFilter({ outlet: Outlet.DIVIDER, options: normalizedOptions }) === false) ?? false
-      if (excluded)
-        return
-
-      execute({ outlet: Outlet.DIVIDER, options: normalizedOptions }, t => t.divider(normalizedOptions))
-    },
-    spacer: _options => {
-      const normalizedOptions: NormalizedSpacerOptions<TCode, TData> = typeof _options === 'object'
-        ? {
-          numLines: _options?.numLines ?? 1,
-          code: _options?.code ?? undefined,
-          data: _options?.data ?? undefined,
-        }
-        : { numLines: 1, code: undefined, data: undefined }
-      const excluded = options.outletFilters
-        ?.some(outletFilter => outletFilter({ outlet: Outlet.SPACER, options: normalizedOptions }) === false) ?? false
-      if (excluded)
-        return
-
-      execute({ outlet: Outlet.SPACER, options: normalizedOptions }, t => t.spacer(normalizedOptions))
-    },
-    progressBar: _options => {
-      const normalizedOptions: NormalizedProgressBarOptions<TCode, TData> = {
-        total: _options?.total ?? 100,
-        barLength: _options?.barLength ?? 30,
-        code: _options?.code ?? undefined,
-        data: _options?.data ?? undefined,
-      }
-      const excluded = options.outletFilters
-        ?.some(outletFilter => outletFilter({ outlet: Outlet.PROGRESS_BAR, options: normalizedOptions }) === false) ?? false
-
-      // If excluded, return progress bar shim
-      if (excluded) {
-        return {
-          update: (...args) => undefined,
-          clear: (...args) => undefined,
-          persist: (...args) => undefined,
-          updateValue: (...args) => undefined,
-          render: (...args) => undefined,
-        }
-      }
-      listeners.call('onBeforeLog', { outlet: Outlet.PROGRESS_BAR, options: normalizedOptions }, nestState)
-      const results = nestedInstantiatedTransports.map(p => p.progressBar(normalizedOptions)).filter(v => v != null) as ProgressBar[]
-      const result = mergeObjectsOfFunctions(results, ['update', 'clear', 'persist', 'updateValue', 'render'])
-      listeners.call('onAfterLog', { outlet: Outlet.PROGRESS_BAR, options: normalizedOptions }, nestState)
-      return result
-    },
+    // -- Other outlets
+    // eslint-disable-next-line max-len
+    table: createReturnlessOutlet(Outlet.TABLE, tableArgsNormalizer, (t, _options) => t.table(_options.data, _options.options), options?.outletFilters, nestedInstantiatedTransports, listeners, nestState),
+    // eslint-disable-next-line max-len
+    json: createReturnlessOutlet(Outlet.JSON, jsonArgsNormalizer, (t, _options) => t.json(_options.value, _options.options), options?.outletFilters, nestedInstantiatedTransports, listeners, nestState),
+    // eslint-disable-next-line max-len
+    divider: createReturnlessOutlet(Outlet.DIVIDER, dividerArgsNormalizer, (t, _options) => t.divider(_options.options), options?.outletFilters, nestedInstantiatedTransports, listeners, nestState),
+    // eslint-disable-next-line max-len
+    spacer: createReturnlessOutlet(Outlet.SPACER, spacerArgsNormalizer, (t, _options) => t.spacer(_options.options), options?.outletFilters, nestedInstantiatedTransports, listeners, nestState),
+    // eslint-disable-next-line max-len
+    spinner: createReturnfulOutlet(Outlet.SPINNER, spinnerArgsNormalizer, (t, _options) => t.spinner(_options.options), options?.outletFilters, nestedInstantiatedTransports, listeners, nestState, ['clear', 'color', 'pause', 'persist', 'start', 'text']),
+    // eslint-disable-next-line max-len
+    progressBar: createReturnfulOutlet(Outlet.PROGRESS_BAR, progressBarArgsNormalizer, (t, _options) => t.progressBar(_options.options), options?.outletFilters, nestedInstantiatedTransports, listeners, nestState, ['update', 'clear', 'persist', 'updateValue', 'render']),
   }
 
   const aliasOutlets: any = {}
@@ -339,14 +219,15 @@ const _verba = <
  *   msg: f => `Env var ${f.bold('DB_URL')} is missing; using default.`,
  *   code: 'ENV_VALIDATE',
  * })
- * // -- Nesting
- * const childLog = log.nest({ code: 'CHILD_TASK' })
- * childLog.step('Starting child task')
  * // -- Other outlets
  * log.divider()
  * log.spacer()
  * log.table([{...},{...],...])
  * log.json({ foo: 'bar' })
+ * const spinner = log.spinner('Connecting to DB...')
+ * // -- Nesting
+ * const childLog = log.nest({ code: 'CHILD_TASK' })
+ * childLog.step('Starting child task')
  */
 export const verba = <
   TCode extends string | number = string | number,

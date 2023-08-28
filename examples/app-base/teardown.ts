@@ -14,14 +14,11 @@ const MOCK_JSON_LOG_OBJ = {
 const log = logger.nest({ code: 'TEARDOWN_ENV' })
 
 export const tearDownEnv = async () => {
-  const spinner = log.step({
-    msg: 'Tearing down.',
-    spinner: true,
-  })
+  const spinner = log.spinner('Tearing down.')
 
   await sleep(2)
 
-  spinner.destroy()
+  spinner.clear()
   log.success('Env teardown complete.')
   log.json(MOCK_JSON_LOG_OBJ, { pretty: true })
 }

@@ -8,13 +8,12 @@ const log = logger.nest({ code: 'JOB', indent: 2 })
 export const doJob = async (jobName: string) => {
   const baseLogText: FancyString = c => `Doing job ${c.cyan(jobName)}`
 
-  const spinner = log.step({
-    msg: baseLogText,
-    spinner: true,
+  const spinner = log.spinner({
+    text: baseLogText,
   })
 
   if (jobName.indexOf('!') !== -1) {
-    spinner.stopAndPersist()
+    spinner.persist()
     throw createGFError({
       msg: f => `Job name invalid. Recieved: ${f.cyan(jobName)}.`,
       advice: { tips: 'Job names must only contain alphanumeric and \'_\' characters.' },
@@ -28,6 +27,6 @@ export const doJob = async (jobName: string) => {
     spinner.text([baseLogText, c => ` | ${c.bold(i.toString())}%`], i % 40 === 0)
   }
 
-  spinner.destroy()
+  spinner.clear()
   log.success(c => `Completed job ${c.cyan(jobName)}`)
 }

@@ -8,8 +8,6 @@
 import { verba } from './verba'
 
 // -- Exports
-// Util
-export { isSimpleOutlet } from './verba'
 // Transports
 export { consoleTransport } from './verba/transport/console'
 export { fileTransport } from './verba/transport/file'

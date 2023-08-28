@@ -4,13 +4,12 @@ import { sleep } from './util'
 const log = logger.nest({ code: 'HEALTHCHECK_API' })
 
 export const healthcheckAPI = async () => {
-  const spinner = log.step({
-    msg: 'Healthchecking API.',
-    spinner: true,
+  const spinner = log.spinner({
+    text: 'Healthchecking API.',
   })
 
   await sleep(1)
 
-  spinner.destroy()
+  spinner.clear()
   log.success(c => `API healthy (${c.green('200 OK')}). Uptime: ${c.yellow('500s')}.`)
 }
