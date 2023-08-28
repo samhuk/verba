@@ -105,7 +105,7 @@ const createReturnfulOutlet = <TOutlet extends ReturnfulOutlet>(
     ?.some(outletFilter => outletFilter(optionsObj as any) === false) ?? false
   if (excluded) {
     const fakeObj = {} as ReturnType<VerbaBaseOutlets[TOutlet]>
-    returnObjFunctionNames.forEach(fnName => fakeObj[fnName] = ((...args: any[]) => undefined) as any)
+    returnObjFunctionNames.forEach(fnName => fakeObj[fnName] = (() => undefined) as any)
     return fakeObj
   }
 
