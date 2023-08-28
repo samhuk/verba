@@ -88,11 +88,11 @@ const createReturnfulOutlet = <TOutlet extends ReturnfulOutlet>(
   outlet: TOutlet,
   argsNormalizer: ArgsNormalizer<TOutlet>,
   executor: (t: NestedInstantiatedVerbaTransport, options: OutletToNormalizedArgsObj[TOutlet]) => ReturnType<VerbaBaseOutlets[TOutlet]> | undefined,
+  returnObjFunctionNames: (keyof ReturnType<VerbaBaseOutlets[TOutlet]>)[],
   outletFilters: OutletFilter<any, any>[] | undefined,
   nestedInstantiatedTransports: NestedInstantiatedVerbaTransport<any, any>[],
   listeners: VerbaTransportListenerStore,
   nestState: NestState,
-  returnObjFunctionNames: (keyof ReturnType<VerbaBaseOutlets[TOutlet]>)[],
 ) => (
   ...outletTransportArgs: Parameters<VerbaBaseOutlets[TOutlet]>
 ): ReturnType<VerbaBaseOutlets[TOutlet]> => {
@@ -132,36 +132,30 @@ const _verba = <
   nestState: NestState<TCode>,
   close: () => Promise<void[]>,
 ): Verba<TCode, TData, TAliases> => {
+  /* eslint-disable max-len */
+  // TODO: Use currying
+  const unchangingOptions: [(OutletFilter<TCode, TData>[] | undefined), NestedInstantiatedVerbaTransport<TCode, TData>[], ListenerStore<VerbaTransportEventName, VerbaTransportEventHandlers<TCode, TData>>, NestState<TCode>] = (
+    [options?.outletFilters, nestedInstantiatedTransports, listeners, nestState] 
+  )
   const baseOutlets: VerbaBaseOutlets<TCode, TData> = {
-    // eslint-disable-next-line max-len
-    log: createReturnlessOutlet(Outlet.LOG, simpleOutletArgsNormalizer, (t, _options) => t.log(_options.options), options?.outletFilters, nestedInstantiatedTransports, listeners, nestState),
+    log: createReturnlessOutlet(Outlet.LOG, simpleOutletArgsNormalizer, (t, _options) => t.log(_options.options), ...unchangingOptions),
     
     // -- Simple outlets
-    // eslint-disable-next-line max-len
-    info: createReturnlessOutlet(Outlet.INFO, simpleOutletArgsNormalizer, (t, _options) => t.info(_options.options), options?.outletFilters, nestedInstantiatedTransports, listeners, nestState),
-    // eslint-disable-next-line max-len
-    step: createReturnlessOutlet(Outlet.STEP, simpleOutletArgsNormalizer, (t, _options) => t.step(_options.options), options?.outletFilters, nestedInstantiatedTransports, listeners, nestState),
-    // eslint-disable-next-line max-len
-    success: createReturnlessOutlet(Outlet.SUCCESS, simpleOutletArgsNormalizer, (t, _options) => t.success(_options.options), options?.outletFilters, nestedInstantiatedTransports, listeners, nestState),
-    // eslint-disable-next-line max-len
-    warn: createReturnlessOutlet(Outlet.WARN,  simpleOutletArgsNormalizer, (t, _options) => t.warn(_options.options), options?.outletFilters, nestedInstantiatedTransports, listeners, nestState),
-    // eslint-disable-next-line max-len
-    error: createReturnlessOutlet(Outlet.ERROR, simpleOutletArgsNormalizer, (t, _options) => t.error(_options.options), options?.outletFilters, nestedInstantiatedTransports, listeners, nestState),
+    info: createReturnlessOutlet(Outlet.INFO, simpleOutletArgsNormalizer, (t, _options) => t.info(_options.options), ...unchangingOptions),
+    step: createReturnlessOutlet(Outlet.STEP, simpleOutletArgsNormalizer, (t, _options) => t.step(_options.options), ...unchangingOptions),
+    success: createReturnlessOutlet(Outlet.SUCCESS, simpleOutletArgsNormalizer, (t, _options) => t.success(_options.options), ...unchangingOptions),
+    warn: createReturnlessOutlet(Outlet.WARN,  simpleOutletArgsNormalizer, (t, _options) => t.warn(_options.options), ...unchangingOptions),
+    error: createReturnlessOutlet(Outlet.ERROR, simpleOutletArgsNormalizer, (t, _options) => t.error(_options.options), ...unchangingOptions),
 
     // -- Other outlets
-    // eslint-disable-next-line max-len
-    table: createReturnlessOutlet(Outlet.TABLE, tableArgsNormalizer, (t, _options) => t.table(_options.data, _options.options), options?.outletFilters, nestedInstantiatedTransports, listeners, nestState),
-    // eslint-disable-next-line max-len
-    json: createReturnlessOutlet(Outlet.JSON, jsonArgsNormalizer, (t, _options) => t.json(_options.value, _options.options), options?.outletFilters, nestedInstantiatedTransports, listeners, nestState),
-    // eslint-disable-next-line max-len
-    divider: createReturnlessOutlet(Outlet.DIVIDER, dividerArgsNormalizer, (t, _options) => t.divider(_options.options), options?.outletFilters, nestedInstantiatedTransports, listeners, nestState),
-    // eslint-disable-next-line max-len
-    spacer: createReturnlessOutlet(Outlet.SPACER, spacerArgsNormalizer, (t, _options) => t.spacer(_options.options), options?.outletFilters, nestedInstantiatedTransports, listeners, nestState),
-    // eslint-disable-next-line max-len
-    spinner: createReturnfulOutlet(Outlet.SPINNER, spinnerArgsNormalizer, (t, _options) => t.spinner(_options.options), options?.outletFilters, nestedInstantiatedTransports, listeners, nestState, ['clear', 'color', 'pause', 'persist', 'start', 'text']),
-    // eslint-disable-next-line max-len
-    progressBar: createReturnfulOutlet(Outlet.PROGRESS_BAR, progressBarArgsNormalizer, (t, _options) => t.progressBar(_options.options), options?.outletFilters, nestedInstantiatedTransports, listeners, nestState, ['update', 'clear', 'persist', 'updateValue', 'render']),
+    table: createReturnlessOutlet(Outlet.TABLE, tableArgsNormalizer, (t, _options) => t.table(_options.data, _options.options), ...unchangingOptions),
+    json: createReturnlessOutlet(Outlet.JSON, jsonArgsNormalizer, (t, _options) => t.json(_options.value, _options.options), ...unchangingOptions),
+    divider: createReturnlessOutlet(Outlet.DIVIDER, dividerArgsNormalizer, (t, _options) => t.divider(_options.options), ...unchangingOptions),
+    spacer: createReturnlessOutlet(Outlet.SPACER, spacerArgsNormalizer, (t, _options) => t.spacer(_options.options), ...unchangingOptions),
+    spinner: createReturnfulOutlet(Outlet.SPINNER, spinnerArgsNormalizer, (t, _options) => t.spinner(_options.options), ['clear', 'color', 'pause', 'persist', 'start', 'text'], ...unchangingOptions),
+    progressBar: createReturnfulOutlet(Outlet.PROGRESS_BAR, progressBarArgsNormalizer, (t, _options) => t.progressBar(_options.options), ['update', 'clear', 'persist', 'updateValue', 'render'], ...unchangingOptions),
   }
+  /* eslint-enable max-len */
 
   // -- Create aliases object
   const aliasOutlets: any = {}
