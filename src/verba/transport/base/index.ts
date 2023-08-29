@@ -37,7 +37,6 @@ export const baseTransport = <
   return nestState => {
     const simpleOutletLoggers = useSimpleOutletLoggers(_transportOptions, nestState, renderCode, renderDispatchTime, dispatchDeltaT)
     const progressBar = useProgressBarLogger(_transportOptions, ttyConsoleOccupierRef, nestState, renderDispatchTime)
-    // eslint-disable-next-line max-len
     const spinner = useSpinnerLogger(_transportOptions, ttyConsoleOccupierRef, nestState, simpleOutletLoggers.step, renderCode, renderDispatchTime)
 
     const transport: NestedInstantiatedVerbaTransport = {

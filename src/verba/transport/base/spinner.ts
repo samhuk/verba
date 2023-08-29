@@ -19,13 +19,13 @@ const createSpinner = (
   options: NormalizedSpinnerOptions | undefined,
 ): { spinner: OutletSpinner, clear: () => void } => {
   // -- Prepare variables
-  const codeStr = renderCode != null && options?.code != null
-    ? normalizeVerbaString(renderCode(options.code, nestState.code), transportOptions)
-    : ''
-  const text = options?.text != null ? normalizeVerbaString(options.text, transportOptions) : ''
+  const codeStr = renderCode != null
+    ? normalizeVerbaString(renderCode(options?.code, nestState.code), transportOptions)
+    : null
+  const initialText = options?.text != null ? normalizeVerbaString(options.text, transportOptions) : ''
   // -- Create console spinner
   const spinner = createConsoleSpinner({
-    text: codeStr + text,
+    text: (codeStr ?? '') + initialText,
     color: transportOptions?.disableColors ? undefined : 'cyan',
     indentation: nestState.indent,
     disableColors: transportOptions?.disableColors,
@@ -33,8 +33,8 @@ const createSpinner = (
   })
 
   // -- Prepare text setter function
-  const setText: Spinner['text'] = codeStr != ''
-    ? (s => spinner.text(codeStr + normalizeVerbaString(s, transportOptions)))
+  const setText: Spinner['text'] = codeStr != null
+    ? s => spinner.text(codeStr + normalizeVerbaString(s, transportOptions))
     : s => spinner.text(s)
 
   return {
