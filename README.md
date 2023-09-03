@@ -50,7 +50,7 @@ log.table([
 log.spacer()
 log.divider()
 const spinner = log.spinner('...')
-spinner.text = '...'
+spinner.text('...')
 const bar = log.progressBar({ /* ... */ })
 bar.update(20) // 20%
 ```
