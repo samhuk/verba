@@ -1,11 +1,12 @@
 import { DividerOptions, JsonOptions, ProgressBarOptions, SimpleOutletOptions, SpacerOptions, SpinnerOptions, TableOptions } from './outlet/types'
 
-import { Aliases } from './alias/types'
+import { Alias, Aliases } from './alias/types'
 import { OutletFilter } from './outletFilter/types'
 import { ProgressBar } from './progressBar/types'
 import { VerbaTransport } from './transport/types'
 import { Spinner } from './spinner/types'
 import { VerbaString } from '../types'
+import { Cast } from './util/types'
 
 export type OutletSpinner = Omit<Spinner, 'text'> & {
   /**
@@ -316,23 +317,33 @@ export type Verba<
    * * Replace the existing base outlets (such as `log`, `info`, etc.)
    * * Add on new custom outlets
    * 
+   * Aliases can be used to exclude Verba's built-in outlets too via setting
+   * them to `false`
+   * 
    * @example
    * import verba from 'verba'
    * 
-   * // Add new custom `header` outlet
    * const log = verba().setAliases({
+   *   // Modify arguments of built-in `info` outlet
+   *   info: logger => (s: string) => logger.info(s),
+   *   // Add new custom `header` outlet
    *   header: logger => (s: string) => {
    *     logger.log(f => f.bold(f.italic(`-- ${s} --`)))
    *     logger.spacer()
    *   },
+   *   // Exclude built-in `json` outlet
+   *   json: false
    * })
-   * 
+   *
    * log.header('foo')
    */
   setAliases: <TNewAliases extends Aliases<TCode, TData>>(aliases: TNewAliases) => Verba<TCode, TData, TNewAliases>
 }
   // Add on the base outlets, excluding those that the aliases define.
   & Omit<VerbaBaseOutlets<TCode, TData>, keyof TAliases>
-  // Add on the aliases
-  & { [TAliasName in keyof TAliases]: ReturnType<TAliases[TAliasName]> }
-
+  // Add on the aliases (ones that aren't false)
+  & {
+    [TAliasName in keyof TAliases as TAliases[TAliasName] extends false
+      ? never
+      : TAliasName]: ReturnType<Cast<TAliases[TAliasName], Exclude<Alias, false>>>
+  }

@@ -158,7 +158,11 @@ const _verba = <
   // -- Create aliases object
   const aliasOutlets: any = {}
   Object.entries(aliases ?? {}).forEach(([aliasName, createAliasOutlet]) => {
-    aliasOutlets[aliasName] = createAliasOutlet(baseOutlets)
+      aliasOutlets[aliasName] = createAliasOutlet !== false
+        ? createAliasOutlet(baseOutlets)
+        : () => {
+          throw new Error(`The outlet '${aliasName}' was excluded by the configured aliases (achieved by setting the '${aliasName}' outlet to \`false\`).`)
+        }
   })
   
   return {

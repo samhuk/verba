@@ -156,13 +156,18 @@ const log = verba({ transports: [transport] })
 
 ## Aliases
 
-New custom outlets can be added and built-in outlets can be modified (such as `log`, `info`, `step`, etc.) with **Aliases**.
+**Aliases** can be used to:
 
-Aliases are useful when you need to:
-* Integrate Verba into a legacy codebase, as Aliases allow you to replace the built-in outlets with shims that have arguments compatible with your codebase.
-* Add new custom outlets that do conveninent things that would otherwise need multiple log calls.
+1. Add new custom outlets.
+2. Modify built-in outlets (i.e. `log`, `info`, `step`, etc.).
+3. Exclude built-in outlets.
 
-**Note:** Aliases that define *new* outlets will not interact with any defined Transports of the logger instance.
+This can be useful when you need to:
+1. Integrate Verba into a legacy codebase by allowing you to modify the arguments of built-in outlets.
+2. Add new custom outlets that do conveninent/custom log output that would otherwise need multiple log calls (i.e. boxes, banners, etc.).
+3. Exclude built-in outlets that you don't want for your application.
+
+**Note:** Aliases that define *new* outlets will not interact with any defined Transports or Outlet Filters of the logger instance.
 
 ### Example 1 - Adding a new `header` outlet
 
@@ -177,14 +182,14 @@ const log = verba().setAliases({
 })
 ```
 
-### Example 2 - Modifying the bulit-in `warn` outlet
+### Example 2 - Modifying the built-in `warn` outlet
 
 ```typescript
 import verba from 'verba'
 
 type MyLegacyCodebaseLogOptions = {
   message: string
-  severity: 'urgent' | 'critical' | ...
+  severity: 'urgent' | 'critical' /* | ... */
 }
 
 const log = verba().setAliases({
@@ -195,6 +200,16 @@ const log = verba().setAliases({
       data: { severity: options.severity },
     })
   },
+})
+```
+
+### Example 3 - Excluding the built-in `info` outlet
+
+```typescript
+import verba from 'verba'
+
+const log = verba().setAliases({
+  warn: false
 })
 ```
 

@@ -25,3 +25,10 @@ export type TypeDependantBaseIntersection<
 > = {
   [K in TType]: { [k in TTypePropertyName]: K } & TMap[K]
 }[TType] & { [k in TTypePropertyName]: TSpecificEnumType }
+
+/**
+ * Ensures that `T` extends `TCast`, otherwise will be `never`.
+ *
+ * This is useful when you know for sure that `T` is `TCast`, but tsc can't see it.
+ */
+export type Cast<T, TCast> = T extends TCast ? T : never
