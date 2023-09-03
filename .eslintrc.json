@@ -42,6 +42,8 @@
     }
   },
   "rules": {
+    "quotes": ["error", "single"],
+    "quote-props": ["error", "as-needed"],
     "semi": [2, "never"],
     "prefer-destructuring": "off",
     "import/extensions": "off",

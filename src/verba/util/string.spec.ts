@@ -1,4 +1,4 @@
-import { repeatStr } from "./string"
+import { repeatStr } from './string'
 
 describe('verba/util/string', () => {
   describe('repeatStr', () => {

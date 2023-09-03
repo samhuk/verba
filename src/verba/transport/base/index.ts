@@ -1,5 +1,5 @@
-import { NestedInstantiatedVerbaTransport, VerbaTransport } from "../types"
-import { getColorizer, normalizeVerbaString } from "../../verbaString"
+import { NestedInstantiatedVerbaTransport, VerbaTransport } from '../types'
+import { getColorizer, normalizeVerbaString } from '../../verbaString'
 
 import { BaseTransportOptions } from './types'
 import colorizeJson from 'json-colorizer'
@@ -7,11 +7,11 @@ import columify from 'columnify'
 import { createCodeRenderer } from './code'
 import { createDispatchTimeRenderer } from './dispatchTime'
 import { determineJsonColors } from './json'
-import { repeatStr } from "../../util/string"
+import { repeatStr } from '../../util/string'
 import { useDispatchDeltaT } from './dispatchDeltaT'
 import { useProgressBarLogger } from './progressBar'
-import { useSimpleOutletLoggers } from "./simpleOutletLogger"
-import { useSpinnerLogger } from "./spinner"
+import { useSimpleOutletLoggers } from './simpleOutletLogger'
+import { useSpinnerLogger } from './spinner'
 import { useTtyConsoleOccupierRef } from './ttyConsoleOccupier'
 
 /**

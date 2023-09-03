@@ -4,7 +4,7 @@ import { Code } from './codes'
 
 type LogMessageData = { verbose: boolean }
 
-const excludeLargeTables: OutletFilter<Code, LogMessageData> = options => (
+const excludeLargeTables: OutletFilter = options => (
   options.outlet !== Outlet.TABLE || options.data?.length < 10
 )
 

@@ -1,8 +1,8 @@
-import { OutletHandlerFnOptions, VerbaTransportListenerStore } from "../types"
+import { OutletHandlerFnOptions, VerbaTransportListenerStore } from '../types'
 
-import { BaseTransportOptions } from "./types"
-import { Outlet } from "../../outlet/types"
-import { useRef } from "../../util/misc"
+import { BaseTransportOptions } from './types'
+import { Outlet } from '../../outlet/types'
+import { useRef } from '../../util/misc'
 
 /**
  * A type that represents an entity that is occupying the current (TTY) console output.

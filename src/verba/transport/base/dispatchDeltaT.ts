@@ -1,12 +1,12 @@
-import { Colors, StringFormat } from "../../verbaString/types"
+import { Colors, StringFormat } from '../../verbaString/types'
 
-import { BaseTransportOptions } from "./types"
-import { ListenerStore } from "../../util/listenerStore/types"
-import { MutableRef } from "../../util/types"
-import { VerbaTransportEventHandlers } from "../types"
-import { createPadder } from "../../util/string"
-import { createStringFormatter } from "../../verbaString"
-import { useRef } from "../../util/misc"
+import { BaseTransportOptions } from './types'
+import { ListenerStore } from '../../util/listenerStore/types'
+import { MutableRef } from '../../util/types'
+import { VerbaTransportEventHandlers } from '../types'
+import { createPadder } from '../../util/string'
+import { createStringFormatter } from '../../verbaString'
+import { useRef } from '../../util/misc'
 
 type DispatchDeltaTFormat = true | StringFormat[] | ((dt: number, f: Colors) => string)
 

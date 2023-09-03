@@ -1,4 +1,4 @@
-import { BaseTransportOptions } from "./types"
+import { BaseTransportOptions } from './types'
 
 /**
  * Colors config object for the json-colorizer package for TTY consoles.

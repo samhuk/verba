@@ -1,7 +1,7 @@
 import { ProgressBarOptions as BaseProgressBarOptions } from '../progressBar/types'
 import { SpinnerOptions as BaseSpinnerOptions } from '../spinner/types'
 import { GlobalOptions as ColumifyOptions } from 'columnify'
-import { VerbaString } from "../verbaString/types"
+import { VerbaString } from '../verbaString/types'
 import { OutletToTransportHandlerFn } from '../transport/types'
 
 export enum Outlet {
