@@ -1,11 +1,11 @@
 import { BaseTransportOptions, BuiltInSimpleOutletPrefixNames } from './types'
-import { NormalizedSimpleOutletOptions, SimpleOutlet, SimpleOutletPrefixes } from "../../outlet/types"
-import { createVerbaStringNormalizer, normalizeVerbaString, renderStringWithFormats } from "../../verbaString"
+import { NormalizedSimpleOutletOptions, SimpleOutlet, SimpleOutletPrefixes } from '../../outlet/types'
+import { createVerbaStringNormalizer, normalizeVerbaString, renderStringWithFormats } from '../../verbaString'
 
 import { CodeRenderer } from './code'
-import { DispatchDeltaT } from "./dispatchDeltaT"
-import { NestState } from "../../types"
-import { SIMPLE_OUTLETS } from "../../outlet"
+import { DispatchDeltaT } from './dispatchDeltaT'
+import { NestState } from '../../types'
+import { SIMPLE_OUTLETS } from '../../outlet'
 
 type SimpleOutletLogger = (
   options: NormalizedSimpleOutletOptions,

@@ -1,8 +1,6 @@
 import {
   InstantiatedVerbaTransport,
   NestedInstantiatedVerbaTransport,
-  OutletHandlerFnOptions,
-  OutletToTransportHandlerFn,
   VerbaTransport,
   VerbaTransportEventHandlers,
   VerbaTransportEventName,
@@ -10,14 +8,11 @@ import {
 } from './transport/types'
 import {
   NestState,
-  OutletSpinner,
   Verba,
   VerbaBaseOutlets,
   VerbaOptions,
 } from './types'
 import {
-  NormalizedProgressBarOptions,
-  NormalizedSpinnerOptions,
   Outlet,
   OutletToNormalizedArgsObj,
   ReturnfulOutlet,
@@ -26,7 +21,6 @@ import {
 
 import { Aliases } from './alias/types'
 import { ListenerStore } from './util/listenerStore/types'
-import { ProgressBar } from './progressBar/types'
 import { consoleTransport } from './transport/console'
 import { createIndentationString } from './util/indentation'
 import { createListenerStore } from './util/listenerStore'
@@ -80,6 +74,7 @@ const createReturnlessOutlet = <TOutlet extends ReturnlessOutlet>(
 
   // -- Execute outlet
   listeners.call('onBeforeLog', optionsObj as any, nestState)
+  // Run each transport
   nestedInstantiatedTransports.forEach(t => executor(t, optionsObj))
   listeners.call('onAfterLog', optionsObj as any, nestState)
 }
@@ -111,9 +106,11 @@ const createReturnfulOutlet = <TOutlet extends ReturnfulOutlet>(
 
   // -- Execute outlet
   listeners.call('onBeforeLog', optionsObj as any, nestState)
+  // Run each transport, collecting the defined results
   const results = nestedInstantiatedTransports
     .map(t => executor(t, optionsObj))
     .filter(v => v != null) as ReturnType<VerbaBaseOutlets[TOutlet]>[]
+  // Merge all of the functions of the results (we can't merge state)
   const result = mergeObjectsOfFunctions(results, returnObjFunctionNames)
   listeners.call('onAfterLog', optionsObj as any, nestState)
   return result
@@ -229,7 +226,7 @@ export const verba = <
   TData extends any = any,
 >(options?: VerbaOptions<TCode, TData>): Verba<TCode, TData, {}> => {
   const _options = options ?? { }
-  const listeners = createListenerStore<keyof VerbaTransportEventHandlers<TCode, TData>, VerbaTransportEventHandlers<TCode, TData>>()
+  const listeners = createListenerStore<VerbaTransportEventName, VerbaTransportEventHandlers<TCode, TData>>()
   const transports: VerbaTransport<TCode, TData>[] = _options.transports
     ?? ([consoleTransport()] as VerbaTransport<TCode, TData>[])
   const closeObservable = createObservable()

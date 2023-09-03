@@ -2,7 +2,7 @@ import {
   NestState,
   OutletSpinner,
   VerbaOptions,
-} from "../types"
+} from '../types'
 import {
   NormalizedDividerOptions,
   NormalizedJsonOptions,
@@ -13,9 +13,9 @@ import {
   NormalizedTableOptions,
   Outlet,
   OutletToNormalizedArgsObj,
-} from "../outlet/types"
+} from '../outlet/types'
 
-import { ListenerStore } from "../util/listenerStore/types"
+import { ListenerStore } from '../util/listenerStore/types'
 import { ProgressBar } from '../progressBar/types'
 import { TypeDependantBaseIntersection } from '../util/types'
 
@@ -115,10 +115,7 @@ export type VerbaTransport<
    * A listener store that can be used to add listeners to various events of
    * the verba logger.
    */
-  listeners: ListenerStore<
-    keyof VerbaTransportEventHandlers<TCode, TData>,
-    VerbaTransportEventHandlers<TCode, TData>
-  >,
+  listeners: VerbaTransportListenerStore,
   /**
    * Registers the given asynchronous `handler` function to be ran when the
    * top-level `close` function is called (on the `Verba` instance).

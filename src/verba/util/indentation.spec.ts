@@ -1,4 +1,4 @@
-import { createIndentationString } from "./indentation"
+import { createIndentationString } from './indentation'
 
 describe('verba/util/indentation', () => {
   describe('createIndentationString', () => {

@@ -1,11 +1,11 @@
-import { Spinner } from "../../spinner/types"
-import { normalizeVerbaString } from "../../verbaString"
+import { Spinner } from '../../spinner/types'
+import { normalizeVerbaString } from '../../verbaString'
 
-import { MutableRef } from "../../util/types"
-import { NestState, OutletSpinner } from "../../types"
-import { NormalizedSimpleOutletOptions, NormalizedSpinnerOptions } from "../../outlet/types"
+import { MutableRef } from '../../util/types'
+import { NestState, OutletSpinner } from '../../types'
+import { NormalizedSimpleOutletOptions, NormalizedSpinnerOptions } from '../../outlet/types'
 import { BaseTransportOptions } from './types'
-import { TtyConsoleOccupier } from "./ttyConsoleOccupier"
+import { TtyConsoleOccupier } from './ttyConsoleOccupier'
 import { CodeRenderer } from './code'
 import { createConsoleSpinner } from '../../spinner'
 import { VerbaString } from '../../verbaString/types'

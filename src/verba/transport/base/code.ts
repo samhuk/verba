@@ -1,5 +1,5 @@
 import { VerbaString } from '../../verbaString/types'
-import { verbaColorizer } from "../../verbaString"
+import { verbaColorizer } from '../../verbaString'
 import { BaseTransportOptions } from './types'
 
 export type CodeRenderer = (code: string | number | undefined, parentCode: string | number | undefined) => VerbaString

@@ -9,7 +9,7 @@ export const createConsoleProgressBar = (props: ProgressBarOptions): ProgressBar
   const frame = () => {
     const percentage = (value / total) * 100
     const numBarChars = Math.floor((percentage / 100) * barLength)
-    return `${props.renderPrefix?.() ?? ''}[${"#".repeat(numBarChars)}${" ".repeat(barLength - numBarChars)}] ${percentage.toFixed(2)}%`
+    return `${props.renderPrefix?.() ?? ''}[${'#'.repeat(numBarChars)}${' '.repeat(barLength - numBarChars)}] ${percentage.toFixed(2)}%`
   }
 
   const clear = () => {

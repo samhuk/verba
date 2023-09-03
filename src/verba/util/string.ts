@@ -1,4 +1,4 @@
-import { createIndentationString } from "./indentation"
+import { createIndentationString } from './indentation'
 
 /**
  * Repeats the given string `s`, `n` times.

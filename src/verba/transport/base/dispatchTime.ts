@@ -1,6 +1,6 @@
-import { BaseTransportOptions } from "./types"
-import { Colors } from "../../verbaString/types"
-import { formatDate } from "../../util/date"
+import { BaseTransportOptions } from './types'
+import { Colors } from '../../verbaString/types'
+import { formatDate } from '../../util/date'
 
 /**
  * Code duplication for super fast performance.

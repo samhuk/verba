@@ -1,6 +1,6 @@
-import { Outlet, OutletToNormalizedArgsObj } from "../outlet/types"
+import { Outlet, OutletToNormalizedArgsObj } from '../outlet/types'
 
-import { TypeDependantBaseIntersection } from "../util/types"
+import { TypeDependantBaseIntersection } from '../util/types'
 
 export type OutletFilterOptions<
   TCode extends string | number = string | number,
