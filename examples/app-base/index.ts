@@ -31,7 +31,12 @@ export const app = async (jobs: string[]) => {
   try {
     log.header('Example App')
     log.step({ msg: 'Starting app.', code: 'INIT' })
-    log.info(f => `Cache health: ${f.green('OK')}`)
+    log.info({
+      msg: f => `Cache health: ${f.green('OK')}`,
+      data: {
+        verbose: false,
+      },
+    })
 
     validateEnv()
 

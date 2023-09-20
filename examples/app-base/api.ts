@@ -1,7 +1,7 @@
 import logger from './log'
 import { sleep } from './util'
 
-const log = logger.nest({ code: 'HEALTHCHECK_API' })
+const log = logger.child({ code: 'HEALTHCHECK_API' })
 
 export const healthcheckAPI = async () => {
   const spinner = log.spinner({

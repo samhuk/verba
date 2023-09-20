@@ -3,7 +3,7 @@ import { createGFError } from 'good-flow'
 import logger from './log'
 import { sleep } from './util'
 
-const log = logger.nest({ code: 'JOB', indent: 2 })
+const log = logger.child({ code: 'JOB', indent: 2 })
 
 export const doJob = async (jobName: string) => {
   const baseLogText: FancyString = c => `Doing job ${c.cyan(jobName)}`

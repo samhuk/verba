@@ -26,6 +26,8 @@ const createEnv = (): Env => {
   }
   const transport = baseTransport({
     codeRenderer: true,
+    deltaT: false,
+    timePrefix: false,
     disableColors: true,
     dispatch: s => _this.dispatches.push(s),
     onClose: () => {
@@ -35,6 +37,7 @@ const createEnv = (): Env => {
     dispatchTimePrefix: false,
     isTty: false,
     outletPrefixes: undefined,
+    dataRenderer: true,
   })
   _this.instantiatedTransport = transport({ }, listeners, closeObservable.subscribe)
   return _this
@@ -73,12 +76,12 @@ describe('verba/transport/base', () => {
     // -- Assert
     expect(env.dispatches).toEqual([
       'foo',
-      'i CODE foo',
+      'i CODE foo\nbar',
       '* loading',
       '* loading (25%)',
       '* loading (75%)',
-      '✔ CODE done',
-      '  i CHILD_CODE foo',
+      '✔ CODE done\nbar',
+      '  i CHILD_CODE foo\nbar',
       '  i CHILD_CHILD_CODE foo',
     ])
   })

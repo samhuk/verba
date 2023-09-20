@@ -10,7 +10,7 @@ export type FileTransportOptions<
 > = Partial<
   Pick<
     BaseTransportOptions<TCode, TData>,
-    'dispatchDeltaT' | 'outletPrefixes' | 'dispatchTimePrefix' | 'codeRenderer'
+    'dispatchDeltaT' | 'deltaT' | 'outletPrefixes' | 'dispatchTimePrefix' | 'timePrefix' | 'codeRenderer' | 'dataRenderer'
   >
 > & {
   /**

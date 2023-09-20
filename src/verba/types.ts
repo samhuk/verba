@@ -298,8 +298,25 @@ export type Verba<
    * const log = verba()
    * const childLog = log.nest({ code: 'CHILD_TASK' })
    * childLog.log('This is a child task') // Will have the `code` "CHILD_TASK"
+   * 
+   * @deprecated Use `child` instead.
    */
   nest: (options: NestOptions<TCode>) => Verba<TCode, TData>
+  /**
+   * Creates a nested logger with the provided options as defaults for subsequent
+   * logging calls of the nested logger.
+   *
+   * This is useful for providing a default `code` for logs to avoid duplication.
+   *
+   * @returns `Verba`
+   *
+   * @example
+   * import verba from 'verba'
+   * const log = verba()
+   * const childLog = log.nest({ code: 'CHILD_TASK' })
+   * childLog.log('This is a child task') // Will have the `code` "CHILD_TASK"
+   */
+  child: (options: NestOptions<TCode>) => Verba<TCode, TData>
   /**
    * Signals to all Transports added to the instance that this function has been
    * called, resolving only when all of the Transports that have registered a close
@@ -339,11 +356,17 @@ export type Verba<
    */
   setAliases: <TNewAliases extends Aliases<TCode, TData>>(aliases: TNewAliases) => Verba<TCode, TData, TNewAliases>
 }
-  // Add on the base outlets, excluding those that the aliases define.
-  & Omit<VerbaBaseOutlets<TCode, TData>, keyof TAliases>
-  // Add on the aliases (ones that aren't false)
-  & {
-    [TAliasName in keyof TAliases as TAliases[TAliasName] extends false
-      ? never
-      : TAliasName]: ReturnType<Cast<TAliases[TAliasName], Exclude<Alias, false>>>
-  }
+  & (
+    keyof TAliases extends never
+      ? VerbaBaseOutlets<TCode, TData>
+      : (
+        // Add on the base outlets, excluding those that the aliases define.
+        Omit<VerbaBaseOutlets<TCode, TData>, keyof TAliases>
+          // Add on the aliases (ones that aren't false)
+          & {
+            [TAliasName in keyof TAliases as TAliases[TAliasName] extends false
+              ? never
+              : TAliasName]: ReturnType<Cast<TAliases[TAliasName], Exclude<Alias, false>>>
+          }
+      )
+  )

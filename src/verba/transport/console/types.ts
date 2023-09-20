@@ -7,7 +7,7 @@ export type ConsoleTransportOptions<
 > = Partial<
   Pick<
     BaseTransportOptions<TCode, TData>,
-    'dispatchDeltaT' | 'outletPrefixes' | 'dispatchTimePrefix' | 'codeRenderer' | 'disableColors'
+    'dispatchDeltaT' | 'deltaT' | 'outletPrefixes' | 'dispatchTimePrefix' | 'timePrefix' | 'codeRenderer' | 'dataRenderer' | 'disableColors'
   >
 > & {
   /**

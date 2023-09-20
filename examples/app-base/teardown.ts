@@ -11,7 +11,7 @@ const MOCK_JSON_LOG_OBJ = {
   },
 }
 
-const log = logger.nest({ code: 'TEARDOWN_ENV' })
+const log = logger.child({ code: 'TEARDOWN_ENV' })
 
 export const tearDownEnv = async () => {
   const spinner = log.spinner('Tearing down.')

@@ -6,6 +6,7 @@ import { CodeRenderer } from './code'
 import { DispatchDeltaT } from './dispatchDeltaT'
 import { NestState } from '../../types'
 import { SIMPLE_OUTLETS } from '../../outlet'
+import { DataRenderer } from './data'
 
 type SimpleOutletLogger = (
   options: NormalizedSimpleOutletOptions,
@@ -56,20 +57,30 @@ export const useSimpleOutletLoggers = (
   renderCode: CodeRenderer | undefined,
   renderDispatchTime: () => string,
   dispatchDeltaT: DispatchDeltaT | undefined,
+  renderData: DataRenderer | undefined,
 ): { [k in SimpleOutlet]: ((options: NormalizedSimpleOutletOptions) => void) } => {
   const _normalizeVerbaString = createVerbaStringNormalizer(transportOptions)
+  const _renderData = renderData != null
+    ? (data: any): string => {
+      const stringified = renderData(data)
+      return stringified.length > 0 ? `\n${stringified}` : ''
+    }
+    : () => ''
 
   const createLog = (outlet: SimpleOutlet): ((options: NormalizedSimpleOutletOptions) => void) => {
     const prefix = nestState.indentationString + determineSimpleOutletPrefix(transportOptions, outlet)
-    const baseContentRenderer: ((options: NormalizedSimpleOutletOptions) => void) = renderCode != null
+    const renderBaseContent: ((options: NormalizedSimpleOutletOptions) => void) = renderCode != null
       ? options => prefix + _normalizeVerbaString(renderCode(options.code, nestState.code)) + _normalizeVerbaString(options.msg)
       : options => prefix + _normalizeVerbaString(options.msg)
 
     return dispatchDeltaT != null
       ? dispatchDeltaT.position === 'start'
-        ? options => transportOptions.dispatch(renderDispatchTime() + dispatchDeltaT.render() + baseContentRenderer(options))
-        : options => transportOptions.dispatch(renderDispatchTime() + baseContentRenderer(options) + dispatchDeltaT.render())
-      : options => transportOptions.dispatch(renderDispatchTime() + baseContentRenderer(options))
+        ? options =>
+          transportOptions.dispatch(renderDispatchTime() + dispatchDeltaT.render() + renderBaseContent(options) + _renderData(options.data))
+        : options =>
+          transportOptions.dispatch(renderDispatchTime() + renderBaseContent(options) + dispatchDeltaT.render() + _renderData(options.data))
+      : options =>
+        transportOptions.dispatch(renderDispatchTime() + renderBaseContent(options) + _renderData(options.data))
   }
 
   const result: { [k in SimpleOutlet]: ((options: NormalizedSimpleOutletOptions) => void) } = { } as any

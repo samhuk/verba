@@ -31,9 +31,12 @@ export const consoleTransport = <
     dispatch: dispatchService.dispatch,
     onClose: dispatchService.destroy,
     disableColors: options?.disableColors ?? false,
-    dispatchDeltaT: options?.dispatchDeltaT ?? false,
+    dispatchDeltaT: false, // TODO: Remove once fully deprecated
+    deltaT: options?.deltaT ?? options?.dispatchDeltaT ?? false,
     outletPrefixes: options?.outletPrefixes,
-    dispatchTimePrefix: options?.dispatchTimePrefix ?? false,
+    dispatchTimePrefix: false, // TODO: Remove once fully deprecated
+    timePrefix: options?.timePrefix ?? options?.dispatchTimePrefix ?? false,
     codeRenderer: options?.codeRenderer ?? true,
+    dataRenderer: options?.dataRenderer ?? true,
   })
 }

@@ -25,7 +25,6 @@ import { consoleTransport } from './transport/console'
 import { createIndentationString } from './util/indentation'
 import { createListenerStore } from './util/listenerStore'
 import { createObservable } from './util/reactive'
-import { OutletFilter } from '../types'
 import {
   ArgsNormalizer,
   dividerArgsNormalizer,
@@ -36,6 +35,7 @@ import {
   spinnerArgsNormalizer,
   tableArgsNormalizer,
 } from './argsNormalizers'
+import { OutletFilter } from './outletFilter/types'
 
 const mergeObjectsOfFunctions = <T extends Record<string, Function>>(objs: T[], keys: (keyof T)[]): T => {
   const outputObj: T = {} as T
@@ -130,10 +130,11 @@ const _verba = <
   close: () => Promise<void[]>,
 ): Verba<TCode, TData, TAliases> => {
   // TODO: Use currying
-  // eslint-disable-next-line max-len
-  const unchangingOptions: [(OutletFilter<TCode, TData>[] | undefined), NestedInstantiatedVerbaTransport<TCode, TData>[], ListenerStore<VerbaTransportEventName, VerbaTransportEventHandlers<TCode, TData>>, NestState<TCode>] = (
+  type UnchangingArgs = Parameters<typeof createReturnlessOutlet>
+  const unchangingOptions: [UnchangingArgs[3], UnchangingArgs[4], UnchangingArgs[5], UnchangingArgs[6]] = (
     [options?.outletFilters, nestedInstantiatedTransports, listeners, nestState] 
   )
+
   const baseOutlets: VerbaBaseOutlets<TCode, TData> = {
     log: createReturnlessOutlet(Outlet.LOG, simpleOutletArgsNormalizer, (t, _options) => t.log(_options.options), ...unchangingOptions),
     
@@ -164,25 +165,29 @@ const _verba = <
           throw new Error(`The outlet '${aliasName}' was excluded by the configured aliases (achieved by setting the '${aliasName}' outlet to \`false\`).`)
         }
   })
+
+  const child: Verba<TCode, TData>['child'] = _options => {
+    const indent = _options.indent ?? 0
+    const newNestState: NestState<TCode> = {
+      indent,
+      indentationString: createIndentationString(indent),
+      code: _options.code === null ? undefined : (nestState.code ?? _options.code),
+    }
+    return _verba(
+      options,
+      aliases,
+      instantiatedTransports,
+      instantiatedTransports.map(p => p(newNestState)),
+      listeners,
+      newNestState,
+      close,
+    ) as any
+  }
   
   return {
-    nest: _options => {
-      const indent = _options.indent ?? 0
-      const newNestState: NestState<TCode> = {
-        indent,
-        indentationString: createIndentationString(indent),
-        code: _options.code === null ? undefined : (nestState.code ?? _options.code),
-      }
-      return _verba(
-        options,
-        aliases,
-        instantiatedTransports,
-        instantiatedTransports.map(p => p(newNestState)),
-        listeners,
-        newNestState,
-        close,
-      )
-    },
+    child,
+    // Provide alias for back-compat
+    nest: child,
     setAliases: newAliases => _verba(
       options,
       newAliases,

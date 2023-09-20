@@ -8,7 +8,7 @@ const MOCK_DB_INTRA_LOADING_MESSAGES: VerbaString[] = [
   f => `DB network latency: ${f.yellow('45ms')}`,
 ]
 
-const log = logger.nest({ code: 'CONNECT_DB' })
+const log = logger.child({ code: 'CONNECT_DB' })
 
 export const connectToDb = async () => {
   const spinner = log.spinner({

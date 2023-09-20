@@ -1,3 +1,4 @@
+import stringify from 'safe-stable-stringify'
 import verba, { Outlet, OutletFilter, consoleTransport, fileTransport } from '../../src'
 
 import { Code } from './codes'
@@ -20,8 +21,9 @@ const log = verba<Code, LogMessageData>({
   transports: [
     consoleTransport({
       outletPrefixes: 'textual',
-      dispatchDeltaT: true,
-      dispatchTimePrefix: 'MMM dd|hh:ii:ss',
+      deltaT: true,
+      timePrefix: 'MMM dd|hh:ii:ss',
+      dataRenderer: data => stringify(data, null, 2) ?? '',
     }),
     fileTransport({
       batchOptions: {
