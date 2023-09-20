@@ -21,6 +21,8 @@ export {
   verbaDecolorizer,
 } from './verba/verbaString/index'
 export { Outlet } from './verba/outlet/types'
+// Built-in Aliases
+export * from './verba/alias'
 // Default
 export default verba
 // Types
