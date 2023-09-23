@@ -8,12 +8,12 @@ import { formatDate } from '../../util/date'
 export const createDispatchTimeRenderer = (
   transportOptions: BaseTransportOptions,
   colorizer: Colors,
-) => transportOptions.dispatchTimePrefix !== false
-  ? transportOptions.dispatchTimePrefix === true
+) => transportOptions.timePrefix !== false
+  ? transportOptions.timePrefix === true
     ? transportOptions.disableColors
       ? () => new Date().toLocaleTimeString() + '  '
       : () => colorizer.grey(new Date().toLocaleTimeString()) + '  '
     : transportOptions.disableColors
-      ? () => formatDate(new Date(), transportOptions.dispatchTimePrefix as string) + '  '
-      : () => colorizer.grey(formatDate(new Date(), transportOptions.dispatchTimePrefix as string)) + '  '
+      ? () => formatDate(new Date(), transportOptions.timePrefix as string) + '  '
+      : () => colorizer.grey(formatDate(new Date(), transportOptions.timePrefix as string)) + '  '
   : () => ''

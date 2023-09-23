@@ -106,7 +106,7 @@ export const useDispatchDeltaT = (
   colorizer: Colors,
   listeners:  ListenerStore<keyof VerbaTransportEventHandlers, VerbaTransportEventHandlers>,
 ): DispatchDeltaT | undefined => {
-  if (transportOptions.dispatchDeltaT === false || transportOptions.dispatchDeltaT == null)
+  if (transportOptions.deltaT === false || transportOptions.deltaT == null)
     return undefined
 
   const previousDispatchEpochRef = useRef(Date.now())
@@ -115,9 +115,9 @@ export const useDispatchDeltaT = (
     previousDispatchEpochRef.current = Date.now()
   })
   
-  const pos = determineDispatchDeltaTPos(transportOptions.dispatchDeltaT)
+  const pos = determineDispatchDeltaTPos(transportOptions.deltaT)
   return {
-    render: createDispatchDeltaTRenderer(transportOptions.dispatchDeltaT, transportOptions.disableColors, colorizer, previousDispatchEpochRef, pos),
+    render: createDispatchDeltaTRenderer(transportOptions.deltaT, transportOptions.disableColors, colorizer, previousDispatchEpochRef, pos),
     position: pos,
   }
 }
