@@ -22,7 +22,6 @@ export const verbaDecolorizer: Colors = {
   bgMagenta: s => s,
   bgCyan: s => s,
   bgWhite: s => s,
-  reset: s => s,
   bold: s => s,
   dim: s => s,
   italic: s => s,
@@ -30,18 +29,6 @@ export const verbaDecolorizer: Colors = {
   inverse: s => s,
   hidden: s => s,
   strikethrough: s => s,
-  rainbow: s => s,
-  zebra: s => s,
-  america: s => s,
-  trap: s => s,
-  random: s => s,
-  zalgo: s => s,
-  disable: () => undefined,
-  enable: () => undefined,
-  enabled: true,
-  setTheme: () => undefined,
-  strip: () => '',
-  stripColors: () => '',
 }
 
 export const getColorizer = (options?: NormalizeVerbaStringOptions) => (

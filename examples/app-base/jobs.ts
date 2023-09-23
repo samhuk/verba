@@ -1,16 +1,15 @@
 import { createGFError } from 'good-flow'
 import { doJob } from './job'
-import log from './log'
+import logger from './log'
+
+const log = logger.child({ code: 'JOBS' })
 
 export const doJobs = async (
   jobNames: string[],
 ) => {
   try {
     const jobNamesLogStr = jobNames.length.toString()
-    log.step({
-      msg: c => `Doing ${c.yellow(jobNamesLogStr)} jobs.`,
-      code: 'JOBS',
-    })
+    log.step(c => `Doing ${c.yellow(jobNamesLogStr)} jobs.`)
 
     const start = Date.now()
     for (let i = 0; i < jobNames.length; i += 1)
@@ -19,10 +18,7 @@ export const doJobs = async (
 
     const dtS = ((Date.now() - start) / 1000).toFixed(1)
 
-    log.success({
-      msg: c => `Completed ${c.yellow(jobNamesLogStr)} jobs in ${c.yellow(dtS.toString())}s.`,
-      code: 'JOBS',
-    })
+    log.success(c => `Completed ${c.yellow(jobNamesLogStr)} jobs in ${c.yellow(dtS.toString())}s.`)
   }
   catch (e) {
     throw createGFError({

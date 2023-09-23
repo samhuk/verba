@@ -1,6 +1,20 @@
 import colors from 'colors/safe'
 
-export type Colors = typeof colors
+type ExcludedColorsProps = 'disable'
+  | 'enable'
+  | 'enabled'
+  | 'setTheme'
+  | 'reset'
+  | 'strip'
+  | 'stripColors'
+  | 'zalgo'
+  | 'trap'
+  | 'america'
+  | 'random'
+  | 'zebra'
+  | 'rainbow'
+
+export type Colors = Omit<typeof colors, ExcludedColorsProps>
 
 export type NormalizeVerbaStringOptions = {
   /**
@@ -28,12 +42,4 @@ export type VerbaString = string | FancyString | (string | FancyString)[]
  * The available string formats. Note that not all of these are widely supported,
  * such as italic, underline, etc.
  */
-export type StringFormat = Exclude<
-  keyof Colors,
-  'disable'
-  | 'enable'
-  | 'enabled'
-  | 'setTheme'
-  | 'strip'
-  | 'stripColors'
->
+export type StringFormat = keyof Colors

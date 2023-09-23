@@ -29,13 +29,19 @@ const uploadJobsReport = async () => {
 
 export const app = async (jobs: string[]) => {
   try {
+    // Test aliases
     log.header('Example App')
+    // Test providing code inline
     log.step({ msg: 'Starting app.', code: 'INIT' })
+    // Test providing data, and colors
     log.info({
       msg: f => `Cache health: ${f.green('OK')}`,
-      data: {
-        verbose: false,
-      },
+      data: { verbose: false },
+    })
+    // Test verbose mode
+    log.info({
+      msg: f => `Cache health: ${f.green('OK')}`,
+      data: { verbose: true },
     })
 
     validateEnv()

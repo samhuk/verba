@@ -24,6 +24,7 @@ export const doJob = async (jobName: string) => {
     // eslint-disable-next-line no-await-in-loop
     await sleep(0.1)
     // Every other update is logged if terminal is not TTY.
+    // Test isTty flag for spinner.text
     spinner.text([baseLogText, c => ` | ${c.bold(i.toString())}%`], i % 40 === 0)
   }
 
