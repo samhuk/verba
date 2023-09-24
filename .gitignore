@@ -6,5 +6,6 @@
 .DS_Store
 /debug.log
 /package-lock.json
+/bun.lockb
 /build-examples
 /log.txt
