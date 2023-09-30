@@ -1,12 +1,12 @@
+import { Alias, Aliases } from './alias/types'
 import { DividerOptions, JsonOptions, ProgressBarOptions, SimpleOutletOptions, SpacerOptions, SpinnerOptions, TableOptions } from './outlet/types'
 
-import { Alias, Aliases } from './alias/types'
+import { Cast } from './util/types'
 import { OutletFilter } from './outletFilter/types'
 import { ProgressBar } from './progressBar/types'
-import { VerbaTransport } from './transport/types'
 import { Spinner } from './spinner/types'
 import { VerbaString } from '../types'
-import { Cast } from './util/types'
+import { VerbaTransport } from './transport/types'
 
 export type OutletSpinner = Omit<Spinner, 'text'> & {
   /**
@@ -24,7 +24,7 @@ export type OutletSpinner = Omit<Spinner, 'text'> & {
 }
 
 export type VerbaOptions<
-  TCode extends string | number = string | number,
+  TCode extends string | number | undefined  = string | number | undefined ,
   TData extends any = any,
 > = {
   /**
@@ -68,7 +68,7 @@ export type VerbaOptions<
 }
 
 export type NestOptions<
-  TCode extends string | number = string | number,
+  TCode extends string | number | undefined = string | number | undefined,
 > = {
   /**
    * Add on a default indentation for all subsequent calls to the child logger.
@@ -80,7 +80,7 @@ export type NestOptions<
   code?: TCode
 }
 
-export type NestState<TCode extends string | number = string | number> = {
+export type NestState<TCode extends string | number | undefined = string | number | undefined> = {
   /**
    * The current indentation index of the logger.
    */
@@ -99,7 +99,7 @@ export type NestState<TCode extends string | number = string | number> = {
 }
 
 export type VerbaBaseOutlets<
-  TCode extends string | number = string | number,
+  TCode extends string | number | undefined = string | number | undefined,
   TData extends any = any,
 > = {
   /**
@@ -281,7 +281,7 @@ export type VerbaBaseOutlets<
  * log.info('Hello, world!')
  */
 export type Verba<
-  TCode extends string | number = string | number,
+  TCode extends string | number | undefined = string | number | undefined,
   TData extends any = any,
   TAliases extends Aliases<TCode, TData> = {},
 > = {

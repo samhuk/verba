@@ -1,7 +1,6 @@
-import { ProgressBarOptions, ProgressBar } from './types'
+import { ProgressBar, ProgressBarOptions } from './types'
 
 export const createConsoleProgressBar = (props: ProgressBarOptions): ProgressBar => {
-  let instance: ProgressBar
   let value = 0
   const barLength = props.barLength ?? 30
   const total = props.total ?? 100
@@ -23,7 +22,7 @@ export const createConsoleProgressBar = (props: ProgressBarOptions): ProgressBar
     process.stdout.write('\r' + frame())
   }
   
-  return instance = {
+  return {
     update: newValue => {
       value = newValue
       render()

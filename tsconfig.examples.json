@@ -9,7 +9,7 @@
     "declaration": false,
     "sourceMap": true,
     "noEmit": false,
-    "outDir": "./build-examples",
+    "outDir": "./build/examples",
     "skipLibCheck": true
   }
 }

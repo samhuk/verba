@@ -17,11 +17,11 @@ export const useProgressBarLogger = (
   // TODO: Until I figure out a way to nicely support progress bars in non-TTY envs, provide no-print shim
   if (!transportOptions.isTty) {
     return {
-      update: (...args) => undefined,
-      clear: (...args) => undefined,
-      persist: (...args) => undefined,
-      updateValue: (...args) => undefined,
-      render: (...args) => undefined,
+      update: () => undefined,
+      clear: () => undefined,
+      persist: () => undefined,
+      updateValue: () => undefined,
+      render: () => undefined,
     }
   }
 

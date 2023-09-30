@@ -1,12 +1,12 @@
+import { BaseTransportOptions } from './types'
 import { VerbaString } from '../../verbaString/types'
 import { verbaColorizer } from '../../verbaString'
-import { BaseTransportOptions } from './types'
 
-export type CodeRenderer = (code: string | number | undefined, parentCode: string | number | undefined) => VerbaString
+export type CodeRenderer<TCode extends string | number | undefined = string | number | undefined> = (code: TCode, parentCode: TCode) => VerbaString
 
-export const createCodeRenderer = (
+export const createCodeRenderer = <TCode extends string | number | undefined>(
   transportOptions: BaseTransportOptions,
-): CodeRenderer | undefined => {
+): CodeRenderer<TCode> | undefined => {
   if (transportOptions.codeRenderer == null || transportOptions.codeRenderer === true) {
     return transportOptions.disableColors
       ? (code, parentCode) => {

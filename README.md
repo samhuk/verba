@@ -267,25 +267,12 @@ Install NPM dependencies:
 npm i
 ```
 
-Lint Typescript code:
-```shell
-npm run lint
-```
-
-Build and run unit tests:
-```shell
-npm run unit-tests
-```
-
-Build all Typescript code (excluding app example):
-```shell
-npm run build-ts
-```
-
-Build and run app example:
-```shell
-npm run example
-```
+| Task            | Command         |
+|-----------------|-----------------|
+| Lint            | npm run lint    |
+| Test            | npm run test    |
+| Build           | npm run build   |
+| Run example app | npm run example |
 
 See [./contributing/development.md](./contributing/development.md) for more information
 

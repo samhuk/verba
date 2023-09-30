@@ -1,6 +1,6 @@
 module.exports = {
   testEnvironment: 'node',
-  rootDir: './build-test',
+  rootDir: './build/test-unit',
   transform: {
     '\\.[jt]sx?$': ['babel-jest', { configFile: './jest.babelrc' }],
   },

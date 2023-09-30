@@ -1,9 +1,10 @@
+import { InstantiatedVerbaTransport, VerbaTransportEventHandlers, VerbaTransportEventName } from '../types'
+
 import { baseTransport } from '.'
 import { createListenerStore } from '../../util/listenerStore'
 import { createObservable } from '../../util/reactive'
-import { InstantiatedVerbaTransport, VerbaTransportEventHandlers, VerbaTransportEventName } from '../types'
 
-const sleep = (durationSeconds: number) => new Promise<void>((res, rej) => {
+const sleep = (durationSeconds: number) => new Promise<void>(res => {
   setTimeout(() => {
     res()
   }, durationSeconds * 1000)

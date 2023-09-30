@@ -3,7 +3,7 @@ import { VerbaTransport } from '../types'
 import { baseTransport } from '../base'
 import { createConsoleDispatchService } from '../util/dispatchService/console'
 
-const isAnyBatchingBehaviorSpecified = (options: ConsoleTransportOptions | undefined) => (
+const isAnyBatchingBehaviorSpecified = (options: ConsoleTransportOptions<any> | undefined) => (
   options?.batchOptions?.interval != null || options?.batchOptions?.size != null
 )
 
@@ -18,7 +18,7 @@ const isAnyBatchingBehaviorSpecified = (options: ConsoleTransportOptions | undef
  * const log = verba({ transports: [consoleTransport()] })
  */
 export const consoleTransport = <
-  TCode extends string | number = string | number,
+  TCode extends string | number | undefined = string | number | undefined,
   TData extends any = any
 >(
   options?: ConsoleTransportOptions<TCode, TData>,

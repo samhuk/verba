@@ -20,7 +20,7 @@ import { ProgressBar } from '../progressBar/types'
 import { TypeDependantBaseIntersection } from '../util/types'
 
 export type OutletToTransportHandlerFn<
-  TCode extends string | number = string | number,
+  TCode extends string | number | undefined = string | number | undefined,
   TData extends any = any
 > = {
   [Outlet.LOG]: (options: NormalizedSimpleOutletOptions<TCode, TData>) => void,
@@ -40,7 +40,7 @@ export type OutletToTransportHandlerFn<
 }
 
 export type OutletHandlerFnOptions<
-  TCode extends string | number = string | number,
+  TCode extends string | number | undefined = string | number | undefined,
   TData extends any = any,
   TOutlet extends Outlet = Outlet
 > = TypeDependantBaseIntersection<
@@ -53,7 +53,7 @@ export type OutletHandlerFnOptions<
 export type VerbaTransportEventName = 'onBeforeLog' | 'onAfterLog'
 
 export type VerbaTransportEventHandlers<
-  TCode extends string | number = string | number,
+  TCode extends string | number | undefined = string | number | undefined,
   TData extends any = any
 > = {
   onBeforeLog: (options: OutletHandlerFnOptions<TCode, TData>, nestState: NestState<TCode>) => void
@@ -63,12 +63,12 @@ export type VerbaTransportEventHandlers<
 export type VerbaTransportListenerStore = ListenerStore<VerbaTransportEventName, VerbaTransportEventHandlers>
 
 export type NestedInstantiatedVerbaTransport<
-  TCode extends string | number = string | number,
+  TCode extends string | number | undefined = string | number | undefined,
   TData extends any = any
 > = OutletToTransportHandlerFn<TCode, TData>
 
 export type InstantiatedVerbaTransport<
-  TCode extends string | number = string | number,
+  TCode extends string | number | undefined = string | number | undefined,
   TData extends any = any
 > = (
   /**
@@ -104,7 +104,7 @@ export type InstantiatedVerbaTransport<
  * const log = verba({ plugins: [transport] })
  */
 export type VerbaTransport<
-  TCode extends string | number = string | number,
+  TCode extends string | number | undefined = string | number | undefined,
   TData extends any = any
 > = (
   /**
