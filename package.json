@@ -22,7 +22,7 @@
     "build": "npm run clean:build && tsc -p ./tsconfig.all.json",
     "----------------------- BUILD DIST -----------------------": "",
     "clean:build:dist": "rimraf ./lib",
-    "build:dist": "npm run clean-ts-dist && tsc -p ./tsconfig.dist.json",
+    "build:dist": "npm run clean:build:dist && tsc -p ./tsconfig.dist.json",
     "----------------------- EXAMPLE -----------------------": "",
     "clean:example": "rimraf ./build/examples",
     "example:build": "tsc -p ./tsconfig.examples.json",
