@@ -274,7 +274,7 @@ npm i
 | Build           | npm run build   |
 | Run example app | npm run example |
 
-See [./contributing/development.md](./contributing/development.md) for more information
+See [./contributing/development.md](./contributing/development.md) for more information.
 
 ---
 

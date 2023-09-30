@@ -21,9 +21,9 @@ jobs:
     - name: Lint
       run: npm run lint:errors
     - name: Build
-      run: npm run build-ts
+      run: npm run build
     - name: Unit tests
-      run: npm run test:unit
+      run: npm run test
     - name: Build Examples
       run: npm run examples:build
     - name: Upload coverage to Codecov
