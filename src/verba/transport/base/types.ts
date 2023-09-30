@@ -1,13 +1,12 @@
-import { SimpleOutletPrefixesOptions } from '../../outlet/types'
-
 import { CodeRenderer } from './code'
 import { DataRenderer } from './data'
 import { DispatchDeltaTOptions } from './dispatchDeltaT'
+import { SimpleOutletPrefixesOptions } from '../../outlet/types'
 
 export type BuiltInSimpleOutletPrefixNames = 'default' | 'textual'
 
 export type BaseTransportOptions<
-  TCode extends string | number = string | number,
+  TCode extends string | number | undefined = string | number | undefined,
   TData extends any = any
 > = {
   dispatch: (s: string) => void
@@ -149,7 +148,7 @@ export type BaseTransportOptions<
    * (code, parentCode) => `${parentCode}/${code}`
    * (code, parentCode) => f => f.magenta(code ?? parentCode)
    */
-  codeRenderer: boolean | CodeRenderer
+  codeRenderer: boolean | CodeRenderer<TCode>
   /**
    * Configures how log message data are rendered.
    * 
@@ -165,5 +164,5 @@ export type BaseTransportOptions<
    * true
    * data => JSON.stringify(data, null, 2)
    */
-  dataRenderer: boolean | DataRenderer
+  dataRenderer: boolean | DataRenderer<TData>
 }

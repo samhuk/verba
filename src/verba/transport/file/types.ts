@@ -1,11 +1,11 @@
 import { BaseTransportOptions } from '../base/types'
-import { WriteStream } from 'fs'
 import { DispatchServiceBatchOptions } from '../util/dispatchService/base/types'
+import { WriteStream } from 'fs'
 
 export type FileTransportOutFile = string | WriteStream
 
 export type FileTransportOptions<
-  TCode extends string | number = string | number,
+  TCode extends string | number | undefined = string | number | undefined,
   TData extends any = any
 > = Partial<
   Pick<

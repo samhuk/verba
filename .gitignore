@@ -1,11 +1,9 @@
 /node_modules
 /build
 /lib
-/build-test
-/build-ts
+/build
 .DS_Store
 /debug.log
 /package-lock.json
 /bun.lockb
-/build-examples
 /log.txt

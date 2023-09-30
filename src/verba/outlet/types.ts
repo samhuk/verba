@@ -1,8 +1,8 @@
 import { ProgressBarOptions as BaseProgressBarOptions } from '../progressBar/types'
 import { SpinnerOptions as BaseSpinnerOptions } from '../spinner/types'
 import { GlobalOptions as ColumifyOptions } from 'columnify'
-import { VerbaString } from '../verbaString/types'
 import { OutletToTransportHandlerFn } from '../transport/types'
+import { VerbaString } from '../verbaString/types'
 
 export enum Outlet {
   LOG = 'log',
@@ -36,7 +36,7 @@ export type SimpleOutletPrefixesOptions = Partial<Record<SimpleOutlet, VerbaStri
 export type SimpleOutletPrefixes = Record<SimpleOutlet, string>
 
 export type BaseOutletOptions<
-  TCode extends string | number = string | number,
+  TCode extends string | number | undefined = string | number | undefined,
   TData extends any = any,
 > = {
   /**
@@ -55,7 +55,7 @@ export type BaseOutletOptions<
 }
 
 export type BaseNormalizedOutletOptions<
-  TCode extends string | number = string | number,
+  TCode extends string | number | undefined = string | number | undefined,
   TData extends any = any,
 > = {
   /**
@@ -69,7 +69,7 @@ export type BaseNormalizedOutletOptions<
 }
 
 export type SimpleOutletOptions<
-  TCode extends string | number = string | number,
+  TCode extends string | number | undefined = string | number | undefined,
   TData extends any = any,
 > = VerbaString | (BaseOutletOptions<TCode, TData> & {
   /**
@@ -83,7 +83,7 @@ export type SimpleOutletOptions<
 })
 
 export type NormalizedSimpleOutletOptions<
-  TCode extends string | number = string | number,
+  TCode extends string | number | undefined = string | number | undefined,
   TData extends any = any,
 > = BaseNormalizedOutletOptions<TCode, TData> & {
   /**
@@ -93,7 +93,7 @@ export type NormalizedSimpleOutletOptions<
 }
 
 export type JsonOptions<
-  TCode extends string | number = string | number,
+  TCode extends string | number | undefined = string | number | undefined,
   TData extends any = any,
 > = BaseOutletOptions<TCode, TData> & {
   /**
@@ -105,7 +105,7 @@ export type JsonOptions<
 }
 
 export type NormalizedJsonOptions<
-  TCode extends string | number = string | number,
+  TCode extends string | number | undefined = string | number | undefined,
   TData extends any = any,
 > = BaseNormalizedOutletOptions<TCode, TData> & {
   /**
@@ -115,12 +115,12 @@ export type NormalizedJsonOptions<
 }
 
 export type TableOptions<
-  TCode extends string | number = string | number,
+  TCode extends string | number | undefined = string | number | undefined,
   TData extends any = any,
 > = ColumifyOptions & BaseOutletOptions<TCode, TData>
 
 export type NormalizedTableOptions<
-  TCode extends string | number = string | number,
+  TCode extends string | number | undefined = string | number | undefined,
   TData extends any = any,
 > = ColumifyOptions & BaseNormalizedOutletOptions<TCode, TData>
 /**
@@ -130,7 +130,7 @@ export type NormalizedTableOptions<
  * @default 1
  */
 export type SpacerOptions<
-  TCode extends string | number = string | number,
+  TCode extends string | number | undefined = string | number | undefined,
   TData extends any = any,
 > = number | (BaseOutletOptions<TCode, TData> & {
   /**
@@ -142,7 +142,7 @@ export type SpacerOptions<
 })
 
 export type NormalizedSpacerOptions<
-  TCode extends string | number = string | number,
+  TCode extends string | number | undefined = string | number | undefined,
   TData extends any = any,
 > = BaseNormalizedOutletOptions<TCode, TData> & {
   /**
@@ -152,17 +152,17 @@ export type NormalizedSpacerOptions<
 }
 
 export type DividerOptions<
-  TCode extends string | number = string | number,
+  TCode extends string | number | undefined = string | number | undefined,
   TData extends any = any,
 > = BaseOutletOptions<TCode, TData>
 
 export type NormalizedDividerOptions<
-  TCode extends string | number = string | number,
+  TCode extends string | number | undefined = string | number | undefined,
   TData extends any = any,
 > = BaseNormalizedOutletOptions<TCode, TData>
 
 export type SpinnerOptions<
-  TCode extends string | number = string | number,
+  TCode extends string | number | undefined = string | number | undefined,
   TData extends any = any,
 > = (
   Pick<BaseSpinnerOptions, 'text' | 'color' | 'spinner' | 'disableAutoStart'> & {
@@ -178,7 +178,7 @@ export type SpinnerOptions<
 ) | VerbaString
 
 export type NormalizedSpinnerOptions<
-  TCode extends string | number = string | number,
+  TCode extends string | number | undefined = string | number | undefined,
   TData extends any = any,
 > = Required<Pick<BaseSpinnerOptions, 'text' | 'color' | 'spinner' | 'disableAutoStart'>> & {
   /**
@@ -192,17 +192,17 @@ export type NormalizedSpinnerOptions<
 } & BaseNormalizedOutletOptions<TCode, TData>
 
 export type ProgressBarOptions<
-  TCode extends string | number = string | number,
+  TCode extends string | number | undefined = string | number | undefined,
   TData extends any = any,
 > = Pick<BaseProgressBarOptions, 'total' | 'barLength'> & BaseOutletOptions<TCode, TData>
 
 export type NormalizedProgressBarOptions<
-  TCode extends string | number = string | number,
+  TCode extends string | number | undefined = string | number | undefined,
   TData extends any = any,
 > = Required<Pick<BaseProgressBarOptions, 'total' | 'barLength'>> & BaseNormalizedOutletOptions<TCode, TData>
 
 export type OutletToNormalizedArgsObj<
-  TCode extends string | number = string | number,
+  TCode extends string | number | undefined = string | number | undefined,
   TData extends any = any
 > = {
   [Outlet.LOG]: { options: NormalizedSimpleOutletOptions<TCode, TData> },

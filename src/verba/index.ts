@@ -1,4 +1,14 @@
 import {
+  ArgsNormalizer,
+  dividerArgsNormalizer,
+  jsonArgsNormalizer,
+  progressBarArgsNormalizer,
+  simpleOutletArgsNormalizer,
+  spacerArgsNormalizer,
+  spinnerArgsNormalizer,
+  tableArgsNormalizer,
+} from './argsNormalizers'
+import {
   InstantiatedVerbaTransport,
   NestedInstantiatedVerbaTransport,
   VerbaTransport,
@@ -21,21 +31,11 @@ import {
 
 import { Aliases } from './alias/types'
 import { ListenerStore } from './util/listenerStore/types'
+import { OutletFilter } from './outletFilter/types'
 import { consoleTransport } from './transport/console'
 import { createIndentationString } from './util/indentation'
 import { createListenerStore } from './util/listenerStore'
 import { createObservable } from './util/reactive'
-import {
-  ArgsNormalizer,
-  dividerArgsNormalizer,
-  jsonArgsNormalizer,
-  progressBarArgsNormalizer,
-  simpleOutletArgsNormalizer,
-  spacerArgsNormalizer,
-  spinnerArgsNormalizer,
-  tableArgsNormalizer,
-} from './argsNormalizers'
-import { OutletFilter } from './outletFilter/types'
 
 const mergeObjectsOfFunctions = <T extends Record<string, Function>>(objs: T[], keys: (keyof T)[]): T => {
   const outputObj: T = {} as T
@@ -117,7 +117,7 @@ const createReturnfulOutlet = <TOutlet extends ReturnfulOutlet>(
 }
 
 const _verba = <
-  TCode extends string | number = string | number,
+  TCode extends string | number | undefined = string | number | undefined,
   TData extends any = any,
   TAliases extends Aliases<TCode, TData> = Aliases<TCode, TData>,
 >(
@@ -231,7 +231,7 @@ const _verba = <
  * childLog.step('Starting child task')
  */
 export const verba = <
-  TCode extends string | number = string | number,
+  TCode extends string | number | undefined = string | number | undefined,
   TData extends any = any,
 >(options?: VerbaOptions<TCode, TData>): Verba<TCode, TData, {}> => {
   const _options = options ?? { }

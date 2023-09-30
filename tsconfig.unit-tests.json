@@ -8,6 +8,6 @@
     "declaration": false,
     "sourceMap": true,
     "noEmit": false,
-    "outDir": "./build-test"
+    "outDir": "./build/test-unit"
   }
 }

@@ -4,21 +4,21 @@ import { getColorizer, normalizeVerbaString } from '../../verbaString'
 import { BaseTransportOptions } from './types'
 import columify from 'columnify'
 import { createCodeRenderer } from './code'
+import { createDataRenderer } from './data'
 import { createDispatchTimeRenderer } from './dispatchTime'
+import { createJsonRenderer } from './json'
 import { repeatStr } from '../../util/string'
 import { useDispatchDeltaT } from './dispatchDeltaT'
 import { useProgressBarLogger } from './progressBar'
 import { useSimpleOutletLoggers } from './simpleOutletLogger'
 import { useSpinnerLogger } from './spinner'
 import { useTtyConsoleOccupierRef } from './ttyConsoleOccupier'
-import { createJsonRenderer } from './json'
-import { createDataRenderer } from './data'
 
 /**
  * A Verba Transport for typical console and file transports, supporting TTY and non-TTY environments.
  */
 export const baseTransport = <
-  TCode extends string | number = string | number,
+  TCode extends string | number | undefined = string | number | undefined,
   TData extends any = any
 >(
   transportOptions: BaseTransportOptions<TCode, TData>,

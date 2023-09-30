@@ -123,7 +123,7 @@ For more usage information, see the next sections.
 
 Where and how Verba logs are outputted can be defined by **Transports**.
 
-Verba has two built-in Transports: `consoleTransport` and `fileTransport` (defined [here](src/verba/Transport)). By default, `consoleTransport` is used.
+Verba has two built-in Transports: `consoleTransport` and `fileTransport` (defined at [./src/verba/transport](./src/verba/transport)). By default, `consoleTransport` is used.
 
 Custom Transports can be a way to define completely different ways to output log messages. For example:
 
@@ -267,27 +267,14 @@ Install NPM dependencies:
 npm i
 ```
 
-Lint Typescript code:
-```shell
-npm run lint
-```
+| Task            | Command         |
+|-----------------|-----------------|
+| Lint            | npm run lint    |
+| Test            | npm run test    |
+| Build           | npm run build   |
+| Run example app | npm run example |
 
-Build and run unit tests:
-```shell
-npm run unit-tests
-```
-
-Build all Typescript code (excluding app example):
-```shell
-npm run build-ts
-```
-
-Build and run app example:
-```shell
-npm run example
-```
-
-See [./contributing/development.md](./contributing/development.md) for more information
+See [./contributing/development.md](./contributing/development.md) for more information.
 
 ---
 

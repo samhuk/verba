@@ -3,7 +3,7 @@ import { Outlet, OutletToNormalizedArgsObj } from '../outlet/types'
 import { TypeDependantBaseIntersection } from '../util/types'
 
 export type OutletFilterOptions<
-  TCode extends string | number = string | number,
+  TCode extends string | number | undefined = string | number | undefined,
   TData extends any = any,
   TOutlet extends Outlet = Outlet,
 > = TypeDependantBaseIntersection<
@@ -14,6 +14,6 @@ export type OutletFilterOptions<
 >
 
 export type OutletFilter<
-  TCode extends string | number = string | number,
+  TCode extends string | number | undefined = string | number | undefined ,
   TData extends any = any,
 > = (options: OutletFilterOptions<TCode, TData>) => boolean

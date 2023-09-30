@@ -1,5 +1,4 @@
 import { FileTransportOptions } from './types'
-
 import { VerbaTransport } from '../types'
 import { baseTransport } from '../base'
 import { createFileDispatchService } from '../util/dispatchService/file'
@@ -17,7 +16,7 @@ import { createFileDispatchService } from '../util/dispatchService/file'
  * })
  */
 export const fileTransport = <
-  TCode extends string | number = string | number,
+  TCode extends string | number | undefined = string | number | undefined,
   TData extends any = any
 >(
   options?: FileTransportOptions<TCode, TData>,

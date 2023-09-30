@@ -3,7 +3,7 @@
     {
       "label": "unitTestsDebugPreLaunchTask",
       "type": "shell",
-      "command": "npm run build-unit-tests",
+      "command": "npm run test:unit:build",
       "presentation": {
         "reveal": "silent",
         "revealProblems": "onProblem",
@@ -13,7 +13,7 @@
     {
       "label": "exampleDebugPreLaunchTask",
       "type": "shell",
-      "command": "npm run build-examples",
+      "command": "npm run examples:build",
       "presentation": {
         "reveal": "silent",
         "revealProblems": "onProblem",

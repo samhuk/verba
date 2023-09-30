@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [14.x, 16.x, 18.x, 19.x]
+        node-version: [14.x, 16.x, 18.x, 20.x]
     steps:
     - uses: actions/checkout@v3
     - name: Use Node.js ${{ matrix.node-version }}
@@ -19,12 +19,12 @@ jobs:
     - name: Install dependencies
       run: npm install
     - name: Lint
-      run: npm run lint-errors-only
+      run: npm run lint:errors
     - name: Build
-      run: npm run build-ts
+      run: npm run build
     - name: Unit tests
-      run: npm run unit-tests
+      run: npm run test
     - name: Build Examples
-      run: npm run build-examples
+      run: npm run example:build
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3
