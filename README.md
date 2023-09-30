@@ -123,7 +123,7 @@ For more usage information, see the next sections.
 
 Where and how Verba logs are outputted can be defined by **Transports**.
 
-Verba has two built-in Transports: `consoleTransport` and `fileTransport` (defined [here](src/verba/Transport)). By default, `consoleTransport` is used.
+Verba has two built-in Transports: `consoleTransport` and `fileTransport` (defined at [./src/verba/transport](./src/verba/transport)). By default, `consoleTransport` is used.
 
 Custom Transports can be a way to define completely different ways to output log messages. For example:
 
