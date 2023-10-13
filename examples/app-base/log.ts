@@ -1,7 +1,7 @@
-import stringify from 'safe-stable-stringify'
 import verba, { Outlet, OutletFilter, consoleTransport, fileTransport } from '../../src'
 
 import { Code } from './codes'
+import stringify from 'safe-stable-stringify'
 
 type LogMessageData = { verbose: boolean }
 
@@ -20,7 +20,7 @@ const log = verba<Code, LogMessageData>({
   ],
   transports: [
     consoleTransport({
-      outletPrefixes: 'textual',
+      outletPrefixes: 'textual-muted',
       deltaT: true,
       timePrefix: 'MMM dd|hh:ii:ss',
       dataRenderer: data => stringify(data, null, 2) ?? '',

@@ -3,7 +3,7 @@ import { DataRenderer } from './data'
 import { DispatchDeltaTOptions } from './dispatchDeltaT'
 import { SimpleOutletPrefixesOptions } from '../../outlet/types'
 
-export type BuiltInSimpleOutletPrefixNames = 'default' | 'textual'
+export type BuiltInSimpleOutletPrefixNames = 'default' | 'textual' | 'textual-muted'
 
 export type BaseTransportOptions<
   TCode extends string | number | undefined = string | number | undefined,
@@ -74,6 +74,7 @@ export type BaseTransportOptions<
    * This can take multiple types of values:
    * * `default` - Default set of outlet prefixes, using short symbols.
    * * `textual` - Alternative set of outlet prefixes, using text, e.g. "INFO", "STEP", "WARN", etc.
+   * * `textual-muted` - Alternative set of outlet prefixes, using lower-case text, e.g. "info", "step", "warn", etc.
    * * `{ info: 'INFO: ', step: '* ', ... }` - Completely custom outlet prefixes.
    */
   outletPrefixes: BuiltInSimpleOutletPrefixNames | SimpleOutletPrefixesOptions | undefined
