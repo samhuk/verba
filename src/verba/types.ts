@@ -313,7 +313,7 @@ export type Verba<
    * @example
    * import verba from 'verba'
    * const log = verba()
-   * const childLog = log.nest({ code: 'CHILD_TASK' })
+   * const childLog = log.child({ code: 'CHILD_TASK' })
    * childLog.log('This is a child task') // Will have the `code` "CHILD_TASK"
    */
   child: (options: NestOptions<TCode>) => Verba<TCode, TData>

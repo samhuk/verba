@@ -99,7 +99,7 @@ describe('verba', () => {
     env.log.info('foo')
     env.log.info({ msg: 'foo', code: 'CODE', data: 'bar' })
     
-    const childLog = env.log.nest({ code: 'CHILD_CODE' })
+    const childLog = env.log.child({ code: 'CHILD_CODE' })
 
     childLog.log('foo')
     childLog.log(fn)

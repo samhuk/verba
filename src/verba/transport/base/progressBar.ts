@@ -26,10 +26,10 @@ export const useProgressBarLogger = (
   }
 
   const progressBar = createConsoleProgressBar({
-    barLength: options.barLength,
     total: options.total,
     indentationString: nestState.indentationString,
     renderPrefix,
+    format: options.format,
   })
   let isInterrupted = false
 

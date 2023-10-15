@@ -78,7 +78,7 @@ log.info({
 Providing default log codes and indentation:
 
 ```typescript
-const childTaskLog = log.nest({ code: 'CHILD_TASK', indent: 2 })
+const childTaskLog = log.child({ code: 'CHILD_TASK', indent: 2 })
 childTaskLog.info('...')
 childTaskLog.step('...')
 ```
@@ -96,7 +96,7 @@ spinner.persist()
 log.success('Finished job')
 ```
 
-Disabling colors for `consoleTransport`:
+Disabling colors for a Transport:
 
 ```typescript
 import verba, { consoleTransport } from 'verba'

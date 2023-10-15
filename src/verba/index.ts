@@ -227,7 +227,7 @@ const _verba = <
  * log.json({ foo: 'bar' })
  * const spinner = log.spinner('Connecting to DB...')
  * // -- Nesting
- * const childLog = log.nest({ code: 'CHILD_TASK' })
+ * const childLog = log.child({ code: 'CHILD_TASK' })
  * childLog.step('Starting child task')
  */
 export const verba = <

@@ -16,7 +16,7 @@ const createMockMetrics = (jobs: string[]) => jobs.map(jobName => ({
 
 const uploadJobsReport = async () => {
   log.step('Uploading jobs report')
-  const progressBar = log.progressBar()
+  const progressBar = log.progressBar({ format: 'blue-bar-on-white' })
 
   setTimeout(() => log.warn('Report overwrites \'report.txt\''), 1000)
   for (let i = 0; i < 100; i += 20) {
@@ -66,7 +66,7 @@ export const app = async (jobs: string[]) => {
     }
     else {
       createGFError({
-        msg: 'An unexpected error occured.',
+        msg: 'An unexpected error occurred.',
         inner: _e,
       }).log()
     }

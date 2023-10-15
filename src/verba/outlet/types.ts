@@ -194,12 +194,18 @@ export type NormalizedSpinnerOptions<
 export type ProgressBarOptions<
   TCode extends string | number | undefined = string | number | undefined,
   TData extends any = any,
-> = Pick<BaseProgressBarOptions, 'total' | 'barLength'> & BaseOutletOptions<TCode, TData>
+> = Pick<BaseProgressBarOptions, 'total' | 'format'>
+  & BaseOutletOptions<TCode, TData>
 
 export type NormalizedProgressBarOptions<
   TCode extends string | number | undefined = string | number | undefined,
   TData extends any = any,
-> = Required<Pick<BaseProgressBarOptions, 'total' | 'barLength'>> & BaseNormalizedOutletOptions<TCode, TData>
+> = Required<
+  Pick<
+    BaseProgressBarOptions, 'total' | 'format'
+  >
+>
+  & BaseNormalizedOutletOptions<TCode, TData>
 
 export type OutletToNormalizedArgsObj<
   TCode extends string | number | undefined = string | number | undefined,

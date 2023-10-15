@@ -1,7 +1,8 @@
 import { NestedInstantiatedVerbaTransport, VerbaTransport } from '../types'
-import { getColorizer, normalizeVerbaString } from '../../verbaString'
+import { getColorizer, normalizeVerbaString, renderStringWithFormats } from '../../verbaString'
 
 import { BaseTransportOptions } from './types'
+import { NormalizedTableOptions } from '../../outlet/types'
 import columify from 'columnify'
 import { createCodeRenderer } from './code'
 import { createDataRenderer } from './data'
@@ -40,6 +41,15 @@ export const baseTransport = <
     const progressBar = useProgressBarLogger(_transportOptions, ttyConsoleOccupierRef, nestState, renderDispatchTime)
     const spinner = useSpinnerLogger(_transportOptions, ttyConsoleOccupierRef, nestState, simpleOutletLoggers.step, renderCode, renderDispatchTime)
 
+    const table: NestedInstantiatedVerbaTransport['table'] = _transportOptions.disableColors
+      ? ((data, _options) => transportOptions.dispatch(columify(data, _options)))
+      : ((data, _options) => transportOptions.dispatch(
+        columify(
+          data,
+          _options.headingTransform != null ? _options : {..._options, headingTransform: s => renderStringWithFormats(s, ['bold', 'underline']) },
+        ),
+      ))
+
     const transport: NestedInstantiatedVerbaTransport = {
       log: _options => transportOptions.dispatch(normalizeVerbaString(_options.msg, transportOptions)),
       // -- Simple outlets
@@ -49,7 +59,7 @@ export const baseTransport = <
       warn: simpleOutletLoggers.warn,
       error: simpleOutletLoggers.error,
       // -- Other outlets
-      table: (data, _options) => transportOptions.dispatch(columify(data, _options)),
+      table,
       json: (value, _options) => transportOptions.dispatch(renderJson(value, _options.pretty)),
       spacer: _options => transportOptions.dispatch(repeatStr('\n', _options.numLines - 1)),
       divider: () => transportOptions.dispatch(repeatStr('-', process.stdout.columns * 0.33)),

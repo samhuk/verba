@@ -1,4 +1,5 @@
 import { Outlet, OutletToNormalizedArgsObj, SimpleOutlet } from './outlet/types'
+
 import { VerbaBaseOutlets } from './types'
 import { isVerbaString } from './verbaString'
 
@@ -24,6 +25,7 @@ export const tableArgsNormalizer: ArgsNormalizer<Outlet.TABLE> = (data, options)
   data,
   options: {
     ...(options ?? {}),
+    columnSplitter: options?.columnSplitter ?? '  ',
     code: options?.code ?? undefined,
     data: options?.data ?? undefined,
   },
@@ -80,7 +82,7 @@ export const spinnerArgsNormalizer: ArgsNormalizer<Outlet.SPINNER> = options => 
 export const progressBarArgsNormalizer: ArgsNormalizer<Outlet.PROGRESS_BAR> = options => ({
   options: {
     total: options?.total ?? 100,
-    barLength: options?.barLength ?? 30,
+    format: options?.format ?? 'default',
     code: options?.code ?? undefined,
     data: options?.data ?? undefined,
   },
