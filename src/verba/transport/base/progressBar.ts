@@ -10,7 +10,8 @@ export const useProgressBarLogger = (
   transportOptions: BaseTransportOptions,
   ttyConsoleOccupierRef: MutableRef<TtyConsoleOccupier | undefined>,
   nestState: NestState,
-  renderPrefix: () => string,
+  renderDispatchTime: () => string,
+  prefix: string | undefined,
 ) => (
   options: NormalizedProgressBarOptions,
 ): ProgressBar => {
@@ -28,7 +29,7 @@ export const useProgressBarLogger = (
   const progressBar = createConsoleProgressBar({
     total: options.total,
     indentationString: nestState.indentationString,
-    renderPrefix,
+    renderPrefix: () => `${prefix ?? ''}${renderDispatchTime()}`,
     format: options.format,
   })
   let isInterrupted = false

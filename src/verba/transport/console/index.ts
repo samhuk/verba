@@ -38,5 +38,6 @@ export const consoleTransport = <
     timePrefix: options?.timePrefix ?? options?.dispatchTimePrefix ?? false,
     codeRenderer: options?.codeRenderer ?? true,
     dataRenderer: options?.dataRenderer ?? true,
+    prefix: options?.prefix ?? undefined,
   })
 }

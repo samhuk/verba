@@ -24,6 +24,7 @@ const log = verba<Code, LogMessageData>({
       deltaT: true,
       timePrefix: 'MMM dd|hh:ii:ss',
       dataRenderer: data => stringify(data, null, 2) ?? '',
+      prefix: { text: 'nc-api | ', formats: ['blue'] },
     }),
     fileTransport({
       batchOptions: {
