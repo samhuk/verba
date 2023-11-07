@@ -2,7 +2,6 @@ import { NestedInstantiatedVerbaTransport, VerbaTransport } from '../types'
 import { getColorizer, normalizeVerbaString, renderStringWithFormats } from '../../verbaString'
 
 import { BaseTransportOptions } from './types'
-import { NormalizedTableOptions } from '../../outlet/types'
 import columify from 'columnify'
 import { createCodeRenderer } from './code'
 import { createDataRenderer } from './data'
@@ -14,6 +13,16 @@ import { useProgressBarLogger } from './progressBar'
 import { useSimpleOutletLoggers } from './simpleOutletLogger'
 import { useSpinnerLogger } from './spinner'
 import { useTtyConsoleOccupierRef } from './ttyConsoleOccupier'
+
+const normalizePrefix = (prefix: BaseTransportOptions['prefix']): string | undefined => {
+  if (prefix == null)
+    return undefined
+
+  if (typeof prefix === 'string')
+    return prefix
+
+  return renderStringWithFormats(prefix.text, prefix.formats ?? [])
+}
 
 /**
  * A Verba Transport for typical console and file transports, supporting TTY and non-TTY environments.
@@ -36,14 +45,22 @@ export const baseTransport = <
   if (transportOptions.onClose != null)
     registerOnClose(transportOptions.onClose)
 
+  // Handle prefix
+  const prefix = normalizePrefix(transportOptions.prefix)
+  const dispatch: typeof transportOptions.dispatch = prefix != null
+    ? msg => transportOptions.dispatch(msg.split('\n').map(msgLine => `${prefix}${msgLine}`).join('\n'))
+    : transportOptions.dispatch
+
   return nestState => {
-    const simpleOutletLoggers = useSimpleOutletLoggers(_transportOptions, nestState, renderCode, renderDispatchTime, dispatchDeltaT, renderData)
-    const progressBar = useProgressBarLogger(_transportOptions, ttyConsoleOccupierRef, nestState, renderDispatchTime)
-    const spinner = useSpinnerLogger(_transportOptions, ttyConsoleOccupierRef, nestState, simpleOutletLoggers.step, renderCode, renderDispatchTime)
+    // eslint-disable-next-line max-len
+    const simpleOutletLoggers = useSimpleOutletLoggers(_transportOptions, nestState, renderCode, renderDispatchTime, dispatchDeltaT, renderData, dispatch)
+    const progressBar = useProgressBarLogger(_transportOptions, ttyConsoleOccupierRef, nestState, renderDispatchTime, prefix)
+    // eslint-disable-next-line max-len
+    const spinner = useSpinnerLogger(_transportOptions, ttyConsoleOccupierRef, nestState, simpleOutletLoggers.step, renderCode, renderDispatchTime, prefix)
 
     const table: NestedInstantiatedVerbaTransport['table'] = _transportOptions.disableColors
-      ? ((data, _options) => transportOptions.dispatch(columify(data, _options)))
-      : ((data, _options) => transportOptions.dispatch(
+      ? ((data, _options) => dispatch(columify(data, _options)))
+      : ((data, _options) => dispatch(
         columify(
           data,
           _options.headingTransform != null ? _options : {..._options, headingTransform: s => renderStringWithFormats(s, ['bold', 'underline']) },
@@ -51,7 +68,7 @@ export const baseTransport = <
       ))
 
     const transport: NestedInstantiatedVerbaTransport = {
-      log: _options => transportOptions.dispatch(normalizeVerbaString(_options.msg, transportOptions)),
+      log: _options => dispatch(normalizeVerbaString(_options.msg, transportOptions)),
       // -- Simple outlets
       info: simpleOutletLoggers.info,
       step: simpleOutletLoggers.step,
@@ -60,9 +77,9 @@ export const baseTransport = <
       error: simpleOutletLoggers.error,
       // -- Other outlets
       table,
-      json: (value, _options) => transportOptions.dispatch(renderJson(value, _options.pretty)),
-      spacer: _options => transportOptions.dispatch(repeatStr('\n', _options.numLines - 1)),
-      divider: () => transportOptions.dispatch(repeatStr('-', process.stdout.columns * 0.33)),
+      json: (value, _options) => dispatch(renderJson(value, _options.pretty)),
+      spacer: _options => dispatch(repeatStr('\n', _options.numLines - 1)),
+      divider: () => dispatch(repeatStr('-', process.stdout.columns * 0.33)),
       spinner,
       progressBar,
     }

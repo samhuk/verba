@@ -65,6 +65,7 @@ export const useSimpleOutletLoggers = (
   renderDispatchTime: () => string,
   dispatchDeltaT: DispatchDeltaT | undefined,
   renderData: DataRenderer | undefined,
+  dispatch: (s: string) => void,
 ): { [k in SimpleOutlet]: ((options: NormalizedSimpleOutletOptions) => void) } => {
   const _normalizeVerbaString = createVerbaStringNormalizer(transportOptions)
   const _renderData = renderData != null
@@ -83,11 +84,11 @@ export const useSimpleOutletLoggers = (
     return dispatchDeltaT != null
       ? dispatchDeltaT.position === 'start'
         ? options =>
-          transportOptions.dispatch(renderDispatchTime() + dispatchDeltaT.render() + renderBaseContent(options) + _renderData(options.data))
+          dispatch(renderDispatchTime() + dispatchDeltaT.render() + renderBaseContent(options) + _renderData(options.data))
         : options =>
-          transportOptions.dispatch(renderDispatchTime() + renderBaseContent(options) + dispatchDeltaT.render() + _renderData(options.data))
+          dispatch(renderDispatchTime() + renderBaseContent(options) + dispatchDeltaT.render() + _renderData(options.data))
       : options =>
-        transportOptions.dispatch(renderDispatchTime() + renderBaseContent(options) + _renderData(options.data))
+        dispatch(renderDispatchTime() + renderBaseContent(options) + _renderData(options.data))
   }
 
   const result: { [k in SimpleOutlet]: ((options: NormalizedSimpleOutletOptions) => void) } = { } as any

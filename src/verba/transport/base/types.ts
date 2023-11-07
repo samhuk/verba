@@ -2,6 +2,7 @@ import { CodeRenderer } from './code'
 import { DataRenderer } from './data'
 import { DispatchDeltaTOptions } from './dispatchDeltaT'
 import { SimpleOutletPrefixesOptions } from '../../outlet/types'
+import { StringFormat } from '../../verbaString/types'
 
 export type BuiltInSimpleOutletPrefixNames = 'default' | 'textual' | 'textual-muted'
 
@@ -166,4 +167,16 @@ export type BaseTransportOptions<
    * data => JSON.stringify(data, null, 2)
    */
   dataRenderer: boolean | DataRenderer<TData>
+  /**
+   * Optional prefix to print before every line.
+   * 
+   * This may take two types of values:
+   * * `string` - shows prefix with no additional formatting
+   * * `{ text: string, formats?: StringFormat[] }` - shows prefix `text` with the given `formats`.
+   * 
+   * @example 'server'
+   * 
+   * @example { text: 'server', formats: ['blue', 'italic'] }
+   */
+  prefix?: string | { text: string, formats?: StringFormat[] }
 }

@@ -1,14 +1,14 @@
-import { Spinner } from '../../spinner/types'
-import { normalizeVerbaString } from '../../verbaString'
-
-import { MutableRef } from '../../util/types'
 import { NestState, OutletSpinner } from '../../types'
 import { NormalizedSimpleOutletOptions, NormalizedSpinnerOptions } from '../../outlet/types'
+
 import { BaseTransportOptions } from './types'
-import { TtyConsoleOccupier } from './ttyConsoleOccupier'
 import { CodeRenderer } from './code'
-import { createConsoleSpinner } from '../../spinner'
+import { MutableRef } from '../../util/types'
+import { Spinner } from '../../spinner/types'
+import { TtyConsoleOccupier } from './ttyConsoleOccupier'
 import { VerbaString } from '../../verbaString/types'
+import { createConsoleSpinner } from '../../spinner'
+import { normalizeVerbaString } from '../../verbaString'
 
 const createSpinner = (
   transportOptions: BaseTransportOptions | undefined,
@@ -17,6 +17,7 @@ const createSpinner = (
   renderCode: CodeRenderer | undefined,
   renderDispatchTime: () => string,
   options: NormalizedSpinnerOptions | undefined,
+  prefix: string | undefined,
 ): { spinner: OutletSpinner, clear: () => void } => {
   // -- Prepare variables
   const codeStr = renderCode != null
@@ -29,7 +30,7 @@ const createSpinner = (
     color: transportOptions?.disableColors ? undefined : 'cyan',
     indentation: nestState.indent,
     disableColors: transportOptions?.disableColors,
-    renderPrefix: renderDispatchTime,
+    renderPrefix: () => `${prefix ?? ''}${renderDispatchTime()}`,
   })
 
   // -- Prepare text setter function
@@ -133,13 +134,14 @@ export const useSpinnerLogger = (
   stepSimpleOutletLogger: (options: NormalizedSimpleOutletOptions) => void,
   renderCode: CodeRenderer | undefined,
   renderDispatchTime: () => string,
+  prefix: string | undefined,
 ) => (options: NormalizedSpinnerOptions): OutletSpinner => {
   // If the current console is not TTY then return spinner shim
   if (!transportOptions.isTty)
     return createNonTTYSpinnerShim(stepSimpleOutletLogger, options)
 
   // Else return real spinner
-  const { spinner, clear } = createSpinner(transportOptions, ttyConsoleOccupierRef, nestState, renderCode, renderDispatchTime, options as any)
+  const { spinner, clear } = createSpinner(transportOptions, ttyConsoleOccupierRef, nestState, renderCode, renderDispatchTime, options as any, prefix)
   ttyConsoleOccupierRef.current = createTtyConsoleOccupier(spinner, clear, stepSimpleOutletLogger, options)
   return spinner
 }
