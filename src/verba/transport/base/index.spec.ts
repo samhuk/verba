@@ -10,7 +10,6 @@ const sleep = (durationSeconds: number) => new Promise<void>(res => {
   }, durationSeconds * 1000)
 })
 
-
 type Env = {
   instantiatedTransport: InstantiatedVerbaTransport
   dispatches: string[]
@@ -34,8 +33,6 @@ const createEnv = (): Env => {
     onClose: () => {
       _this.numOnCloseCalls++
     },
-    dispatchDeltaT: false,
-    dispatchTimePrefix: false,
     isTty: false,
     outletPrefixes: undefined,
     dataRenderer: true,
