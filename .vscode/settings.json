@@ -1,4 +1,8 @@
 {
-  "cSpell.words": ["columnify", "verba"],
+  "cSpell.words": [
+    "columnify",
+    "padder",
+    "verba"
+  ],
   "editor.formatOnSave": false
 }

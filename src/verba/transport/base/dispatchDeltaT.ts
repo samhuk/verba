@@ -38,7 +38,7 @@ const determineDispatchDeltaTPos = (dispatchDeltaTOptions: DispatchDeltaTOptions
  * Lots of code duplication for super fast performance.
  */
 const createDispatchDeltaTRenderer = (
-  dispatchDeltaTOptions: Exclude<BaseTransportOptions['dispatchDeltaT'], false | null>,
+  dispatchDeltaTOptions: Exclude<BaseTransportOptions['deltaT'], false | null>,
   disableColors: boolean,
   colorizer: Colors,
   previousDispatchEpochRef: MutableRef<number>,

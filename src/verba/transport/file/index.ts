@@ -27,11 +27,9 @@ export const fileTransport = <
     onClose: dispatchService.destroy,
     dispatch: dispatchService.dispatch,
     disableColors: true,
-    dispatchDeltaT: false, // TODO: Remove once fully deprecated
-    deltaT: options?.deltaT ?? options?.dispatchDeltaT ?? false,
+    deltaT: options?.deltaT ?? false,
     outletPrefixes: options?.outletPrefixes,
-    dispatchTimePrefix: false, // TODO: Remove once fully deprecated
-    timePrefix: options?.timePrefix ?? options?.dispatchTimePrefix ?? false,
+    timePrefix: options?.timePrefix ?? false,
     codeRenderer: options?.codeRenderer ?? true,
     dataRenderer: options?.dataRenderer ?? true,
   })
