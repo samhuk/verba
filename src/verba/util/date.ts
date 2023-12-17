@@ -14,6 +14,7 @@ const MONTHS: string[] = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug'
  * * `ss` - 2-digit second of minute, e.g. 00, 59
  * * `MMM` - 3-letter-abbreviated month of year, e.g. "Jan", "Dec"
  * * `a` - Meridiem, e.g. "AM", "PM"
+ * * `tz` - Timezone offset, e.g. "+01:00", "-07:00"
  * 
  * @example
  * 'yyyy-mm-dd|hh-ii-ss'
@@ -36,6 +37,7 @@ export type DateTimeFormatOptions = {
    * * `ss` - 2-digit second of minute, e.g. 00, 59
    * * `MMM` - 3-letter-abbreviated month of year, e.g. "Jan", "Dec"
    * * `a` - Meridiem, e.g. "AM", "PM"
+   * * `tz` - Timezone offset, e.g. "+01:00", "-07:00"
    * 
    * @example
    * 'yyyy-mm-dd|hh-ii-ss'
