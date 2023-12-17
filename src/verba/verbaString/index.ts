@@ -89,7 +89,7 @@ export const renderStringWithFormats = (s: string, formats: StringFormat[], opti
 }
 
 /**
- * Performant version of `createStringFormatter` that does some precalculation
+ * Performant version of `renderStringWithFormats` that does some precalculation
  * to improve performance when called with many strings.
  */
 export const createStringFormatter = (formats: StringFormat[], options?: NormalizeVerbaStringOptions): ((s: string) => string) => {
@@ -98,6 +98,8 @@ export const createStringFormatter = (formats: StringFormat[], options?: Normali
 
   const fns = formats.map(f => verbaColorizer[f])
   switch (fns.length) {
+    case 0:
+      return s => s
     case 1: {
       const f1 = fns[0]
       return s => f1(s)

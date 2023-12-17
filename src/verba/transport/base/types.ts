@@ -1,3 +1,5 @@
+import { DateTimeFormat, DateTimeFormatOptions } from '../../util/date'
+
 import { CodeRenderer } from './code'
 import { DataRenderer } from './data'
 import { DispatchDeltaTOptions } from './dispatchDeltaT'
@@ -5,6 +7,19 @@ import { SimpleOutletPrefixesOptions } from '../../outlet/types'
 import { StringFormat } from '../../verbaString/types'
 
 export type BuiltInSimpleOutletPrefixNames = 'default' | 'textual' | 'textual-muted'
+
+export type DispatchTimePrefixOptions = Partial<DateTimeFormatOptions> & {
+  /**
+   * Optional list of string formats to apply to the date-time string.
+   * 
+   * @default
+   * ['grey']
+   * 
+   * @example
+   * ['blue', 'italic']
+   */
+  stringFormats?: StringFormat[]
+}
 
 export type BaseTransportOptions<
   TCode extends string | number | undefined = string | number | undefined,
@@ -54,7 +69,7 @@ export type BaseTransportOptions<
    */
   outletPrefixes: BuiltInSimpleOutletPrefixNames | SimpleOutletPrefixesOptions | undefined
   /**
-   * Configures the time that appears at the start of each log messages.
+   * Configures the appearance of the dispatch time that appears at the start of each log message.
    * 
    * This can take several types of values:
    * * `false` - Disables the indicator.
@@ -69,6 +84,8 @@ export type BaseTransportOptions<
    *   * `ss` - 2-digit second of minute, e.g. 00, 59
    *   * `MMM` - 3-letter-abbreviated month of year, e.g. "Jan", "Dec"
    *   * `a` - Meridiem, e.g. "AM", "PM"
+   *   * `tz` - Timezone offset, e.g. "+01:00", "-07:00"
+   * * `object` - Enables the indicator with full customization, allowing specification of date-time and string formats
    *
    * @default false
    * 
@@ -77,8 +94,12 @@ export type BaseTransportOptions<
    * true
    * 'yyyy-mm-dd|hh-ii-ss'
    * 'MMM dd|hh:ii:ss'
+   * {
+   *   dateTimeFormat: 'yyyy-mm-dd|hh-ii-ss',
+   *   stringFormats: ['grey', 'italic']
+   * }
    */
-  timePrefix: boolean | string
+  timePrefix: boolean | DateTimeFormat | DispatchTimePrefixOptions
   /**
    * Configures how log message codes are rendered.
    * 

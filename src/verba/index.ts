@@ -23,10 +23,10 @@ import {
   VerbaOptions,
 } from './types'
 import {
+  NonReturningOutlet,
   Outlet,
   OutletToNormalizedArgsObj,
-  ReturnfulOutlet,
-  ReturnlessOutlet,
+  ReturningOutlet,
 } from './outlet/types'
 
 import { Aliases } from './alias/types'
@@ -51,7 +51,7 @@ const mergeObjectsOfFunctions = <T extends Record<string, Function>>(objs: T[], 
   return outputObj
 }
 
-const createReturnlessOutlet = <TOutlet extends ReturnlessOutlet>(
+const createNonReturningOutlet = <TOutlet extends NonReturningOutlet>(
   outlet: TOutlet,
   argsNormalizer: ArgsNormalizer<TOutlet>,
   executor: (t: NestedInstantiatedVerbaTransport, options: OutletToNormalizedArgsObj[TOutlet]) => void,
@@ -79,7 +79,7 @@ const createReturnlessOutlet = <TOutlet extends ReturnlessOutlet>(
   listeners.call('onAfterLog', optionsObj as any, nestState)
 }
 
-const createReturnfulOutlet = <TOutlet extends ReturnfulOutlet>(
+const createReturningOutlet = <TOutlet extends ReturningOutlet>(
   outlet: TOutlet,
   argsNormalizer: ArgsNormalizer<TOutlet>,
   executor: (t: NestedInstantiatedVerbaTransport, options: OutletToNormalizedArgsObj[TOutlet]) => ReturnType<VerbaBaseOutlets[TOutlet]> | undefined,
@@ -130,31 +130,31 @@ const _verba = <
   close: () => Promise<void[]>,
 ): Verba<TCode, TData, TAliases> => {
   // TODO: Use currying
-  type UnchangingArgs = Parameters<typeof createReturnlessOutlet>
+  type UnchangingArgs = Parameters<typeof createNonReturningOutlet>
   const unchangingOptions: [UnchangingArgs[3], UnchangingArgs[4], UnchangingArgs[5], UnchangingArgs[6]] = (
     [options?.outletFilters, nestedInstantiatedTransports, listeners, nestState] 
   )
 
+  /* eslint-disable max-len */
   const baseOutlets: VerbaBaseOutlets<TCode, TData> = {
-    log: createReturnlessOutlet(Outlet.LOG, simpleOutletArgsNormalizer, (t, _options) => t.log(_options.options), ...unchangingOptions),
+    log: createNonReturningOutlet(Outlet.LOG, simpleOutletArgsNormalizer, (t, _options) => t.log(_options.options), ...unchangingOptions),
     
     // -- Simple outlets
-    info: createReturnlessOutlet(Outlet.INFO, simpleOutletArgsNormalizer, (t, _options) => t.info(_options.options), ...unchangingOptions),
-    step: createReturnlessOutlet(Outlet.STEP, simpleOutletArgsNormalizer, (t, _options) => t.step(_options.options), ...unchangingOptions),
-    success: createReturnlessOutlet(Outlet.SUCCESS, simpleOutletArgsNormalizer, (t, _options) => t.success(_options.options), ...unchangingOptions),
-    warn: createReturnlessOutlet(Outlet.WARN,  simpleOutletArgsNormalizer, (t, _options) => t.warn(_options.options), ...unchangingOptions),
-    error: createReturnlessOutlet(Outlet.ERROR, simpleOutletArgsNormalizer, (t, _options) => t.error(_options.options), ...unchangingOptions),
+    info: createNonReturningOutlet(Outlet.INFO, simpleOutletArgsNormalizer, (t, _options) => t.info(_options.options), ...unchangingOptions),
+    step: createNonReturningOutlet(Outlet.STEP, simpleOutletArgsNormalizer, (t, _options) => t.step(_options.options), ...unchangingOptions),
+    success: createNonReturningOutlet(Outlet.SUCCESS, simpleOutletArgsNormalizer, (t, _options) => t.success(_options.options), ...unchangingOptions),
+    warn: createNonReturningOutlet(Outlet.WARN,  simpleOutletArgsNormalizer, (t, _options) => t.warn(_options.options), ...unchangingOptions),
+    error: createNonReturningOutlet(Outlet.ERROR, simpleOutletArgsNormalizer, (t, _options) => t.error(_options.options), ...unchangingOptions),
 
     // -- Other outlets
-    table: createReturnlessOutlet(Outlet.TABLE, tableArgsNormalizer, (t, _options) => t.table(_options.data, _options.options), ...unchangingOptions),
-    json: createReturnlessOutlet(Outlet.JSON, jsonArgsNormalizer, (t, _options) => t.json(_options.value, _options.options), ...unchangingOptions),
-    divider: createReturnlessOutlet(Outlet.DIVIDER, dividerArgsNormalizer, (t, _options) => t.divider(_options.options), ...unchangingOptions),
-    spacer: createReturnlessOutlet(Outlet.SPACER, spacerArgsNormalizer, (t, _options) => t.spacer(_options.options), ...unchangingOptions),
-    // eslint-disable-next-line max-len
-    spinner: createReturnfulOutlet(Outlet.SPINNER, spinnerArgsNormalizer, (t, _options) => t.spinner(_options.options), ['clear', 'color', 'pause', 'persist', 'start', 'text'], ...unchangingOptions),
-    // eslint-disable-next-line max-len
-    progressBar: createReturnfulOutlet(Outlet.PROGRESS_BAR, progressBarArgsNormalizer, (t, _options) => t.progressBar(_options.options), ['update', 'clear', 'persist', 'updateValue', 'render'], ...unchangingOptions),
+    table: createNonReturningOutlet(Outlet.TABLE, tableArgsNormalizer, (t, _options) => t.table(_options.data, _options.options), ...unchangingOptions),
+    json: createNonReturningOutlet(Outlet.JSON, jsonArgsNormalizer, (t, _options) => t.json(_options.value, _options.options), ...unchangingOptions),
+    divider: createNonReturningOutlet(Outlet.DIVIDER, dividerArgsNormalizer, (t, _options) => t.divider(_options.options), ...unchangingOptions),
+    spacer: createNonReturningOutlet(Outlet.SPACER, spacerArgsNormalizer, (t, _options) => t.spacer(_options.options), ...unchangingOptions),
+    spinner: createReturningOutlet(Outlet.SPINNER, spinnerArgsNormalizer, (t, _options) => t.spinner(_options.options), ['clear', 'color', 'pause', 'persist', 'start', 'text'], ...unchangingOptions),
+    progressBar: createReturningOutlet(Outlet.PROGRESS_BAR, progressBarArgsNormalizer, (t, _options) => t.progressBar(_options.options), ['update', 'clear', 'persist', 'updateValue', 'render'], ...unchangingOptions),
   }
+  /* eslint-enable max-len */
 
   // -- Create aliases object
   const aliasOutlets: any = {}
