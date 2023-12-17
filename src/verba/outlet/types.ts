@@ -23,11 +23,11 @@ export enum Outlet {
 
 export type SimpleOutlet = Outlet.INFO | Outlet.STEP | Outlet.SUCCESS | Outlet.WARN | Outlet.ERROR
 
-export type ReturnlessOutlet = keyof { [TOutlet in Outlet as ReturnType<OutletToTransportHandlerFn[TOutlet]> extends void
+export type NonReturningOutlet = keyof { [TOutlet in Outlet as ReturnType<OutletToTransportHandlerFn[TOutlet]> extends void
   ? TOutlet
   : never]: 1 }
 
-export type ReturnfulOutlet = keyof { [TOutlet in Outlet as ReturnType<OutletToTransportHandlerFn[TOutlet]> extends void
+export type ReturningOutlet = keyof { [TOutlet in Outlet as ReturnType<OutletToTransportHandlerFn[TOutlet]> extends void
   ? never
   : TOutlet]: 1 }
 

@@ -22,9 +22,9 @@ const log = verba<Code, LogMessageData>({
     consoleTransport({
       outletPrefixes: 'textual-muted',
       deltaT: true,
-      timePrefix: 'MMM dd|hh:ii:ss',
+      timePrefix: 'MMM dd hh:ii:ss (tz)',
       dataRenderer: data => stringify(data, null, 2) ?? '',
-      prefix: { text: 'nc-api | ', formats: ['blue'] },
+      prefix: { text: 'verba-api | ', formats: ['blue'] },
     }),
     fileTransport({
       batchOptions: {
