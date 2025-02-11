@@ -11,6 +11,7 @@ import { verba } from './verba'
 // Transports
 export { consoleTransport } from './verba/transport/console'
 export { fileTransport } from './verba/transport/file'
+export { baseTransport } from './verba/transport/base'
 // VerbaString
 export {
   isVerbaString,

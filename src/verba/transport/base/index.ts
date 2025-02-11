@@ -1,5 +1,5 @@
 import { NestedInstantiatedVerbaTransport, VerbaTransport } from '../types'
-import { getColorizer, normalizeVerbaString, renderStringWithFormats } from '../../verbaString'
+import { createVerbaStringNormalizer, getColorizer, normalizeVerbaString, renderStringWithFormats } from '../../verbaString'
 
 import { BaseTransportOptions } from './types'
 import columify from 'columnify'
@@ -25,7 +25,24 @@ const normalizePrefix = (prefix: BaseTransportOptions['prefix']): string | undef
 }
 
 /**
- * A Verba Transport for typical console and file transports, supporting TTY and non-TTY environments.
+ * A Verba Transport for typical console, file, and other typical transports, supporting TTY and non-TTY environments.
+ * 
+ * This is useful for creating a custom Transport that has built-in behavior similar to `consoleTransport` and
+ * `fileTransport` (which both use `baseTransport` under the hood).
+ * 
+ * @example
+ * const logMessages: string[] = []
+ * const transport = baseTransport({
+ *   codeRenderer: true,
+ *   deltaT: false,
+ *   timePrefix: false,
+ *   disableColors: true,
+ *   dispatch: s => logMessages.push(s),
+ *   onClose: () => undefined,
+ *   isTty: false,
+ *   outletPrefixes: undefined,
+ *   dataRenderer: true,
+ * })
  */
 export const baseTransport = <
   TCode extends string | number | undefined = string | number | undefined,
@@ -51,6 +68,8 @@ export const baseTransport = <
     ? msg => transportOptions.dispatch(msg.split('\n').map(msgLine => `${prefix}${msgLine}`).join('\n'))
     : transportOptions.dispatch
 
+  const _normalizeVerbaString = createVerbaStringNormalizer(transportOptions)
+
   return nestState => {
     // eslint-disable-next-line max-len
     const simpleOutletLoggers = useSimpleOutletLoggers(_transportOptions, nestState, renderCode, renderDispatchTime, dispatchDeltaT, renderData, dispatch)
@@ -68,7 +87,7 @@ export const baseTransport = <
       ))
 
     const transport: NestedInstantiatedVerbaTransport = {
-      log: _options => dispatch(normalizeVerbaString(_options.msg, transportOptions)),
+      log: _options => dispatch(_normalizeVerbaString(_options.msg)),
       // -- Simple outlets
       info: simpleOutletLoggers.info,
       step: simpleOutletLoggers.step,

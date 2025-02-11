@@ -25,8 +25,18 @@ export type BaseTransportOptions<
   TCode extends string | number | undefined = string | number | undefined,
   TData extends any = any
 > = {
-  dispatch: (s: string) => void
+  /**
+   * The function that logs the formatted message.
+   * 
+   * @example
+   * s => process.stdout.write(s + '\n')
+   */
+  dispatch: (logMessage: string) => void
+  /** Called when Verba is closed. Useful to run any clean-up tasks. */
   onClose?: () => Promise<void> | void
+  /**
+   * Indicates whether this transport supports TTY, which will enable "animation"-like behaviors such as spinners, progress, bars, etc.
+   */
   isTty: boolean
   /**
    * Disables ANSI colors for all log messages if `true`.

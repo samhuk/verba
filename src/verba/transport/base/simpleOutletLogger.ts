@@ -49,10 +49,11 @@ Object.entries(BUILT_IN_SIMPLE_OUTLET_PREFIX_CREATORS)
 
 const determineSimpleOutletPrefix = (options: BaseTransportOptions, outlet: SimpleOutlet): string => {
   const disableColors = String(options.disableColors) as 'true' | 'false'
-  if (typeof options.outletPrefixes === 'string')
-    return BUILT_IN_SIMPLE_OUTLET_PREFIXES[options.outletPrefixes][disableColors][outlet]
 
-  const userDefinedPrefix = options.outletPrefixes?.[outlet]
+  if (!options.outletPrefixes || typeof options.outletPrefixes === 'string')
+    return BUILT_IN_SIMPLE_OUTLET_PREFIXES[options.outletPrefixes ?? 'default'][disableColors][outlet]
+
+  const userDefinedPrefix = options.outletPrefixes[outlet]
   return userDefinedPrefix != null
     ? normalizeVerbaString(userDefinedPrefix, options)
     : BUILT_IN_SIMPLE_OUTLET_PREFIXES.default[disableColors][outlet]
