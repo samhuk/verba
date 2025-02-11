@@ -1,4 +1,4 @@
-import { Colors, StringFormat } from '../../verbaString/types'
+import { StringFormat, VerbaColorizer } from '../../verbaString/types'
 
 import { BaseTransportOptions } from './types'
 import { ListenerStore } from '../../util/listenerStore/types'
@@ -8,7 +8,7 @@ import { createPadder } from '../../util/string'
 import { createStringFormatter } from '../../verbaString'
 import { useRef } from '../../util/misc'
 
-type DispatchDeltaTFormat = true | StringFormat[] | ((dt: number, f: Colors) => string)
+type DispatchDeltaTFormat = true | StringFormat[] | ((dt: number, f: VerbaColorizer) => string)
 
 export type DispatchDeltaTOptions = false
   | DispatchDeltaTFormat
@@ -40,7 +40,7 @@ const determineDispatchDeltaTPos = (dispatchDeltaTOptions: DispatchDeltaTOptions
 const createDispatchDeltaTRenderer = (
   dispatchDeltaTOptions: Exclude<BaseTransportOptions['deltaT'], false | null>,
   disableColors: boolean,
-  colorizer: Colors,
+  colorizer: VerbaColorizer,
   previousDispatchEpochRef: MutableRef<number>,
   pos: 'start' | 'end',
 ) => {
@@ -103,7 +103,7 @@ const createDispatchDeltaTRenderer = (
 
 export const useDispatchDeltaT = (
   transportOptions: BaseTransportOptions,
-  colorizer: Colors,
+  colorizer: VerbaColorizer,
   listeners:  ListenerStore<keyof VerbaTransportEventHandlers, VerbaTransportEventHandlers>,
 ): DispatchDeltaT | undefined => {
   if (transportOptions.deltaT === false || transportOptions.deltaT == null)

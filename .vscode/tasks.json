@@ -1,16 +1,6 @@
 {
   "tasks": [
     {
-      "label": "unitTestsDebugPreLaunchTask",
-      "type": "shell",
-      "command": "npm run test:unit:build",
-      "presentation": {
-        "reveal": "silent",
-        "revealProblems": "onProblem",
-        "close": true
-      }
-    },
-    {
       "label": "exampleDebugPreLaunchTask",
       "type": "shell",
       "command": "npm run examples:build",

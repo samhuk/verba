@@ -1,35 +1,48 @@
-import { Colors, FancyString, NormalizeVerbaStringOptions, StringFormat, VerbaString } from './types'
+import { FancyString, NormalizeVerbaStringOptions, StringFormat, VerbaColor, VerbaColorizer, VerbaString } from './types'
 
-import colors from 'colors/safe'
+import kleur from 'kleur'
 
-export const verbaColorizer: Colors = colors
-export const verbaDecolorizer: Colors = {
-  black: s => s,
-  red: s => s,
-  green: s => s,
-  yellow: s => s,
-  blue: s => s,
-  magenta: s => s,
-  cyan: s => s,
-  white: s => s,
-  gray: s => s,
-  grey: s => s,
-  bgBlack: s => s,
-  bgRed: s => s,
-  bgGreen: s => s,
-  bgYellow: s => s,
-  bgBlue: s => s,
-  bgMagenta: s => s,
-  bgCyan: s => s,
-  bgWhite: s => s,
-  bold: s => s,
-  dim: s => s,
-  italic: s => s,
-  underline: s => s,
-  inverse: s => s,
-  hidden: s => s,
-  strikethrough: s => s,
+export const verbaColorizer: VerbaColorizer = kleur
+
+let verbaDecolorizerInternal: VerbaColorizer
+
+const mockKleurColorizer: VerbaColor = (...args: any[]) => {
+  if (args[0] == null)
+    return verbaDecolorizerInternal as any
+
+  return String(args[0]) as any
 }
+
+export const verbaDecolorizer: VerbaColorizer = {
+  black: mockKleurColorizer,
+  red: mockKleurColorizer,
+  green: mockKleurColorizer,
+  yellow: mockKleurColorizer,
+  blue: mockKleurColorizer,
+  magenta: mockKleurColorizer,
+  cyan: mockKleurColorizer,
+  white: mockKleurColorizer,
+  gray: mockKleurColorizer,
+  grey: mockKleurColorizer,
+  bgBlack: mockKleurColorizer,
+  bgRed: mockKleurColorizer,
+  bgGreen: mockKleurColorizer,
+  bgYellow: mockKleurColorizer,
+  bgBlue: mockKleurColorizer,
+  bgMagenta: mockKleurColorizer,
+  bgCyan: mockKleurColorizer,
+  bgWhite: mockKleurColorizer,
+  bold: mockKleurColorizer,
+  dim: mockKleurColorizer,
+  italic: mockKleurColorizer,
+  underline: mockKleurColorizer,
+  inverse: mockKleurColorizer,
+  hidden: mockKleurColorizer,
+  strikethrough: mockKleurColorizer,
+  reset: mockKleurColorizer,
+}
+
+verbaDecolorizerInternal = verbaDecolorizer
 
 export const getColorizer = (options?: NormalizeVerbaStringOptions) => (
   (options?.disableColors ?? false) ? verbaDecolorizer : verbaColorizer

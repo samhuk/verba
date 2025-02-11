@@ -1,6 +1,6 @@
 {
   "name": "verba",
-  "version": "2.7.3",
+  "version": "2.8.0",
   "description": "Node logging library",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -49,7 +49,7 @@
   },
   "dependencies": {
     "@types/columnify": "^1.5.1",
-    "colors": "^1.4.0",
+    "kleur": "^4.1.5",
     "columnify": "^1.6.0",
     "ora-classic": "^5.4.2",
     "safe-stable-stringify": "^2.4.3"
@@ -59,7 +59,7 @@
     "@types/node": "^18.8.3",
     "@typescript-eslint/eslint-plugin": "^5.40.0",
     "@typescript-eslint/parser": "^5.40.0",
-    "babel-jest": "^29.1.2",
+    "ts-jest": "^29.2.5",
     "cli-spinners": "^2.9.0",
     "eslint": "^8.25.0",
     "eslint-plugin-import": "^2.26.0",

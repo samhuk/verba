@@ -1,6 +1,7 @@
-import verba, { NestState, Outlet, OutletFilter, Verba } from '..'
 import { OutletToTransportHandlerFn, VerbaTransportEventHandlers } from './transport/types'
-import { Colors } from './verbaString/types'
+import verba, { NestState, Outlet, OutletFilter, Verba } from '..'
+
+import { VerbaColorizer } from './verbaString/types'
 
 type Env = {
   log: Verba,
@@ -90,7 +91,7 @@ const arrangeTestEnv = (): Env => {
 describe('verba', () => {
   test('basic', () => {
     // -- Arrange
-    const fn = (f: Colors) => `${f.red('foo')}`
+    const fn = (f: VerbaColorizer) => `${f.red('foo')}`
     const env = arrangeTestEnv()
 
     // -- Act

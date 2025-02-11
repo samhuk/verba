@@ -1,11 +1,34 @@
 {
   "configurations": [
     {
-      "name": "Unit Tests",
+      "name": "Unit test current file",
       "type": "node",
       "request": "launch",
-      "program": "node_modules/jest-cli/bin/jest.js",
-      "preLaunchTask": "unitTestsDebugPreLaunchTask"
+      "runtimeArgs": [
+        "--inspect-brk",
+        "${workspaceRoot}/node_modules/.bin/jest",
+        "--runInBand",
+        "jest.config.js",
+        "--runTestsByPath",
+        "${file}"
+      ],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "skipFiles": [
+        "${workspaceFolder}/../../node_modules/**/*",
+        "<node_internals>/**/*"
+      ],
+      "windows": {
+        "runtimeArgs": [
+          "--inspect-brk",
+          "${workspaceRoot}/node_modules/jest/bin/jest.js",
+          "--runInBand",
+          "jest.config.js",
+          "--runTestsByPath",
+          "${file}"
+        ],
+        "skipFiles": ["C:\\**\\node_modules\\**\\*", "<node_internals>/**/*"]
+      },
     },
     {
       "name": "Example (TTY)",
@@ -13,7 +36,7 @@
       "request": "launch",
       "program": "./build-examples/examples/app.js",
       "preLaunchTask": "exampleDebugPreLaunchTask",
-      "console":"integratedTerminal"
+      "console": "integratedTerminal"
     },
     {
       "name": "Example (non-TTY",
@@ -28,6 +51,6 @@
       "request": "launch",
       "program": "./build-examples/examples/error-app.js",
       "preLaunchTask": "exampleDebugPreLaunchTask"
-    },
+    }
   ]
 }

@@ -35,7 +35,7 @@ To only build the Typescript code that is published to npm, run `npm run build:d
 
 Jest is used for unit testing. To build and run the unit tests, run `npm run test:unit`.
 
-The unit tests can be debugged with Visual Studio Code by running the **Run Unit Tests** debug task.
+The unit tests can be debugged with Visual Studio Code by running the **Unit test current file** debug task.
 
 ## Examples
 

@@ -1,9 +1,9 @@
 module.exports = {
+  preset: 'ts-jest',
   testEnvironment: 'node',
-  rootDir: './build/test-unit',
-  transform: {
-    '\\.[jt]sx?$': ['babel-jest', { configFile: './jest.babelrc' }],
-  },
+  rootDir: './',
+  roots: ['src'],
+  transform: { '^.+.tsx?$': ['ts-jest'] },
   verbose: true,
   collectCoverage: true,
   coverageReporters: ['text', 'cobertura'],

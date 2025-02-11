@@ -1,20 +1,8 @@
-import colors from 'colors/safe'
+import { Color, Kleur } from 'kleur'
 
-type ExcludedColorsProps = 'disable'
-  | 'enable'
-  | 'enabled'
-  | 'setTheme'
-  | 'reset'
-  | 'strip'
-  | 'stripColors'
-  | 'zalgo'
-  | 'trap'
-  | 'america'
-  | 'random'
-  | 'zebra'
-  | 'rainbow'
+export type VerbaColor = Color
 
-export type Colors = Omit<typeof colors, ExcludedColorsProps>
+export type VerbaColorizer = Kleur
 
 export type NormalizeVerbaStringOptions = {
   /**
@@ -24,12 +12,12 @@ export type NormalizeVerbaStringOptions = {
 }
 
 /**
- * A string that can be formatted with the `colors` package.
+ * A string that can be formatted with the `kleur` package.
  */
-export type FancyString = (c: Colors) => string
+export type FancyString = (c: VerbaColorizer) => string
 
 /**
- * A string that can optionally be formatted (with the `colors` package).
+ * A string that can optionally be formatted (with the `kleur` package).
  * 
  * @example
  * 'foo bar'
@@ -42,4 +30,4 @@ export type VerbaString = string | FancyString | (string | FancyString)[]
  * The available string formats. Note that not all of these are widely supported,
  * such as italic, underline, etc.
  */
-export type StringFormat = keyof Colors
+export type StringFormat = keyof VerbaColorizer
