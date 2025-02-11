@@ -1,8 +1,8 @@
 import { BaseTransportOptions } from '../base/types'
 import { DispatchServiceBatchOptions } from '../util/dispatchService/types'
-import { WriteStream } from 'fs'
+import { VerbaWriteStream } from '../console/types'
 
-export type FileTransportOutFile = string | WriteStream
+export type FileTransportOutFile = string | VerbaWriteStream
 
 export type FileTransportOptions<
   TCode extends string | number | undefined = string | number | undefined,

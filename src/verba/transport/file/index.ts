@@ -2,14 +2,15 @@ import * as fs from 'fs'
 
 import { FileTransportOptions } from './types'
 import { VerbaTransport } from '../types'
+import { VerbaWriteStream } from '../console/types'
 import { baseTransport } from '../base'
 import { createDispatchService } from '../util/dispatchService'
 import { createStreamMessageQueue } from '../util/dispatchService/streamMessageQueue'
 
 const DEFAULT_OUTFILE = './log.txt'
 
-const closeStream = (stream: fs.WriteStream) => new Promise<void>((res, rej) => {
-  stream.close(err => {
+const closeStream = (stream: VerbaWriteStream) => new Promise<void>((res, rej) => {
+  stream.close?.(err => {
     if (err == null)
       res()
     else

@@ -1,7 +1,7 @@
 import { BaseTransportOptions } from '../base/types'
 import { DispatchServiceBatchOptions } from '../util/dispatchService/types'
 
-export type VerbaWriteStream = { write: (s: string, onComplete: (err: any) => void) => void }
+export type VerbaWriteStream = { write: (s: string, onComplete?: (err: any) => void) => void, close?: (onComplete?: (err: any) => void) => void }
 
 export type ConsoleTransportOptions<
   TCode extends string | number | undefined = string | number | undefined,

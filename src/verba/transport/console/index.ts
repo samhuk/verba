@@ -27,7 +27,7 @@ export const consoleTransport = <
   const stream = options?.stream ?? process.stdout
   const separator = options?.separator ?? '\n'
   const dispatchService = createDispatchService({
-    dispatch: s => process.stdout.write(s + separator),
+    dispatch: s => stream.write(s + separator),
     batchOptions: options?.batchOptions,
     createQueue: () => createStreamMessageQueue(stream, separator),
   })
