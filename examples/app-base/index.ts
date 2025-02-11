@@ -33,14 +33,14 @@ export const app = async (jobs: string[]) => {
     log.header('Example App')
     // Test providing code inline
     log.step({ msg: 'Starting app.', code: 'INIT' })
-    // Test providing data, and colors
+    // Test providing data, colors, and array-type log messages.
     log.info({
-      msg: f => `Cache health: ${f.green('OK')}`,
+      msg: [f => `Cache health: ${f.green('OK')}`, f => `${f.grey(' (<100ms)')}`],
       data: { verbose: false },
     })
-    // Test verbose mode
+    // Test verbose mode (shouldn't show)
     log.info({
-      msg: f => `Cache health: ${f.green('OK')}`,
+      msg: [f => `Cache health: ${f.green('OK')}`, f => `${f.cyan('.')}`],
       data: { verbose: true },
     })
 

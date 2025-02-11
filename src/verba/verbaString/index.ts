@@ -36,18 +36,18 @@ export const getColorizer = (options?: NormalizeVerbaStringOptions) => (
 )
 
 /**
- * Normalizes the given `VerbaString` `s` to a `string`.
+ * Normalizes the given `VerbaString` `str` to a `string`.
  */
-export const normalizeVerbaString = (s: VerbaString, options?: NormalizeVerbaStringOptions): string => {
-  const _colorizer = getColorizer(options)
+export const normalizeVerbaString = (str: VerbaString, options?: NormalizeVerbaStringOptions): string => {
+  const colorizer = getColorizer(options)
 
-  switch (typeof s) {
+  switch (typeof str) {
     case 'function':
-      return s(_colorizer)
+      return str(colorizer)
     case 'string':
-      return s
+      return str
     default:
-      return s.map(_s => (typeof _s === 'string' ? _s : _s(_colorizer))).join('')
+      return str.map(s => (typeof s === 'string' ? s : s(colorizer))).join('')
   }
 }
 
@@ -57,15 +57,16 @@ export const normalizeVerbaString = (s: VerbaString, options?: NormalizeVerbaStr
  * This is a performance-optimized `normalizeVerbaString` that bakes-in the colorizer.
  */
 export const createVerbaStringNormalizer = (options?: NormalizeVerbaStringOptions) => {
-  const _colorizer = getColorizer(options)
-  return (s: VerbaString) => {
-    switch (typeof s) {
+  const colorizer = getColorizer(options)
+
+  return (str: VerbaString) => {
+    switch (typeof str) {
       case 'function':
-        return s(_colorizer)
+        return str(colorizer)
       case 'string':
-        return s
+        return str
       default:
-        return s.map(_s => (typeof _s === 'string' ? _s : _s(_colorizer))).join('')
+        return str.map(s => (typeof s === 'string' ? s : s(colorizer))).join('')
     }
   }
 }
