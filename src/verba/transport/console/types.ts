@@ -1,5 +1,7 @@
 import { BaseTransportOptions } from '../base/types'
-import { DispatchServiceBatchOptions } from '../util/dispatchService/base/types'
+import { DispatchServiceBatchOptions } from '../util/dispatchService/types'
+
+export type VerbaWriteStream = { write: (s: string, onComplete: (err: any) => void) => void }
 
 export type ConsoleTransportOptions<
   TCode extends string | number | undefined = string | number | undefined,
@@ -31,4 +33,19 @@ export type ConsoleTransportOptions<
    * @default undefined // No batching
    */
   batchOptions?: DispatchServiceBatchOptions
+  /**
+   * The write stream to use to write log messages to.
+   * 
+   * @default process.stdout
+   */
+  stream?: VerbaWriteStream
+  /**
+   * The separator between log messages.
+   * 
+   * This can be useful to override if you wish to use `console.log` instead of `process.stdout`, where the former
+   * appends `'\n'`, but the latter does not.
+   * 
+   * @default '\n'
+   */
+  separator?: string
 }

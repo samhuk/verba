@@ -1,7 +1,8 @@
 import { ConsoleTransportOptions } from './types'
 import { VerbaTransport } from '../types'
 import { baseTransport } from '../base'
-import { createConsoleDispatchService } from '../util/dispatchService/console'
+import { createDispatchService } from '../util/dispatchService'
+import { createStreamMessageQueue } from '../util/dispatchService/streamMessageQueue'
 
 const isAnyBatchingBehaviorSpecified = (options: ConsoleTransportOptions<any> | undefined) => (
   options?.batchOptions?.interval != null || options?.batchOptions?.size != null
@@ -23,11 +24,16 @@ export const consoleTransport = <
 >(
   options?: ConsoleTransportOptions<TCode, TData>,
 ): VerbaTransport<TCode, TData> =>{
-  const dispatchService = createConsoleDispatchService({
+  const stream = options?.stream ?? process.stdout
+  const separator = options?.separator ?? '\n'
+  const dispatchService = createDispatchService({
+    dispatch: s => process.stdout.write(s + separator),
     batchOptions: options?.batchOptions,
+    createQueue: () => createStreamMessageQueue(stream, separator),
   })
+
   return baseTransport({
-    isTty: process.stdout.isTTY && !isAnyBatchingBehaviorSpecified(options),
+    isTty: (process?.stdout?.isTTY ?? false) && !isAnyBatchingBehaviorSpecified(options),
     dispatch: dispatchService.dispatch,
     onClose: dispatchService.destroy,
     disableColors: options?.disableColors ?? false,

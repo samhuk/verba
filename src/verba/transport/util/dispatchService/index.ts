@@ -1,5 +1,6 @@
-import { onUnexpectedExit } from '../../../../util/process'
 import { DispatchService, DispatchServiceOptions } from './types'
+
+import { onUnexpectedExit } from '../../../util/process'
 
 export const createDispatchService = (options: DispatchServiceOptions): DispatchService => {
   // If no batch interval or size, then return simple instantaneous stream writer

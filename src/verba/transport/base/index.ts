@@ -98,7 +98,7 @@ export const baseTransport = <
       table,
       json: (value, _options) => dispatch(renderJson(value, _options.pretty)),
       spacer: _options => dispatch(repeatStr('\n', _options.numLines - 1)),
-      divider: () => dispatch(repeatStr('-', process.stdout.columns * 0.33)),
+      divider: () => dispatch(repeatStr('-', (process?.stdout?.columns ?? 120) * 0.33)),
       spinner,
       progressBar,
     }

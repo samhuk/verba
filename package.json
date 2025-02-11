@@ -1,6 +1,6 @@
 {
   "name": "verba",
-  "version": "2.8.0",
+  "version": "2.8.1",
   "description": "Node logging library",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -9,10 +9,7 @@
   ],
   "scripts": {
     "----------------------- TEST -----------------------": "",
-    "clean:test:unit": "rimraf ./build/test-unit",
-    "build:test:unit": "tsc -p ./tsconfig.unit-tests.json",
-    "test:unit:run": "jest",
-    "test:unit": "npm run clean:test:unit && npm run build:test:unit && npm run test:unit:run",
+    "test:unit": "jest",
     "test": "npm run test:unit",
     "----------------------- LINT -----------------------": "",
     "lint:errors": "eslint -c .eslintrc.json ./src --ext .ts --quiet",

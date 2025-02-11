@@ -1,7 +1,21 @@
+import * as fs from 'fs'
+
 import { FileTransportOptions } from './types'
 import { VerbaTransport } from '../types'
 import { baseTransport } from '../base'
-import { createFileDispatchService } from '../util/dispatchService/file'
+import { createDispatchService } from '../util/dispatchService'
+import { createStreamMessageQueue } from '../util/dispatchService/streamMessageQueue'
+
+const DEFAULT_OUTFILE = './log.txt'
+
+const closeStream = (stream: fs.WriteStream) => new Promise<void>((res, rej) => {
+  stream.close(err => {
+    if (err == null)
+      res()
+    else
+      rej(err)
+  })
+})
 
 /**
  * A Verba Transport for outputting to a file.
@@ -21,7 +35,16 @@ export const fileTransport = <
 >(
   options?: FileTransportOptions<TCode, TData>,
 ): VerbaTransport<TCode, TData> => {
-  const dispatchService = createFileDispatchService(options)
+  const outfile = options?.outFile ?? DEFAULT_OUTFILE
+  const stream = typeof outfile === 'string' ? fs.createWriteStream(outfile, { flags : 'w' }) : outfile
+  const separator = options?.separator ?? '\n'
+  const dispatchService = createDispatchService({
+    dispatch: s => stream.write(s + separator),
+    destroy: () => closeStream(stream),
+    batchOptions: options?.batchOptions,
+    createQueue: () => createStreamMessageQueue(stream, separator),
+  })
+
   return baseTransport({
     isTty: false,
     onClose: dispatchService.destroy,
