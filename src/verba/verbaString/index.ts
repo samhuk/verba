@@ -137,5 +137,5 @@ export const createStringFormatter = (formats: StringFormat[], options?: Normali
  */
 export const isVerbaString = (value: unknown): value is VerbaString => {
   const typeOfV = typeof value
-  return typeOfV === 'string' || typeOfV === 'function' || Array.isArray(typeOfV)
+  return typeOfV === 'string' || typeOfV === 'function' || Array.isArray(value)
 }
