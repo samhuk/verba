@@ -4,7 +4,6 @@
  *
  * E.g. `import { createPackageName, PackageNameOptions } from 'npm-package-name`
  */
-// -- Imports (for exporting later)
 import { verba } from './verba'
 
 // -- Exports
@@ -21,10 +20,11 @@ export {
   verbaColorizer,
   verbaDecolorizer,
 } from './verba/verbaString/index'
-export { Outlet } from './verba/outlet/types'
+export type { Outlet } from './verba/outlet/types'
 // Built-in Aliases
 export * from './verba/alias'
+// Types
+export type * from './types'
 // Default
 export default verba
-// Types
-export * from './types'
+export { verba }

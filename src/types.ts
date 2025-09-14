@@ -8,4 +8,4 @@
 export type { Verba, VerbaOptions, NestState } from './verba/types'
 export type { VerbaTransport, InstantiatedVerbaTransport, NestedInstantiatedVerbaTransport } from './verba/transport/types'
 export type { OutletFilter, OutletFilterOptions } from './verba/outletFilter/types'
-export type { VerbaString } from './verba/verbaString/types'
+export type { VerbaString, FancyString, StringFormat } from './verba/verbaString/types'

@@ -3,7 +3,7 @@
   "include": ["./src/**/*"],
 	"compilerOptions": {
     "module": "CommonJS",
-    "target": "es6",
+    "target": "es2024",
     "moduleResolution": "node",
     "allowJs": false,
 		"noEmit": true,
