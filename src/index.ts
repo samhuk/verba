@@ -20,7 +20,7 @@ export {
   verbaColorizer,
   verbaDecolorizer,
 } from './verba/verbaString/index'
-export type { Outlet } from './verba/outlet/types'
+export { Outlet } from './verba/outlet/types'
 // Built-in Aliases
 export * from './verba/alias'
 // Types
